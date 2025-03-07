@@ -9,6 +9,7 @@ describe.each([
   ...dataProviderForAliasedSingleSeveralArguments(),
   ...dataProviderForNamedMultipleArguments(),
   ...dataProviderForAliasedMultipleArguments(),
+  ...dataProviderForValidatedArguments(),
 ])(
   'Success Test',
   (config, argsString, expected) => {
@@ -1429,6 +1430,53 @@ function dataProviderForAliasedMultipleArguments(): [ArgConfig[], string, Record
       '-f true 0 false 1 a',
       {
         'my-first-argument': [true, false, false, true, true],
+      },
+    ],
+  ];
+}
+
+function dataProviderForValidatedArguments(): [ArgConfig[], string, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          validator: (x) => String(x).length > 2,
+        },
+      ],
+      '--my-first-argument 123',
+      {
+        'my-first-argument': '123',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          validator: (x) => Number(x) > 2,
+        },
+      ],
+      '--my-first-argument 3',
+      {
+        'my-first-argument': 3,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          validator: (x) => Boolean(x),
+        },
+      ],
+      '--my-first-argument 3',
+      {
+        'my-first-argument': true,
       },
     ],
   ];
