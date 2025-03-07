@@ -36,12 +36,12 @@ it('', async () => {
     'my-third-argument': [1, 2, 3],
   });
 
-  const myFirstArgument = parsedArgs.get<string | undefined>('--my-first-argument');
+  const myFirstArgument = parsedArgs.get<string>('--my-first-argument');
   expect(myFirstArgument).toEqual('test');
 
-  const mySecondArgument = parsedArgs.get<string | undefined>('--my-second-argument');
+  const mySecondArgument = parsedArgs.get<string>('--my-second-argument');
   expect(mySecondArgument).toEqual(true);
 
-  const myThirdArgument = parsedArgs.get<string | undefined>('--my-third-argument');
+  const myThirdArgument = parsedArgs.get<string>('--my-third-argument');
   expect(myThirdArgument).toEqual([1, 2, 3]);
 });

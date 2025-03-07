@@ -62,13 +62,13 @@ console.log(parsedArgs.all);
 }
 */
 
-const myFirstArgument = parsedArgs.get<string | undefined>('--my-first-argument');
+const myFirstArgument = parsedArgs.get<string>('--my-first-argument');
 console.log(myFirstArgument); // 'test'
 
-const mySecondArgument = parsedArgs.get<string | undefined>('--my-second-argument');
+const mySecondArgument = parsedArgs.get<string>('--my-second-argument');
 console.log(mySecondArgument); // true
 
-const myThirdArgument = parsedArgs.get<string | undefined>('--my-third-argument');
+const myThirdArgument = parsedArgs.get<string>('--my-third-argument');
 console.log(myThirdArgument); // [1, 2, 3]
 ```
 
