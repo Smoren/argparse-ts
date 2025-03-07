@@ -37,8 +37,12 @@
   ],
   "keywords": [
     "cli",
+    "command-line",
     "parser",
     "argparse",
+    "argparser",
+    "argsparse",
+    "argsparser",
     "option",
     "args",
     "command",
