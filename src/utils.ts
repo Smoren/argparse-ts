@@ -14,10 +14,14 @@ import type { ArgType } from "./types";
 export function castArgValue(value: string, type: ArgType, multiple: boolean, defaultValue?: unknown): unknown {
   if (multiple) {
     const result = value.split(' ').filter((x) => x !== '').map((x) => castArgValue(x, type, false));
-    return result.length > 0 ? result : defaultValue;
+    return result.length > 0 ? result : (defaultValue ?? []);
   }
 
   const _value = value !== '' ? value : (defaultValue ?? value);
+
+  if (_value === undefined) {
+    return _value;
+  }
 
   switch (type) {
     case 'string': return _value;
@@ -49,7 +53,8 @@ export function parseArgsString(argsString: string): Record<string, string> {
 function parseArgsArray(args: string[]): [string, string][] {
   return args
     .map((x) => x.split(/ (.+)/).slice(0, 2))
-    .map((x) => x.length === 1 ? [x[0], ''] : x) as [string, string][];
+    .map((x) => x.length === 1 ? [x[0], ''] : x)
+    .filter((x) => x[0] !== '') as [string, string][];
 }
 
 /**

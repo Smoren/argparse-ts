@@ -1,4 +1,4 @@
-import { it } from "@jest/globals";
+import { it, expect } from "@jest/globals";
 import { ArgsParser } from "../../src";
 
 it('', async () => {
