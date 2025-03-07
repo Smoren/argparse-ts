@@ -36,16 +36,15 @@
     "tests"
   ],
   "keywords": [
-    "genetic algorithm",
-    "genetic-algorithm",
-    "algorithm",
-    "evolutionary-programming",
-    "genetic",
-    "heuristic",
-    "heuristic-search",
-    "search-algorithm",
-    "machine-learning",
-    "multiprocessing"
+    "cli",
+    "parser",
+    "argparse",
+    "option",
+    "args",
+    "command",
+    "arguments",
+    "node",
+    "typescipt"
   ],
   "devDependencies": {
     "@borderless/ts-scripts": "^0.13.6",
