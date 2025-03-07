@@ -16,7 +16,6 @@ it('', async () => {
       name: '--my-second-argument',
       alias: '-2',
       type: 'boolean',
-      required: true,
       default: false,
     },
     {

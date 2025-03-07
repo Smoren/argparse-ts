@@ -22,7 +22,55 @@ npm i argparse-ts
 Usage example
 -------------
 
-Under construction
+```typescript
+import { ArgsParser } from "argparse-ts";
+
+const parser = new ArgsParser([
+  {
+    name: '--my-first-argument',
+    alias: '-1',
+    type: 'string',
+    required: true,
+    notEmpty: true,
+    allowedValues: ['test', 'dev', 'prod'],
+    validator: (x: unknown) => String(x).length > 2,
+  },
+  {
+    name: '--my-second-argument',
+    alias: '-2',
+    type: 'boolean',
+    default: false,
+  },
+  {
+    name: '--my-third-argument',
+    alias: '-3',
+    type: 'number',
+    multiple: true,
+    default: [0, 1],
+  },
+]);
+
+const argsString = '--my-first-argument test -2 --my-third-argument 1 2 3';
+const parsedArgs = parser.parse(argsString);
+
+console.log(parsedArgs.all);
+/*
+{
+  'my-first-argument': 'test',
+  'my-second-argument': true,
+  'my-third-argument': [1, 2, 3],
+}
+*/
+
+const myFirstArgument = parsedArgs.get<string | undefined>('--my-first-argument');
+console.log(myFirstArgument); // 'test'
+
+const mySecondArgument = parsedArgs.get<string | undefined>('--my-second-argument');
+console.log(mySecondArgument); // true
+
+const myThirdArgument = parsedArgs.get<string | undefined>('--my-third-argument');
+console.log(myThirdArgument); // [1, 2, 3]
+```
 
 Api Reference
 -------------
