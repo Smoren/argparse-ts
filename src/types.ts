@@ -1,10 +1,14 @@
 /**
  * Represents the type of argument.
+ *
+ * @category Types
  */
 export type ArgType = 'string' | 'number' | 'boolean';
 
 /**
  * Configuration for an argument.
+ *
+ * @category Types
  */
 export type ArgConfig = {
   /**
@@ -51,6 +55,8 @@ export type ArgConfig = {
 
 /**
  * A formatted configuration for an argument, with required fields made explicit.
+ *
+ * @category Types
  */
 export type FormattedArgConfig = ArgConfig & {
   required: boolean;
@@ -60,6 +66,8 @@ export type FormattedArgConfig = ArgConfig & {
 
 /**
  * Interface for a collection of parsed arguments.
+ *
+ * @category Interfaces
  */
 export interface ParsedArgumentsCollectionInterface {
   /**
@@ -89,6 +97,8 @@ export interface ParsedArgumentsCollectionInterface {
 
 /**
  * Interface for an argument parser.
+ *
+ * @category Interfaces
  */
 export interface ArgsParserInterface {
   /**

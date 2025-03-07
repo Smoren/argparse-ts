@@ -8,6 +8,8 @@ import type { ArgType } from "./types";
  * @param multiple Whether the value is a multiple value.
  * @param defaultValue The default value if the value is empty.
  * @returns The cast value.
+ *
+ * @category Utils
  */
 export function castArgValue(value: string, type: ArgType, multiple: boolean, defaultValue?: unknown): unknown {
   if (multiple) {
@@ -29,6 +31,8 @@ export function castArgValue(value: string, type: ArgType, multiple: boolean, de
  *
  * @param argsString The string arguments.
  * @returns The parsed plain object.
+ *
+ * @category Utils
  */
 export function parseArgsString(argsString: string): Record<string, string> {
   return Object.fromEntries(parseArgsArray(splitArgsString(formatArgsString(argsString))));
@@ -39,6 +43,8 @@ export function parseArgsString(argsString: string): Record<string, string> {
  *
  * @param args The array of string arguments.
  * @returns The parsed array of tuples.
+ *
+ * @category Utils
  */
 function parseArgsArray(args: string[]): [string, string][] {
   return args
@@ -51,6 +57,8 @@ function parseArgsArray(args: string[]): [string, string][] {
  *
  * @param argsString The string arguments.
  * @returns The split array of strings.
+ *
+ * @category Utils
  */
 function splitArgsString(argsString: string): string[] {
   return argsString.split(' -').map((x, i) => i === 0 ? x : `-${x}`);
@@ -61,6 +69,8 @@ function splitArgsString(argsString: string): string[] {
  *
  * @param argsString The string arguments.
  * @returns The formatted string.
+ *
+ * @category Utils
  */
 function formatArgsString(argsString: string): string {
   return argsString
@@ -77,6 +87,8 @@ function formatArgsString(argsString: string): string {
  *
  * @param gluedArgsString The glued arguments string.
  * @returns The formatted string.
+ *
+ * @category Utils
  */
 function formatGluedArgsString(gluedArgsString: string): string {
   return gluedArgsString.slice(1).split('').map((x) => `-${x}`).join(' ');

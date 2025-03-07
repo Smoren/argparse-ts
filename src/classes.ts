@@ -4,6 +4,8 @@ import { castArgValue, parseArgsString } from "./utils";
 
 /**
  * A collection of parsed arguments.
+ *
+ * @category Classes
  */
 export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInterface {
   private readonly args: Record<string, unknown> = {};
@@ -56,6 +58,8 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
 
 /**
  * Parser for command-line arguments.
+ *
+ * @category Classes
  */
 export class ArgsParser implements ArgsParserInterface {
   private readonly argsMap: Map<string, FormattedArgConfig> = new Map();
