@@ -10,7 +10,7 @@
 Overview
 --------
 
-CLI arguments parser for node.js (TypeScript / JavaScript).
+Modern CLI arguments parser for node.js (TypeScript / JavaScript).
 
 Setup
 -----

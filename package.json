@@ -1,7 +1,7 @@
 {
   "name": "argparse-ts",
   "version": "0.2.0",
-  "description": "Multiprocessing genetic algorithm implementation library",
+  "description": "Modern CLI arguments parser for node.js",
   "license": "MIT",
   "repository": {
     "type": "git",
