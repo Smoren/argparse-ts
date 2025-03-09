@@ -102,6 +102,10 @@ export interface ParsedArgumentsCollectionInterface {
  */
 export interface ArgsParserInterface {
   /**
+   * The help message for the arguments.
+   */
+  readonly help: string;
+  /**
    * Adds an argument configuration to the parser.
    * @param config - The argument configuration.
    * @returns The updated parser.

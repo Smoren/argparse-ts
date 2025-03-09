@@ -6,6 +6,7 @@ it('', async () => {
     {
       name: '--my-first-argument',
       alias: '-1',
+      description: "My first argument",
       type: 'string',
       required: true,
       notEmpty: true,
@@ -15,17 +16,21 @@ it('', async () => {
     {
       name: '--my-second-argument',
       alias: '-2',
+      description: "My second argument",
       type: 'boolean',
       default: false,
     },
     {
       name: '--my-third-argument',
       alias: '-3',
+      description: "My third argument",
       type: 'number',
       multiple: true,
       default: [0, 1],
     },
   ]);
+
+  console.log(parser.help);
 
   const argsString = '--my-first-argument test -2 --my-third-argument 1 2 3';
   const parsedArgs = parser.parse(argsString);
