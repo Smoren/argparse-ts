@@ -74,15 +74,19 @@ it('', async () => {
     expect(value).toEqual(123);
   }
   {
-    const value = parsedArgs.get<string>('--optional-first');
+    const value = parsedArgs.get<string | undefined>('--optional-first');
     expect(value).toEqual('test');
   }
   {
-    const value = parsedArgs.get<string>('--optional-second');
+    const value = parsedArgs.get<boolean>('--optional-second');
     expect(value).toEqual(true);
   }
   {
-    const value = parsedArgs.get<string>('--optional-third');
+    const value = parsedArgs.get<number[]>('--optional-third');
     expect(value).toEqual([1, 2, 3]);
+  }
+  {
+    const value = parsedArgs.get<boolean>('--optional-const');
+    expect(value).toEqual(true);
   }
 });

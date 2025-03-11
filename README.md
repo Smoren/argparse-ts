@@ -27,49 +27,127 @@ import { ArgsParser } from "argparse-ts";
 
 const parser = new ArgsParser([
   {
-    name: '--my-first-argument',
-    alias: '-1',
+    name: 'positional-first',
+    description: "My first positional argument",
     type: 'string',
-    required: true,
-    notEmpty: true,
-    allowedValues: ['test', 'dev', 'prod'],
+    choices: ['test', 'dev', 'prod'],
+  },
+  {
+    name: 'positional-second',
+    description: "My first positional argument",
+    type: 'number',
+  },
+  {
+    name: '--optional-first',
+    alias: '-1',
+    description: "My first optional argument",
+    type: 'string',
+    nargs: '?',
+    choices: ['test', 'dev', 'prod'],
     validator: (x: unknown) => String(x).length > 2,
   },
   {
-    name: '--my-second-argument',
+    name: '--optional-second',
     alias: '-2',
+    description: "My second optional argument",
     type: 'boolean',
     default: false,
   },
   {
-    name: '--my-third-argument',
+    name: '--optional-third',
     alias: '-3',
+    description: "My third optional argument",
     type: 'number',
-    multiple: true,
+    nargs: '*',
     default: [0, 1],
+  },
+  {
+    name: '--optional-const',
+    alias: '-c',
+    description: "My const optional argument",
+    type: 'boolean',
+    const: true,
+    default: false,
   },
 ]);
 
-const argsString = '--my-first-argument test -2 --my-third-argument 1 2 3';
+console.log(parser.help);
+/*
+Positional arguments:
+
+    positional-first <string>   My first positional argument
+                                Type: string (not empty)
+                                Allowed values: test, dev, prod
+
+    positional-second <number>  My first positional argument
+                                Type: number (not empty)
+
+Optional arguments:
+
+    -1 <string>, --optional-first <string>
+                                My first optional argument
+                                Type: string
+                                Allowed values: test, dev, prod
+
+    -2, --optional-second       My second optional argument
+                                Type: boolean
+                                Default value: false
+
+    -3 <number> <number> ..., --optional-third <number> <number> ...
+                                My third optional argument
+                                Type: Array<number>
+                                Default value: [0,1]
+
+    -c, --optional-const        My const optional argument
+                                Type: boolean
+                                Default value: false
+*/
+
+const argsString = 'dev 123 --optional-first test -2 --optional-third 1 2 3 --optional-const';
 const parsedArgs = parser.parse(argsString);
 
-console.log(parsedArgs.all);
+console.log(parsedArgs.positional);
 /*
 {
-  'my-first-argument': 'test',
-  'my-second-argument': true,
-  'my-third-argument': [1, 2, 3],
+  'positional-first': 'dev',
+  'positional-second': 123,
 }
 */
 
-const myFirstArgument = parsedArgs.get<string>('--my-first-argument');
-console.log(myFirstArgument); // 'test'
+console.log(parsedArgs.optional);
+/*
+{
+  'optional-first': 'test',
+  'optional-second': true,
+  'optional-third': [1, 2, 3],
+  'optional-const': true,
+}
+*/
 
-const mySecondArgument = parsedArgs.get<string>('--my-second-argument');
-console.log(mySecondArgument); // true
-
-const myThirdArgument = parsedArgs.get<string>('--my-third-argument');
-console.log(myThirdArgument); // [1, 2, 3]
+{
+  const value = parsedArgs.get<string>('positional-first');
+  console.log(value); // 'dev'
+}
+{
+  const value = parsedArgs.get<string>('positional-second');
+  console.log(value); // 123
+}
+{
+  const value = parsedArgs.get<string | undefined>('--optional-first');
+  console.log(value); // 'test'
+}
+{
+  const value = parsedArgs.get<boolean>('--optional-second');
+  console.log(value); // true
+}
+{
+  const value = parsedArgs.get<number[]>('--optional-third');
+  console.log(value); // [1, 2, 3]
+}
+{
+  const value = parsedArgs.get<boolean>('--optional-const');
+  console.log(value); // true
+}
 ```
 
 Api Reference
