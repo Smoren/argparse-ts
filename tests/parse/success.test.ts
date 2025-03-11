@@ -16,7 +16,7 @@ describe.each([
     it('', () => {
       const parser = new ArgsParser(config);
       const parsedArgs = parser.parse(argsString);
-      expect(parsedArgs.all).toEqual(expected);
+      expect(parsedArgs.optional).toEqual(expected);
     });
   },
 );

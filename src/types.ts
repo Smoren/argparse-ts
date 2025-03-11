@@ -7,6 +7,12 @@ export type ArgType = 'string' | 'number' | 'boolean';
 
 export type NArgs = number | '?' | '*' | '+';
 
+export type NArgsConfig = {
+  multiple: boolean;
+  allowEmpty: boolean;
+  count?: number;
+}
+
 /**
  * Configuration for an argument.
  *
@@ -38,6 +44,10 @@ export type ArgConfig = {
    */
   default?: unknown;
   /**
+   * A constant value for the argument.
+   */
+  const?: unknown;
+  /**
    * Allowed values for the argument.
    */
   choices?: unknown[];
@@ -54,9 +64,13 @@ export type ArgConfig = {
  */
 export interface ParsedArgumentsCollectionInterface {
   /**
-   * All parsed arguments as a record.
+   * All positional arguments as a record.
    */
-  readonly all: Record<string, unknown>;
+  readonly positional: Record<string, unknown>;
+  /**
+   * All optional arguments as a record.
+   */
+  readonly optional: Record<string, unknown>;
   /**
    * Adds an argument to the collection.
    * @param name - The name of the argument.
