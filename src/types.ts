@@ -5,11 +5,34 @@
  */
 export type ArgType = 'string' | 'number' | 'boolean';
 
+/**
+ * The type of nargs. It can be a number, or one of the following symbols:
+ * - `?`: The argument is optional.
+ * - `*`: The argument is optional and can appear multiple times.
+ * - `+`: The argument is required and can appear multiple times.
+ *
+ * @category Types
+ */
 export type NArgs = number | '?' | '*' | '+';
 
+/**
+ * The configuration for nargs.
+ *
+ * @category Types
+ */
 export type NArgsConfig = {
+  /**
+   * If the argument is multiple.
+   */
   multiple: boolean;
+  /**
+   * If the argument is allowed to be empty.
+   */
   allowEmpty: boolean;
+  /**
+   * The number of times the argument is allowed to appear.
+   * If not defined, it means the argument can appear any number of times.
+   */
   count?: number;
 }
 

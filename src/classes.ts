@@ -1,8 +1,8 @@
 import type { ArgConfig, ArgsParserInterface, NArgsConfig, ParsedArgumentsCollectionInterface } from "./types";
 import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
 import { buildNArgsConfig, castArgValue, validateCastedArgValue } from "./utils/utils";
-import { parseArgsString } from "./utils/parse";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
+import { parseArgsString } from "./utils/parse";
 
 /**
  * A collection of parsed arguments.
@@ -10,7 +10,14 @@ import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
  * @category Classes
  */
 export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInterface {
+  /**
+   * A collection of parsed positional arguments.
+   */
   private readonly positionalArgs: Record<string, unknown> = {};
+
+  /**
+   * A collection of parsed optional arguments.
+   */
   private readonly optionalArgs: Record<string, unknown> = {};
 
   /**
@@ -100,8 +107,19 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
  * @category Classes
  */
 export class ArgsParser implements ArgsParserInterface {
+  /**
+   * Maps argument names to their configuration.
+   */
   private readonly argsMap: Map<string, ArgConfig> = new Map();
+
+  /**
+   * Maps argument aliases to their corresponding names.
+   */
   private readonly aliasMap: Map<string, string> = new Map();
+
+  /**
+   * Tracks used argument names and aliases to prevent duplicates.
+   */
   private readonly usedArgs: Set<string> = new Set();
 
   /**
@@ -277,14 +295,27 @@ export class ArgsParser implements ArgsParserInterface {
     return config;
   }
 
+  /**
+   * Retrieves the positional arguments.
+   * @returns An array of positional argument configurations.
+   */
   private getPositionalArguments(): ArgConfig[] {
     return [...this.argsMap.values()].filter((x) => !this.isOptional(x));
   }
 
+  /**
+   * Retrieves the optional arguments.
+   * @returns An array of optional argument configurations.
+   */
   private getOptionalArguments(): ArgConfig[] {
     return [...this.argsMap.values()].filter((x) => this.isOptional(x));
   }
 
+  /**
+   * Checks if an argument is optional.
+   * @param config - The argument configuration.
+   * @returns True if the argument is optional, otherwise false.
+   */
   private isOptional(config: ArgConfig): boolean {
     return config.name.startsWith('--');
   }

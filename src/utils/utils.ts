@@ -1,6 +1,19 @@
 import type { ArgConfig, NArgs, NArgsConfig } from "../types";
 import { ArgumentValueError } from "../exceptions";
 
+/**
+ * Casts the given value to the type of the argument configuration.
+ *
+ * @param value - The value to cast.
+ * @param argConfig - The argument configuration.
+ * @param nargsConfig - The nargs configuration.
+ * @param isset - Whether the argument is set. Defaults to true.
+ * @param recursive - Whether this is a recursive call. Defaults to false.
+ *
+ * @returns The casted value.
+ *
+ * @category Utils
+ */
 export function castArgValue(
   value: string,
   argConfig: ArgConfig,
@@ -38,6 +51,19 @@ export function castArgValue(
   }
 }
 
+/**
+ * Validates the casted argument value.
+ *
+ * @param value - The casted argument value.
+ * @param argConfig - The argument configuration.
+ * @param nargsConfig - The nargs configuration.
+ *
+ * @returns The validated value.
+ *
+ * @throws ArgumentValueError if the value is invalid.
+ *
+ * @category Utils
+ */
 export function validateCastedArgValue<T>(value: T, argConfig: ArgConfig, nargsConfig: NArgsConfig): T {
   if (argConfig.choices !== undefined) {
     if (!nargsConfig.multiple && !argConfig.choices.includes(value)) {
@@ -58,10 +84,28 @@ export function validateCastedArgValue<T>(value: T, argConfig: ArgConfig, nargsC
   return value;
 }
 
+/**
+ * Formats the argument name with alias.
+ *
+ * @param argConfig - The argument configuration.
+ *
+ * @returns The formatted argument name.
+ *
+ * @category Utils
+ */
 export function formatArgNameWithAlias(argConfig: ArgConfig): string {
   return `${argConfig.name}${argConfig.alias ? ` (${argConfig.alias})` : ''}`;
 }
 
+/**
+ * Builds the NArgs configuration from an argument configuration.
+ *
+ * @param argConfig - The argument configuration.
+ *
+ * @returns The NArgs configuration.
+ *
+ * @category Utils
+ */
 export function buildNArgsConfig(argConfig: ArgConfig): NArgsConfig {
   const multiple = argConfig.nargs === '*' || argConfig.nargs === '+' || typeof argConfig.nargs === 'number';
   const allowEmpty = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.default !== undefined;
