@@ -33,6 +33,21 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
     [
       [
         {
+          name: 'my-first-argument',
+          type: 'string',
+          default: 'test',
+          nargs: '?',
+        },
+      ],
+      '',
+      {
+        'my-first-argument': 'test',
+      },
+      {},
+    ],
+    [
+      [
+        {
           name: '--my-first-argument',
           type: 'string',
           default: 'test',

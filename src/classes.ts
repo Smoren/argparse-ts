@@ -196,7 +196,7 @@ export class ArgsParser implements ArgsParserInterface {
         ? parsedPositional.join(' ')
         : parsedPositional.pop() ?? '';
 
-      const castedValue = castArgValue(value, argConfig, nargsConfig);
+      const castedValue = castArgValue(value, argConfig, nargsConfig, value.length > 0);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
     }
 
