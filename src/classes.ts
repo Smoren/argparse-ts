@@ -247,6 +247,10 @@ export class ArgsParser implements ArgsParserInterface {
    * @throws AddArgumentError if the configuration is invalid.
    */
   private checkArgumentConfig(config: ArgConfig) {
+    if (config.name.startsWith('-') && !config.name.startsWith('--')) {
+      throw new AddArgumentError(`Argument name ${config.name} is invalid.`);
+    }
+
     if (this.usedArgs.has(config.name)) {
       throw new AddArgumentError(`Argument ${config.name} already exists.`);
     }
