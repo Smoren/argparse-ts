@@ -251,6 +251,10 @@ export class ArgsParser implements ArgsParserInterface {
       throw new AddArgumentError(`Argument name ${config.name} is invalid.`);
     }
 
+    if (config.alias !== undefined && (!config.alias.startsWith('-') || config.alias.startsWith('--'))) {
+      throw new AddArgumentError(`Argument name ${config.name} is invalid.`);
+    }
+
     if (this.usedArgs.has(config.name)) {
       throw new AddArgumentError(`Argument ${config.name} already exists.`);
     }
