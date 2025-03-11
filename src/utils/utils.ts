@@ -8,11 +8,14 @@ export function castArgValue(
   isset: boolean = true,
   recursive: boolean = false,
 ): unknown {
+  const multiple = recursive ? false : nargsConfig.multiple;
+
   if (!isset) {
+    if (multiple) {
+      return argConfig.default ?? [];
+    }
     return argConfig.default;
   }
-
-  const multiple = recursive ? false : nargsConfig.multiple;
 
   if (multiple) {
     const result = value.split(' ')
@@ -31,7 +34,7 @@ export function castArgValue(
   switch (argConfig.type) {
     case 'string': return _value;
     case 'number': return Number(_value);
-    case 'boolean': return _value !== 'false' && _value !== '0';
+    case 'boolean': return typeof _value === 'boolean' ? _value : _value !== 'false' && _value !== '0';
   }
 }
 
@@ -59,9 +62,9 @@ export function formatArgNameWithAlias(argConfig: ArgConfig): string {
   return `${argConfig.name}${argConfig.alias ? ` (${argConfig.alias})` : ''}`;
 }
 
-export function buildNArgsConfig(nargs?: NArgs): NArgsConfig {
-  const multiple = nargs === '*' || nargs === '+' || typeof nargs === 'number';
-  const allowEmpty = nargs === '*' || nargs === '?';
-  const count = typeof nargs === 'number' ? nargs : undefined;
+export function buildNArgsConfig(argConfig: ArgConfig): NArgsConfig {
+  const multiple = argConfig.nargs === '*' || argConfig.nargs === '+' || typeof argConfig.nargs === 'number';
+  const allowEmpty = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.default !== undefined;
+  const count = typeof argConfig.nargs === 'number' ? argConfig.nargs : undefined;
   return { multiple, allowEmpty, count };
 }

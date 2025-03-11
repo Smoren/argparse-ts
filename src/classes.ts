@@ -123,13 +123,13 @@ export class ArgsParser implements ArgsParserInterface {
 
     const positionalArgsRows = [];
     for (const arg of positionalArgs) {
-      const nargsConfig = buildNArgsConfig(arg.nargs);
+      const nargsConfig = buildNArgsConfig(arg);
       positionalArgsRows.push(...formatArgHelp(arg, nargsConfig));
     }
 
     const optionalArgsRows = [];
     for (const arg of optionalArgs) {
-      const nargsConfig = buildNArgsConfig(arg.nargs);
+      const nargsConfig = buildNArgsConfig(arg);
       optionalArgsRows.push(...formatArgHelp(arg, nargsConfig));
     }
 
@@ -189,7 +189,7 @@ export class ArgsParser implements ArgsParserInterface {
     const result = new ParsedArgumentsCollection();
 
     for (const argConfig of positionalArgs) {
-      const nargsConfig = buildNArgsConfig(argConfig.nargs);
+      const nargsConfig = buildNArgsConfig(argConfig);
       this.checkEnoughPositionalValues(parsedPositional, argConfig.name, nargsConfig);
 
       const value = nargsConfig.multiple
@@ -206,7 +206,7 @@ export class ArgsParser implements ArgsParserInterface {
 
     for (const [key, value] of Object.entries(parsedOptional)) {
       const argConfig = this.getArgConfig(key);
-      const nargsConfig = buildNArgsConfig(argConfig.nargs);
+      const nargsConfig = buildNArgsConfig(argConfig);
 
       const castedValue = castArgValue(value, argConfig, nargsConfig);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
@@ -215,7 +215,7 @@ export class ArgsParser implements ArgsParserInterface {
     }
 
     for (const argConfig of optionalArgs) {
-      const nargsConfig = buildNArgsConfig(argConfig.nargs);
+      const nargsConfig = buildNArgsConfig(argConfig);
       const castedValue = castArgValue('', argConfig, nargsConfig, false);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
     }

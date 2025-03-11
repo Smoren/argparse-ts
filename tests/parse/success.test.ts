@@ -3,7 +3,7 @@ import { ArgConfig, ArgsParser } from "../../src";
 
 describe.each([
   ...dataProviderForEmptyString(),
-  // ...dataProviderForNamedSingleArguments(),
+  ...dataProviderForSingleOptional(),
   // ...dataProviderForNamedSingleSeveralArguments(),
   // ...dataProviderForAliasedSingleArguments(),
   // ...dataProviderForAliasedSingleSeveralArguments(),
@@ -48,6 +48,35 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
     [
       [
         {
+          name: 'my-first-argument',
+          type: 'string',
+          default: ['test'],
+          nargs: '*',
+        },
+      ],
+      '',
+      {
+        'my-first-argument': ['test'],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'my-first-argument',
+          type: 'string',
+          nargs: '*',
+        },
+      ],
+      '',
+      {
+        'my-first-argument': [],
+      },
+      {},
+    ],
+    [
+      [
+        {
           name: '--my-first-argument',
           type: 'string',
           default: 'test',
@@ -76,6 +105,11 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
     [
       [
         {
+          name: 'my-first-positional-argument',
+          type: 'string',
+          default: 'default',
+        },
+        {
           name: '--my-first-argument',
           type: 'string',
           default: 'default',
@@ -83,7 +117,9 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
         },
       ],
       '',
-      {},
+      {
+        'my-first-positional-argument': 'default',
+      },
       {
         'my-first-argument': 'default',
       },
@@ -150,173 +186,227 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
   ];
 }
 
-// function dataProviderForNamedSingleArguments(): [ArgConfig[], string, Record<string, unknown>][] {
-//   return [
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': '',
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//         },
-//       ],
-//       '--my-first-argument value',
-//       {
-//         'my-first-argument': 'value',
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//       ],
-//       '--my-first-argument value',
-//       {
-//         'my-first-argument': 'value',
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//           default: true,
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//           default: false,
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-first-argument 0',
-//       {
-//         'my-first-argument': false,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-first-argument false',
-//       {
-//         'my-first-argument': false,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-first-argument 1',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-first-argument asd',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'number',
-//           required: true,
-//         },
-//       ],
-//       '--my-first-argument 0',
-//       {
-//         'my-first-argument': 0,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'number',
-//           default: 1,
-//         },
-//       ],
-//       '--my-first-argument 0',
-//       {
-//         'my-first-argument': 0,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'number',
-//         },
-//       ],
-//       '--my-first-argument asd',
-//       {
-//         'my-first-argument': NaN,
-//       },
-//     ],
-//   ];
-// }
-//
+function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': '',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          const: 'value',
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': 'value',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+        },
+      ],
+      '--my-first-argument value',
+      {},
+      {
+        'my-first-argument': 'value',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+      ],
+      '--my-first-argument value',
+      {},
+      {
+        'my-first-argument': 'value',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+          default: true,
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+          const: true,
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+          const: false,
+        },
+      ],
+      '--my-first-argument',
+      {},
+      {
+        'my-first-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-first-argument 0',
+      {},
+      {
+        'my-first-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-first-argument false',
+      {},
+      {
+        'my-first-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-first-argument 1',
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-first-argument asd',
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'number',
+        },
+      ],
+      '--my-first-argument 0',
+      {},
+      {
+        'my-first-argument': 0,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'number',
+          default: 1,
+        },
+      ],
+      '--my-first-argument 0',
+      {},
+      {
+        'my-first-argument': 0,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'number',
+        },
+      ],
+      '--my-first-argument asd',
+      {},
+      {
+        'my-first-argument': NaN,
+      },
+    ],
+  ];
+}
+
 // function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Record<string, unknown>][] {
 //   return [
 //     [
