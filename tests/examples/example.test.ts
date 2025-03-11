@@ -4,48 +4,84 @@ import { ArgsParser } from "../../src";
 it('', async () => {
   const parser = new ArgsParser([
     {
-      name: '--my-first-argument',
-      alias: '-1',
-      description: "My first argument",
+      name: 'positional-first',
+      description: "My first positional argument",
       type: 'string',
-      nargs: '+',
+      choices: ['test', 'dev', 'prod'],
+    },
+    {
+      name: 'positional-second',
+      description: "My first positional argument",
+      type: 'number',
+    },
+    {
+      name: '--optional-first',
+      alias: '-1',
+      description: "My first optional argument",
+      type: 'string',
+      nargs: '?',
       choices: ['test', 'dev', 'prod'],
       validator: (x: unknown) => String(x).length > 2,
     },
     {
-      name: '--my-second-argument',
+      name: '--optional-second',
       alias: '-2',
-      description: "My second argument",
+      description: "My second optional argument",
       type: 'boolean',
       default: false,
     },
     {
-      name: '--my-third-argument',
+      name: '--optional-third',
       alias: '-3',
-      description: "My third argument",
+      description: "My third optional argument",
       type: 'number',
       nargs: '*',
       default: [0, 1],
     },
+    {
+      name: '--optional-const',
+      alias: '-c',
+      description: "My const optional argument",
+      type: 'boolean',
+      const: true,
+    },
   ]);
 
-  // console.log(parser.help);
+  console.log(parser.help);
 
-  const argsString = '--my-first-argument test -2 --my-third-argument 1 2 3';
+  const argsString = 'dev  123 --optional-first test -2 --optional-third 1 2 3';
   const parsedArgs = parser.parse(argsString);
 
-  expect(parsedArgs.optional).toEqual({
-    'my-first-argument': 'test',
-    'my-second-argument': true,
-    'my-third-argument': [1, 2, 3],
+  expect(parsedArgs.positional).toEqual({
+    'positional-first': 'dev',
+    'positional-second': 123,
   });
 
-  const myFirstArgument = parsedArgs.get<string>('--my-first-argument');
-  expect(myFirstArgument).toEqual('test');
+  expect(parsedArgs.optional).toEqual({
+    'optional-first': 'test',
+    'optional-second': true,
+    'optional-third': [1, 2, 3],
+    'optional-const': true,
+  });
 
-  const mySecondArgument = parsedArgs.get<string>('--my-second-argument');
-  expect(mySecondArgument).toEqual(true);
-
-  const myThirdArgument = parsedArgs.get<string>('--my-third-argument');
-  expect(myThirdArgument).toEqual([1, 2, 3]);
+  {
+    const value = parsedArgs.get<string>('positional-first');
+    expect(value).toEqual('dev');
+  }
+  {
+    const value = parsedArgs.get<string>('positional-second');
+    expect(value).toEqual(123);
+  }
+  {
+    const value = parsedArgs.get<string>('--optional-first');
+    expect(value).toEqual('test');
+  }
+  {
+    const value = parsedArgs.get<string>('--optional-second');
+    expect(value).toEqual(true);
+  }
+  {
+    const value = parsedArgs.get<string>('--optional-third');
+    expect(value).toEqual([1, 2, 3]);
+  }
 });

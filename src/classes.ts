@@ -2,7 +2,7 @@ import type { ArgConfig, ArgsParserInterface, NArgsConfig, ParsedArgumentsCollec
 import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
 import { buildNArgsConfig, castArgValue, validateCastedArgValue } from "./utils/utils";
 import { parseArgsString } from "./utils/parse";
-import { convertToTable, formatArgHelp } from "./utils/help";
+import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
 
 /**
  * A collection of parsed arguments.
@@ -36,7 +36,7 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
   public add(name: string, value: unknown) {
     const formattedName = this.formatName(name);
 
-    if (this.isPositional(formattedName)) {
+    if (this.isPositional(name)) {
       this.positionalArgs[formattedName] = value;
     } else {
       this.optionalArgs[formattedName] = value;
@@ -51,7 +51,13 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
    * @returns The value of the argument, or undefined if not found.
    */
   public get<T = unknown>(name: string): T {
-    return (this.optionalArgs[this.formatName(name)] ?? undefined) as T;
+    const formattedName = this.formatName(name);
+
+    if (this.isPositional(name)) {
+      return (this.positional[formattedName] ?? undefined) as T;
+    }
+
+    return (this.optionalArgs[formattedName] ?? undefined) as T;
   }
 
   /**
@@ -60,10 +66,13 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
    * @returns True if the argument exists, otherwise false.
    */
   public has(name: string): boolean {
-    if (this.isPositional(this.formatName(name))) {
-      return this.positionalArgs[this.formatName(name)] !== undefined;
+    const formattedName = this.formatName(name);
+
+    if (this.isPositional(name)) {
+      return (this.positional[formattedName] ?? undefined) !== undefined;
     }
-    return this.optionalArgs[this.formatName(name)] !== undefined;
+
+    return (this.optionalArgs[formattedName] ?? undefined) !== undefined;
   }
 
   /**
@@ -124,15 +133,25 @@ export class ArgsParser implements ArgsParserInterface {
       optionalArgsRows.push(...formatArgHelp(arg, nargsConfig));
     }
 
-    const result = [
-      "Positional arguments:",
-      convertToTable(positionalArgsRows, 1),
-      "",
-      "Optional arguments:",
-      convertToTable(optionalArgsRows, 1),
-    ];
+    const result = [];
 
-    return result.join("\n");
+    if (positionalArgsRows.length > 0) {
+      result.push(
+        ['Positional arguments:'],
+        [''],
+        ...tabTableRows(positionalArgsRows),
+      );
+    }
+
+    if (optionalArgsRows.length > 0) {
+      result.push(
+        ['Optional arguments:'],
+        [''],
+        ...tabTableRows(optionalArgsRows),
+      )
+    }
+
+    return convertToTable(result, 1);
   }
 
   /**
@@ -171,7 +190,7 @@ export class ArgsParser implements ArgsParserInterface {
 
     for (const argConfig of positionalArgs) {
       const nargsConfig = buildNArgsConfig(argConfig.nargs);
-      // this.checkPositionalNargsConfig(argConfig.name, nargsConfig, parsedPositional);
+      this.checkEnoughPositionalValues(parsedPositional, argConfig.name, nargsConfig);
 
       const value = nargsConfig.multiple
         ? parsedPositional.join(' ')
@@ -219,7 +238,7 @@ export class ArgsParser implements ArgsParserInterface {
     }
   }
 
-  private checkPositionalNargsConfig(argName: string, nargsConfig: NArgsConfig, values: string[]): void {
+  private checkEnoughPositionalValues(values: string[], argName: string, nargsConfig: NArgsConfig): void {
     const errorMessage = `Not enough positional arguments. ${argName} is required.`;
 
     if (!nargsConfig.multiple) {

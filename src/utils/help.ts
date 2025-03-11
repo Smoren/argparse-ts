@@ -1,9 +1,16 @@
 import { ArgConfig, NArgsConfig } from "../types";
 
-export function formatArgHelp(argConfig: ArgConfig, nargsConfig: NArgsConfig): [string, string][] {
-  const result: [string, string][] = [];
+export function formatArgHelp(argConfig: ArgConfig, nargsConfig: NArgsConfig): string[][] {
+  const result: string[][] = [];
+  const argUsageExample = formatArgUsageExample(argConfig, nargsConfig);
 
-  result.push([formatArgUsageExample(argConfig, nargsConfig), argConfig.description ?? '<no description>']);
+  if (argUsageExample.length > 30) {
+    result.push([argUsageExample]);
+    result.push(['', argConfig.description ?? '<no description>']);
+  } else {
+    result.push([argUsageExample, argConfig.description ?? '<no description>']);
+  }
+
   result.push(['', `Type: ${formatArgType(argConfig, nargsConfig)}`]);
 
   if (argConfig.default !== undefined) {
@@ -13,6 +20,8 @@ export function formatArgHelp(argConfig: ArgConfig, nargsConfig: NArgsConfig): [
   if (argConfig.choices !== undefined) {
     result.push(['', `Allowed values: ${argConfig.choices.join(', ')}`]);
   }
+
+  result.push(['']);
 
   return result;
 }
@@ -33,17 +42,16 @@ export function convertToTable(data: string[][], padding: number = 0): string {
 
   const maxCols = Math.max(...data.map(row => row.length));
 
-  const normalizedData = data.map(row =>
-    row.concat(Array(maxCols - row.length).fill('')) // Добавляем пустые строки где нужно
-  );
-
   const columnWidths: number[] = Array(maxCols).fill(0);
   for (let col = 0; col < maxCols; col++) {
-    columnWidths[col] = Math.max(...normalizedData.map(row => (row[col]?.length || 0)));
+    columnWidths[col] = Math.max(...data.map(row => {
+      const len = row[col]?.length || 0;
+      return row.length === 1 ? 0 : len;
+    }));
   }
 
   const result: string[] = [];
-  for (const row of normalizedData) {
+  for (const row of data) {
     const rowString = row
       .map((cell, i) => cell.padEnd(columnWidths[i]+padding, ' ')) // Добавляем пробелы до максимальной длины
       .join(' '); // Разделитель
@@ -74,6 +82,10 @@ function formatArgUsageExample(argConfig: ArgConfig, nargsConfig: NArgsConfig): 
   }
 
   return result;
+}
+
+export function tabTableRows(rows: string[][], tabber: string = "\t") {
+  return rows.map((row) => row.length ? [`${tabber}${row[0]}`, ...row.slice(1)] : []);
 }
 
 function formatArgValueExample(argConfig: ArgConfig, nargsConfig: NArgsConfig): string {

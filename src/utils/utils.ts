@@ -56,7 +56,7 @@ export function validateCastedArgValue<T>(value: T, argConfig: ArgConfig, nargsC
 }
 
 export function formatArgNameWithAlias(argConfig: ArgConfig): string {
-  return `${argConfig.name} ${argConfig.alias ? `(${argConfig.alias})` : ''}`;
+  return `${argConfig.name}${argConfig.alias ? ` (${argConfig.alias})` : ''}`;
 }
 
 export function buildNArgsConfig(nargs?: NArgs): NArgsConfig {
