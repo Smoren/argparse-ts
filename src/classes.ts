@@ -173,6 +173,21 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
+   * Adds the help message for the arguments to the parser.
+   * @returns The updated parser.
+   */
+  public addHelp(): ArgsParser {
+    return this.addArgument({
+      name: '--help',
+      alias: '-h',
+      description: 'Show help',
+      type: 'boolean',
+      const: true,
+      default: false,
+    });
+  }
+
+  /**
    * Adds a new argument configuration to the parser.
    * @param config - The argument configuration.
    * @returns The instance of ArgsParser for chaining.
