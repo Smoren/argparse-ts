@@ -1,7 +1,7 @@
 import { it, expect } from "@jest/globals";
 import { ArgsParser } from "../../src";
 
-it('', async () => {
+it('First Test', async () => {
   const parser = new ArgsParser([
     {
       name: 'positional-first',
@@ -89,4 +89,27 @@ it('', async () => {
     const value = parsedArgs.get<boolean>('--optional-const');
     expect(value).toEqual(true);
   }
+});
+
+it('Second Test', async () => {
+  const parser = new ArgsParser([
+    {
+      name: '--flag',
+      alias: '-f',
+      type: 'boolean',
+      const: true,
+      default: false,
+    },
+    {
+      name: '--string',
+      alias: '-s',
+      type: 'string',
+      const: 'const value',
+    },
+  ]);
+
+  const argsString = '-s -f 0';
+  const parsedArgs = parser.parse(argsString);
+
+  console.log(parsedArgs.optional);
 });
