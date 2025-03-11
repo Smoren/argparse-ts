@@ -1,4 +1,4 @@
-import type { ArgConfig, ArgsParserInterface, FormattedArgConfig, ParsedArgumentsCollectionInterface } from "./types";
+import type { ArgConfig, ArgsParserInterface, ParsedArgumentsCollectionInterface } from "./types";
 import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
 import { castArgValue, convertToTable, formatArgHelp, parseArgsString } from "./utils";
 
@@ -62,7 +62,7 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
  * @category Classes
  */
 export class ArgsParser implements ArgsParserInterface {
-  private readonly argsMap: Map<string, FormattedArgConfig> = new Map();
+  private readonly argsMap: Map<string, ArgConfig> = new Map();
   private readonly aliasMap: Map<string, string> = new Map();
   private readonly usedArgs: Set<string> = new Set();
 
@@ -80,11 +80,11 @@ export class ArgsParser implements ArgsParserInterface {
    * Retrieves the help message.
    */
   public get help(): string {
-    const requiredArgs = [...this.argsMap.values()].filter((x) => x.required && x.default === undefined);
-    const optionalArgs = [...this.argsMap.values()].filter((x) => !x.required || x.default !== undefined);
+    const positionalArgs = this.getPositionalArguments();
+    const optionalArgs = this.getOptionalArguments();
 
     const requiredArgsRows = [];
-    for (const arg of requiredArgs) {
+    for (const arg of positionalArgs) {
       requiredArgsRows.push(...formatArgHelp(arg));
     }
 
@@ -94,7 +94,7 @@ export class ArgsParser implements ArgsParserInterface {
     }
 
     const result = [
-      "Required arguments:",
+      "Positional arguments:",
       convertToTable(requiredArgsRows, 1),
       "",
       "Optional arguments:",
@@ -112,7 +112,7 @@ export class ArgsParser implements ArgsParserInterface {
   public addArgument(config: ArgConfig): ArgsParser {
     this.checkArgumentConfig(config);
 
-    this.argsMap.set(config.name, this.formatArgConfig(config));
+    this.argsMap.set(config.name, config);
     this.usedArgs.add(config.name);
 
     if (config.alias !== undefined) {
@@ -130,27 +130,22 @@ export class ArgsParser implements ArgsParserInterface {
    * @throws ArgumentValueError if a required argument is missing or an argument value is invalid.
    */
   public parse(argsString: string) {
-    const required = new Set([...this.argsMap.values()].filter((x) => x.required));
-    const notEmpty = new Set([...this.argsMap.values()].filter((x) => x.notEmpty));
-    const hasDefault = new Set([...this.argsMap.values()].filter((x) => x.default !== undefined));
+    const positionalArgNames = new Set(this.getPositionalArguments());
+    const optionalWithDefaultArgNames = new Set(this.getOptionalArgumentsWithDefault());
 
-    const parsedArgs = parseArgsString(argsString);
+    const [parsedPositional, parsedOptional] = parseArgsString(argsString);
     const result = new ParsedArgumentsCollection();
 
-    for (const [key, value] of Object.entries(parsedArgs)) {
+    for (const [key, value] of Object.entries(parsedOptional)) {
       const argConfig = this.getArgConfig(key);
 
-      if (notEmpty.has(argConfig) && value === '') {
-        throw new ArgumentValueError(`Argument ${this.formatNameWithAlias(argConfig)} value cannot be empty.`);
-      }
+      const castedValue = castArgValue(value, argConfig.type, argConfig.nargs, argConfig.default);
 
-      const castedValue = castArgValue(value, argConfig.type, argConfig.multiple, argConfig.default);
-
-      if (argConfig.allowedValues !== undefined) {
-        if (!argConfig.multiple && !argConfig.allowedValues.includes(castedValue)) {
-          throw new ArgumentValueError(`Argument ${this.formatNameWithAlias(argConfig)} value must be one of ${argConfig.allowedValues.join(', ')}.`);
-        } else if (argConfig.multiple && !(castedValue as unknown[]).every((x) => argConfig.allowedValues!.includes(x))) {
-          throw new ArgumentValueError(`Argument ${this.formatNameWithAlias(argConfig)} values must be some of ${argConfig.allowedValues.join(', ')}.`);
+      if (argConfig.choices !== undefined) {
+        if (argConfig.nargs === undefined && !argConfig.choices.includes(castedValue)) {
+          throw new ArgumentValueError(`Argument ${this.formatNameWithAlias(argConfig)} value must be one of ${argConfig.choices.join(', ')}.`);
+        } else if (argConfig.multiple && !(castedValue as unknown[]).every((x) => argConfig.choices!.includes(x))) {
+          throw new ArgumentValueError(`Argument ${this.formatNameWithAlias(argConfig)} values must be some of ${argConfig.choices.join(', ')}.`);
         }
       }
 
@@ -158,36 +153,22 @@ export class ArgsParser implements ArgsParserInterface {
         throw new ArgumentValueError(`Argument ${this.formatNameWithAlias(argConfig)} value is invalid.`);
       }
 
-      required.delete(argConfig);
-      hasDefault.delete(argConfig);
+      positional.delete(argConfig);
+      optionalWithDefaultArgNames.delete(argConfig);
 
       result.add(argConfig.name, castedValue);
     }
 
-    for (const argConfig of hasDefault) {
+    for (const argConfig of optionalWithDefaultArgNames) {
       result.add(argConfig.name, argConfig.default);
-      required.delete(argConfig);
+      positional.delete(argConfig);
     }
 
-    if (required.size > 0) {
-      throw new ArgumentValueError(`Required arguments not provided: ${[...required].map((x) => x.name).join(', ')}`);
+    if (positional.size > 0) {
+      throw new ArgumentValueError(`Required arguments not provided: ${[...positional].map((x) => x.name).join(', ')}`);
     }
 
     return result;
-  }
-
-  /**
-   * Formats an argument configuration.
-   * @param config - The argument configuration.
-   * @returns A formatted argument configuration.
-   */
-  private formatArgConfig(config: ArgConfig): FormattedArgConfig {
-    return {
-      ...config,
-      required: config.required ?? false,
-      notEmpty: config.notEmpty ?? false,
-      multiple: config.multiple ?? false,
-    };
   }
 
   /**
@@ -205,14 +186,6 @@ export class ArgsParser implements ArgsParserInterface {
    * @throws AddArgumentError if the configuration is invalid.
    */
   private checkArgumentConfig(config: ArgConfig) {
-    if (!config.name.startsWith('--')) {
-      throw new AddArgumentError(`Argument name must start with '--' ("${config.name}" given).`);
-    }
-
-    if (config.alias !== undefined && !config.alias.startsWith('-')) {
-      throw new AddArgumentError(`Argument alias must start with '-' ("${config.alias}" given).`);
-    }
-
     if (this.usedArgs.has(config.name)) {
       throw new AddArgumentError(`Argument ${config.name} already exists.`);
     }
@@ -225,14 +198,30 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Retrieves the argument configuration for a given key.
    * @param key - The argument key.
-   * @returns The corresponding FormattedArgConfig.
+   * @returns The corresponding ArgConfig.
    * @throws ArgumentNameError if the argument key is unknown.
    */
-  private getArgConfig(key: string): FormattedArgConfig {
+  private getArgConfig(key: string): ArgConfig {
     const config = this.argsMap.get(this.aliasMap.get(key) ?? key);
     if (config === undefined) {
       throw new ArgumentNameError(`Unknown argument ${key}.`);
     }
     return config;
+  }
+
+  private getPositionalArguments(): ArgConfig[] {
+    return [...this.argsMap.values()].filter((x) => !this.isOptional(x));
+  }
+
+  private getOptionalArguments(): ArgConfig[] {
+    return [...this.argsMap.values()].filter((x) => this.isOptional(x));
+  }
+
+  private getOptionalArgumentsWithDefault(): ArgConfig[] {
+    return [...this.argsMap.values()].filter((x) => this.isOptional(x) && x.default !== undefined);
+  }
+
+  private isOptional(config: ArgConfig): boolean {
+    return config.name.startsWith('--');
   }
 }

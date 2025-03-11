@@ -5,6 +5,8 @@
  */
 export type ArgType = 'string' | 'number' | 'boolean';
 
+export type NArgs = number | '?' | '*' | '+';
+
 /**
  * Configuration for an argument.
  *
@@ -30,15 +32,7 @@ export type ArgConfig = {
   /**
    * Whether the argument is required.
    */
-  required?: boolean;
-  /**
-   * Whether the argument value cannot be empty.
-   */
-  notEmpty?: boolean;
-  /**
-   * Whether the argument allows multiple values.
-   */
-  multiple?: boolean;
+  nargs?: NArgs;
   /**
    * The default value of the argument.
    */
@@ -46,22 +40,11 @@ export type ArgConfig = {
   /**
    * Allowed values for the argument.
    */
-  allowedValues?: unknown[];
+  choices?: unknown[];
   /**
    * A custom validator function for the argument value.
    */
   validator?: (value: unknown) => boolean;
-}
-
-/**
- * A formatted configuration for an argument, with required fields made explicit.
- *
- * @category Types
- */
-export type FormattedArgConfig = ArgConfig & {
-  required: boolean;
-  notEmpty: boolean;
-  multiple: boolean;
 }
 
 /**

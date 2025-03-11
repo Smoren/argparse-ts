@@ -1,19 +1,22 @@
-import type { ArgConfig, ArgType } from "./types";
+import type { ArgConfig, ArgType, NArgs } from "./types";
 
 /**
  * Cast a string value to the given type.
  *
  * @param value The string value to cast.
  * @param type The type to cast the value to.
- * @param multiple Whether the value is a multiple value.
+ * @param nargs The number of arguments.
  * @param defaultValue The default value if the value is empty.
  * @returns The cast value.
  *
  * @category Utils
  */
-export function castArgValue(value: string, type: ArgType, multiple: boolean, defaultValue?: unknown): unknown {
-  if (multiple) {
-    const result = value.split(' ').filter((x) => x !== '').map((x) => castArgValue(x, type, false));
+export function castArgValue(value: string, type: ArgType, nargs?: NArgs, defaultValue?: unknown): unknown {
+  if (isNargsMultiple(nargs)) {
+    const result = value.split(' ').filter((x) => x !== '').map((x) => castArgValue(x, type));
+    if (typeof nargs === 'number' && result.length !== nargs) {
+
+    }
     return result.length > 0 ? result : (defaultValue ?? []);
   }
 
@@ -38,8 +41,9 @@ export function castArgValue(value: string, type: ArgType, multiple: boolean, de
  *
  * @category Utils
  */
-export function parseArgsString(argsString: string): Record<string, string> {
-  return Object.fromEntries(parseArgsArray(splitArgsString(formatArgsString(argsString))));
+export function parseArgsString(argsString: string): [string[], Record<string, string>] {
+  const [positional, optional] = splitArgsString(formatArgsString(argsString));
+  return [positional, Object.fromEntries(parseArgsArray(optional))];
 }
 
 /**
@@ -60,8 +64,8 @@ export function formatArgHelp(argConfig: ArgConfig): [string, string][] {
     result.push(['', `Default value: ${JSON.stringify(argConfig.default)}`]);
   }
 
-  if (argConfig.allowedValues !== undefined) {
-    result.push(['', `Allowed values: ${argConfig.allowedValues.join(', ')}`]);
+  if (argConfig.choices !== undefined) {
+    result.push(['', `Allowed values: ${argConfig.choices.join(', ')}`]);
   }
 
   return result;
@@ -185,8 +189,26 @@ function parseArgsArray(args: string[]): [string, string][] {
  *
  * @category Utils
  */
-function splitArgsString(argsString: string): string[] {
-  return argsString.split(' -').map((x, i) => i === 0 ? x : `-${x}`);
+function splitArgsString(argsString: string): [string[], string[]] {
+  const exploded = argsString.split(' -').map((x, i) => i === 0 ? x : `-${x}`);
+
+  const positional = [];
+  const optional = [];
+  let positionalFinished = false;
+
+  for (const x of exploded) {
+    if (x.startsWith('-')) {
+      positionalFinished = true;
+    }
+
+    if (positionalFinished) {
+      optional.push(...x.split(' '));
+    } else {
+      positional.push(x);
+    }
+  }
+
+  return [positional, optional];
 }
 
 /**
@@ -217,4 +239,8 @@ function formatArgsString(argsString: string): string {
  */
 function formatGluedArgsString(gluedArgsString: string): string {
   return gluedArgsString.slice(1).split('').map((x) => `-${x}`).join(' ');
+}
+
+function isNargsMultiple(nargs?: NArgs): boolean {
+  return nargs === '*' || nargs === '+' || typeof nargs === 'number';
 }

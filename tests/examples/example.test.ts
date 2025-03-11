@@ -10,7 +10,7 @@ it('', async () => {
       type: 'string',
       required: true,
       notEmpty: true,
-      allowedValues: ['test', 'dev', 'prod'],
+      choices: ['test', 'dev', 'prod'],
       validator: (x: unknown) => String(x).length > 2,
     },
     {
