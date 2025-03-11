@@ -1,4 +1,4 @@
-import type { ArgConfig, ArgType, NArgs, NArgsConfig } from "../types";
+import type { ArgConfig, NArgs, NArgsConfig } from "../types";
 import { ArgumentValueError } from "../exceptions";
 
 export function castArgValue(
