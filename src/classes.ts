@@ -238,6 +238,12 @@ export class ArgsParser implements ArgsParserInterface {
     }
   }
 
+  /**
+   * Checks the number of positional arguments.
+   * @param values - An array of positional argument values.
+   * @param argName - The name of the argument.
+   * @param nargsConfig - The nargs configuration.
+   */
   private checkEnoughPositionalValues(values: string[], argName: string, nargsConfig: NArgsConfig): void {
     const errorMessage = `Not enough positional arguments. ${argName} is required.`;
 
