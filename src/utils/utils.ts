@@ -9,7 +9,7 @@ export function castArgValue(
   recursive: boolean = false,
 ): unknown {
   if (!isset) {
-    return argConfig.const;
+    return argConfig.default;
   }
 
   const multiple = recursive ? false : nargsConfig.multiple;
@@ -19,10 +19,10 @@ export function castArgValue(
       .filter((x) => x !== '')
       .map((v) => castArgValue(v, argConfig, nargsConfig, isset, true));
 
-    return result.length > 0 ? result : (argConfig.default ?? []);
+    return result.length > 0 ? result : (argConfig.const ?? []);
   }
 
-  const _value = value !== '' ? value : (argConfig.default ?? value);
+  const _value = value !== '' ? value : (argConfig.const ?? value);
 
   if (_value === undefined) {
     return _value;

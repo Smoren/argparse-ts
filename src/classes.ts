@@ -216,7 +216,7 @@ export class ArgsParser implements ArgsParserInterface {
 
     for (const argConfig of optionalArgs) {
       const nargsConfig = buildNArgsConfig(argConfig.nargs);
-      const castedValue = castArgValue('', argConfig, nargsConfig);
+      const castedValue = castArgValue('', argConfig, nargsConfig, false);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
     }
 

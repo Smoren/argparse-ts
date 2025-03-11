@@ -44,12 +44,13 @@ it('', async () => {
       description: "My const optional argument",
       type: 'boolean',
       const: true,
+      default: false,
     },
   ]);
 
   console.log(parser.help);
 
-  const argsString = 'dev  123 --optional-first test -2 --optional-third 1 2 3';
+  const argsString = 'dev 123 --optional-first test -2 --optional-third 1 2 3 --optional-const';
   const parsedArgs = parser.parse(argsString);
 
   expect(parsedArgs.positional).toEqual({
