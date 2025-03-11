@@ -4,7 +4,7 @@ import { ArgConfig, ArgsParser } from "../../src";
 describe.each([
   ...dataProviderForEmptyString(),
   ...dataProviderForSingleOptional(),
-  // ...dataProviderForNamedSingleSeveralArguments(),
+  ...dataProviderForNamedSingleSeveralArguments(),
   // ...dataProviderForAliasedSingleArguments(),
   // ...dataProviderForAliasedSingleSeveralArguments(),
   // ...dataProviderForNamedMultipleArguments(),
@@ -407,203 +407,213 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
   ];
 }
 
-// function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Record<string, unknown>][] {
-//   return [
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           type: 'number',
-//         },
-//       ],
-//       '--my-first-argument first --my-second-argument 2',
-//       {
-//         'my-first-argument': 'first',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           required: true,
-//           type: 'number',
-//         },
-//       ],
-//       '--my-first-argument first --my-second-argument 2',
-//       {
-//         'my-first-argument': 'first',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           required: true,
-//           type: 'number',
-//         },
-//       ],
-//       '--my-second-argument 2',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '--my-second-argument 2',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '--my-first-argument nya',
-//       {
-//         'my-first-argument': 'nya',
-//         'my-second-argument': 123,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 123,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '--my-first-argument --my-second-argument',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 123,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           type: 'number',
-//         },
-//       ],
-//       '--my-first-argument --my-second-argument',
-//       {
-//         'my-first-argument': '',
-//         'my-second-argument': 0,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-string-argument str --my-number-argument 22 --my-boolean-argument',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//         'my-boolean-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           type: 'boolean',
-//         },
-//       ],
-//       '--my-string-argument str --my-number-argument 22 --my-boolean-argument false',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//         'my-boolean-argument': false,
-//       },
-//     ],
-//   ];
-// }
-//
+function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+        },
+      ],
+      '--my-first-argument first --my-second-argument 2',
+      {},
+      {
+        'my-first-argument': 'first',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+        },
+      ],
+      '--my-first-argument first --my-second-argument 2',
+      {},
+      {
+        'my-first-argument': 'first',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+        },
+      ],
+      '--my-second-argument 2',
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      '--my-second-argument 2',
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      '--my-first-argument nya',
+      {},
+      {
+        'my-first-argument': 'nya',
+        'my-second-argument': 123,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      '',
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 123,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          const: 'test',
+          default: 'default',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+          const: 123,
+          default: -1,
+        },
+      ],
+      '--my-first-argument --my-second-argument',
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 123,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+        },
+        {
+          name: '--my-second-argument',
+          type: 'number',
+        },
+      ],
+      '--my-first-argument --my-second-argument',
+      {},
+      {
+        'my-first-argument': '',
+        'my-second-argument': 0,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-string-argument str --my-number-argument 22 --my-boolean-argument',
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+        'my-boolean-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          type: 'boolean',
+        },
+      ],
+      '--my-string-argument str --my-number-argument 22 --my-boolean-argument false',
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+        'my-boolean-argument': false,
+      },
+    ],
+  ];
+}
+
 // function dataProviderForAliasedSingleArguments(): [ArgConfig[], string, Record<string, unknown>][] {
 //   return [
 //     [

@@ -113,3 +113,33 @@ it('Second Test', async () => {
 
   console.log(parsedArgs.optional);
 });
+
+it('Third Test', async () => {
+  const parser = new ArgsParser([
+    {
+      name: '--value',
+      alias: '-v',
+      type: 'string',
+    },
+  ]);
+
+  const argsString = "-v ''"; // TODO must be '', not "''"
+  const parsedArgs = parser.parse(argsString);
+
+  console.log(parsedArgs.optional);
+});
+
+it('Forth Test', async () => {
+  const parser = new ArgsParser([
+    {
+      name: '--value',
+      alias: '-v',
+      type: 'number',
+    },
+  ]);
+
+  const argsString = "-v"; // TODO must throw exception, not 0
+  const parsedArgs = parser.parse(argsString);
+
+  console.log(parsedArgs.optional);
+});
