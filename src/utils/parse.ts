@@ -8,7 +8,45 @@
  */
 export function parseArgsString(argsString: string): [string[], Record<string, string>] {
   const [positional, optional] = splitArgsString(formatArgsString(argsString));
-  return [positional, Object.fromEntries(parseArgsArray(optional))];
+  return [positional, Object.fromEntries(parseArgsArrayInternal(optional))];
+}
+
+export function parseArgsArray(argv: string[]): [string[], Record<string, string[]>] {
+  const foundIndex = argv.findIndex((x) => x.startsWith('-'));
+  const optionalBegin = foundIndex !== -1 ? foundIndex : argv.length;
+
+  const positional: string[] = [...argv.slice(0, optionalBegin)];
+  const optionalBuffer = [...argv.slice(optionalBegin)].reverse();
+  const optional: Record<string, string[]> = {};
+
+  let argName: string | undefined = undefined;
+  let argValues: string[] = [];
+
+  while (optionalBuffer.length > 0) {
+    const item = optionalBuffer.pop()!;
+
+    if (item.match(/^-[a-zA-Z0-9]{2,}$/)) {
+      const items = item.slice(1).split('').reverse();
+      optionalBuffer.push(...items.map((x) => `-${x}`));
+      continue;
+    }
+
+    if (item.startsWith('-')) {
+      if (argName !== undefined) {
+        optional[argName] = argValues;
+      }
+      argName = item;
+      argValues = [];
+    } else {
+      argValues.push(item);
+    }
+  }
+
+  if (argName !== undefined) {
+    optional[argName] = argValues;
+  }
+
+  return [positional, optional];
 }
 
 /**
@@ -19,7 +57,7 @@ export function parseArgsString(argsString: string): [string[], Record<string, s
  *
  * @category Utils
  */
-function parseArgsArray(args: string[]): [string, string][] {
+function parseArgsArrayInternal(args: string[]): [string, string][] {
   return args
     .map((x) => x.split(/ (.+)/).slice(0, 2))
     .map((x) => x.length === 1 ? [x[0], ''] : x)
@@ -85,21 +123,3 @@ function formatArgsString(argsString: string): string {
 function formatGluedArgsString(gluedArgsString: string): string {
   return gluedArgsString.slice(1).split('').map((x) => `-${x}`).join(' ');
 }
-
-// function parseStringNew(argsString: string): [string[], string[]] {
-//   const positional = [];
-//   const optional = [];
-//
-//   let quotedBy: undefined | string = undefined;
-//   //let optionalStarted =
-//
-//   for (const ch of argsString) {
-//     if (quotedBy !== undefined && quotedBy === ch) {
-//       quotedBy = undefined;
-//     }
-//
-//     if (quotedBy === undefined && (ch === "'" || ch === '"')) {
-//       quotedBy = ch;
-//     }
-//   }
-// }
