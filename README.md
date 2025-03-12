@@ -27,47 +27,45 @@ import { ArgsParser } from "argparse-ts";
 
 const parser = new ArgsParser([
   {
-    name: 'positional-first',
-    description: "My first positional argument",
+    name: 'container',
+    description: "Container name",
     type: 'string',
-    choices: ['test', 'dev', 'prod'],
   },
   {
-    name: 'positional-second',
-    description: "My first positional argument",
-    type: 'number',
+    name: 'operations',
+    description: "Operations to run",
+    type: 'string',
+    nargs: '+',
+    choices: ['build', 'clear', 'sync', 'start', 'stop'],
   },
   {
-    name: '--optional-first',
-    alias: '-1',
-    description: "My first optional argument",
+    name: '--mode',
+    description: "Run mode",
     type: 'string',
     nargs: '?',
-    choices: ['test', 'dev', 'prod'],
-    validator: (x: unknown) => String(x).length > 2,
+    choices: ['dev', 'test', 'prod'],
+    default: 'prod',
   },
   {
-    name: '--optional-second',
-    alias: '-2',
-    description: "My second optional argument",
-    type: 'boolean',
-    const: false,
-  },
-  {
-    name: '--optional-third',
-    alias: '-3',
-    description: "My third optional argument",
+    name: '--cpu',
+    description: "CPU cores count to use",
     type: 'number',
-    nargs: '*',
-    default: [0, 1],
+    nargs: '?',
+    default: 1,
   },
   {
-    name: '--optional-const',
-    alias: '-c',
-    description: "My const optional argument",
+    name: '--use-gpu',
+    description: "Use GPU flag",
     type: 'boolean',
     const: true,
     default: false,
+  },
+  {
+    name: '--extra-services',
+    alias: '-e',
+    description: "Extra services to include",
+    type: 'string',
+    nargs: '*',
   },
 ]);
 
@@ -76,78 +74,69 @@ console.log(parser.help);
 /*
 Positional arguments:
 
-	positional-first <string>   My first positional argument
-	                            Type: string (not empty)
-	                            Allowed values: test, dev, prod
+    container <string>  Container name
+                        Type: string (not empty)
 
-	positional-second <number>  My first positional argument
-	                            Type: number (not empty)
+    operations <string> <string> ...
+                        Operations to run
+                        Type: Array<string> (not empty)
+                        Allowed values: build, clear, sync, start, stop
 
 Optional arguments:
 
-	-1 <string>, --optional-first <string>
-	                            My first optional argument
-	                            Type: string
-	                            Allowed values: test, dev, prod
+    --mode <string>     Run mode
+                        Type: string
+                        Default value: "prod"
+                        Allowed values: dev, test, prod
 
-	-2, --optional-second       My second optional argument
-	                            Type: boolean
+    --cpu <number>      CPU cores count to use
+                        Type: number
+                        Default value: 1
 
-	-3 <number> <number> ..., --optional-third <number> <number> ...
-	                            My third optional argument
-	                            Type: Array<number>
-	                            Default value: [0,1]
+    --use-gpu           Use GPU flag
+                        Type: boolean
+                        Default value: false
 
-	-c, --optional-const        My const optional argument
-	                            Type: boolean
-	                            Default value: false
+    -e <string> <string> ..., --extra-services <string> <string> ...
+                        Extra services to include
+                        Type: Array<string>
 */
 
-const argv = ['dev', '123', '--optional-first', 'test', '-2', '--optional-third', '1', '2', '3', '--optional-const'];
+const argv = ['main', 'clear', 'build', 'start', 'sync', '--mode', 'dev', '--use-gpu', '-e', 'logger', 'profiler', 'tester'];
 const parsedArgs = parser.parse(argv);
 
 console.log(parsedArgs.positional);
 /*
 {
-  'positional-first': 'dev',
-  'positional-second': 123,
+  'container': 'main',
+  'operations': ['clear', 'build', 'start', 'sync'],
 }
 */
 
 console.log(parsedArgs.optional);
 /*
 {
-  'optional-first': 'test',
-  'optional-second': false,
-  'optional-third': [1, 2, 3],
-  'optional-const': true,
+  'mode': 'dev',
+  'cpu': 1,
+  'use-gpu': true,
+  'extra-services': ['logger', 'profiler', 'tester'],
 }
 */
 
-{
-  const value = parsedArgs.get<string>('positional-first');
-  console.log(value); // 'dev'
-}
-{
-  const value = parsedArgs.get<string>('positional-second');
-  console.log(value); // 123
-}
-{
-  const value = parsedArgs.get<string | undefined>('--optional-first');
-  console.log(value); // 'test'
-}
-{
-  const value = parsedArgs.get<boolean>('--optional-second');
-  console.log(value); // false
-}
-{
-  const value = parsedArgs.get<number[]>('--optional-third');
-  console.log(value); // [1, 2, 3]
-}
-{
-  const value = parsedArgs.get<boolean>('--optional-const');
-  console.log(value); // true
-}
+const containerName = parsedArgs.get<string>('container');
+console.log(containerName); // 'main'
+
+const operations = parsedArgs.get<string[]>('operations');
+console.log(operations); // 'clear', 'build', 'start', 'sync']
+
+const mode = parsedArgs.get<string>('--mode');
+console.log(mode); // dev
+
+const cpuCount = parsedArgs.get<string>('--cpu');
+console.log(cpuCount); // 1
+
+const useGpu = parsedArgs.get<string>('--use-gpu');
+console.log(useGpu); // true
 ```
 
 Api Reference

@@ -214,7 +214,7 @@ export class ArgsParser implements ArgsParserInterface {
     const positionalArgs = this.getPositionalArguments();
     const optionalArgs = new Set(this.getOptionalArguments());
 
-    const [parsedPositional, parsedOptional] = parseArgsArray(argv);
+    let [parsedPositional, parsedOptional] = parseArgsArray(argv);
     parsedPositional.reverse();
 
     const result = new ParsedArgumentsCollection();
@@ -223,9 +223,14 @@ export class ArgsParser implements ArgsParserInterface {
       const nargsConfig = buildNArgsConfig(argConfig);
       this.checkEnoughPositionalValues(parsedPositional, argConfig.name, nargsConfig);
 
-      const value = nargsConfig.multiple
-        ? parsedPositional
-        : (parsedPositional.length ? [parsedPositional.pop()!] : []);
+      const toReadCount = this.getArgsCountToRead(nargsConfig, parsedPositional.length);
+      const value: string[] = [];
+      for (let i=0; i<toReadCount; ++i) {
+        if (parsedPositional.length === 0) {
+          break;
+        }
+        value.push(parsedPositional.pop()!);
+      }
 
       const castedValue = castArgValue(value, argConfig, nargsConfig, value.length > 0);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
@@ -300,6 +305,18 @@ export class ArgsParser implements ArgsParserInterface {
     if (!nargsConfig.allowEmpty && nargsConfig.count !== undefined && nargsConfig.count > values.length) {
       throw new ArgumentValueError(errorMessage);
     }
+  }
+
+  private getArgsCountToRead(nargsConfig: NArgsConfig, totalCount: number): number {
+    if (!nargsConfig.multiple) {
+      return 1;
+    }
+
+    if (nargsConfig.count !== undefined) {
+      return nargsConfig.count;
+    }
+
+    return totalCount;
   }
 
   /**

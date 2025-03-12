@@ -1,6 +1,84 @@
 import { it, expect } from "@jest/globals";
 import { ArgsParser } from "../../src";
 
+it('Example Test', async () => {
+  const parser = new ArgsParser([
+    {
+      name: 'container',
+      description: "Container name",
+      type: 'string',
+    },
+    {
+      name: 'operations',
+      description: "Operations to run",
+      type: 'string',
+      nargs: '+',
+      choices: ['build', 'clear', 'sync', 'start', 'stop'],
+    },
+    {
+      name: '--mode',
+      description: "Run mode",
+      type: 'string',
+      nargs: '?',
+      choices: ['dev', 'test', 'prod'],
+      default: 'prod',
+    },
+    {
+      name: '--cpu',
+      description: "CPU cores count to use",
+      type: 'number',
+      nargs: '?',
+      default: 1,
+    },
+    {
+      name: '--use-gpu',
+      description: "Use GPU flag",
+      type: 'boolean',
+      const: true,
+      default: false,
+    },
+    {
+      name: '--extra-services',
+      alias: '-e',
+      description: "Extra services to include",
+      type: 'string',
+      nargs: '*',
+    },
+  ]);
+
+  console.log(parser.help);
+
+  const argv = ['main', 'clear', 'build', 'start', 'sync', '--mode', 'dev', '--use-gpu', '-e', 'logger', 'profiler', 'tester'];
+  const parsedArgs = parser.parse(argv);
+
+  expect(parsedArgs.positional).toEqual({
+    'container': 'main',
+    'operations': ['clear', 'build', 'start', 'sync'],
+  });
+
+  expect(parsedArgs.optional).toEqual({
+    'mode': 'dev',
+    'cpu': 1,
+    'use-gpu': true,
+    'extra-services': ['logger', 'profiler', 'tester'],
+  });
+
+  const containerName = parsedArgs.get<string>('container');
+  expect(containerName).toEqual('main');
+
+  const operations = parsedArgs.get<string[]>('operations');
+  expect(operations).toEqual(['clear', 'build', 'start', 'sync']);
+
+  const mode = parsedArgs.get<string>('--mode');
+  expect(mode).toEqual('dev');
+
+  const cpuCount = parsedArgs.get<string>('--cpu');
+  expect(cpuCount).toEqual(1);
+
+  const useGpu = parsedArgs.get<string>('--use-gpu');
+  expect(useGpu).toEqual(true);
+});
+
 it('First Test', async () => {
   const parser = new ArgsParser([
     {
@@ -123,7 +201,7 @@ it('Third Test', async () => {
     },
   ]);
 
-  const argv = ['-v', '']; // TODO must be '', not "''"
+  const argv = ['-v', ''];
   const parsedArgs = parser.parse(argv);
 
   console.log(parsedArgs.optional);
