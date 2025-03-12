@@ -127,15 +127,15 @@ const containerName = parsedArgs.get<string>('container');
 console.log(containerName); // 'main'
 
 const operations = parsedArgs.get<string[]>('operations');
-console.log(operations); // 'clear', 'build', 'start', 'sync']
+console.log(operations); // ['clear', 'build', 'start', 'sync']
 
 const mode = parsedArgs.get<string>('--mode');
 console.log(mode); // dev
 
-const cpuCount = parsedArgs.get<string>('--cpu');
+const cpuCount = parsedArgs.get<number>('--cpu');
 console.log(cpuCount); // 1
 
-const useGpu = parsedArgs.get<string>('--use-gpu');
+const useGpu = parsedArgs.get<boolean>('--use-gpu');
 console.log(useGpu); // true
 ```
 

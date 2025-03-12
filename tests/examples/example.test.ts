@@ -72,10 +72,10 @@ it('Example Test', async () => {
   const mode = parsedArgs.get<string>('--mode');
   expect(mode).toEqual('dev');
 
-  const cpuCount = parsedArgs.get<string>('--cpu');
+  const cpuCount = parsedArgs.get<number>('--cpu');
   expect(cpuCount).toEqual(1);
 
-  const useGpu = parsedArgs.get<string>('--use-gpu');
+  const useGpu = parsedArgs.get<boolean>('--use-gpu');
   expect(useGpu).toEqual(true);
 });
 
