@@ -137,9 +137,9 @@ export interface ArgsParserInterface {
    */
   addHelp(): ArgsParserInterface;
   /**
-   * Parses a string of arguments.
-   * @param argsString - The string containing the arguments.
-   * @returns A collection of parsed arguments.
+   * Parses the given argument string and returns a collection of parsed arguments.
+   * @param argv - The argument string.
+   * @returns A ParsedArgumentsCollection containing the parsed arguments.
    */
-  parse(argsString: string): ParsedArgumentsCollectionInterface;
+  parse(argv: string[]): ParsedArgumentsCollectionInterface;
 }

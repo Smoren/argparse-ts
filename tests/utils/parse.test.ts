@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { parseArgsArray } from "../../src/utils/parse";
+import { parseArgsArray } from "../../src/utils/utils";
 
 describe.each([
   ...dataProvider(),
@@ -22,6 +22,21 @@ function dataProvider(): [string[], string[], Record<string, string[]>][] {
       {},
     ],
     [
+      [''],
+      [''],
+      {},
+    ],
+    [
+      ['', ''],
+      ['', ''],
+      {},
+    ],
+    [
+      ['', '', ''],
+      ['', '', ''],
+      {},
+    ],
+    [
       ['a'],
       ['a'],
       {},
@@ -34,6 +49,21 @@ function dataProvider(): [string[], string[], Record<string, string[]>][] {
     [
       ['aaa', 'bbb', 'ccc'],
       ['aaa', 'bbb', 'ccc'],
+      {},
+    ],
+    [
+      ['', 'bbb', 'ccc'],
+      ['', 'bbb', 'ccc'],
+      {},
+    ],
+    [
+      ['aaa', '', 'ccc'],
+      ['aaa', '', 'ccc'],
+      {},
+    ],
+    [
+      ['aaa', '', ''],
+      ['aaa', '', ''],
       {},
     ],
     [
@@ -77,15 +107,39 @@ function dataProvider(): [string[], string[], Record<string, string[]>][] {
         '-c': [],
       },
     ],
-
-
-
     [
       ['-a', '1', '-b', '2', '-c', '3'],
       [],
       {
         '-a': ['1'],
         '-b': ['2'],
+        '-c': ['3'],
+      },
+    ],
+    [
+      ['-a', '1', '-b', '', '-c', '3'],
+      [],
+      {
+        '-a': ['1'],
+        '-b': [''],
+        '-c': ['3'],
+      },
+    ],
+    [
+      ['-a', '1', '-b', '', '', '-c', '3'],
+      [],
+      {
+        '-a': ['1'],
+        '-b': ['', ''],
+        '-c': ['3'],
+      },
+    ],
+    [
+      ['-a', '1', '-b', '', '', 'test', '-c', '3'],
+      [],
+      {
+        '-a': ['1'],
+        '-b': ['', '', 'test'],
         '-c': ['3'],
       },
     ],

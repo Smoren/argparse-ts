@@ -1,6 +1,44 @@
 import type { ArgConfig, NArgs, NArgsConfig } from "../types";
 import { ArgumentValueError } from "../exceptions";
 
+export function parseArgsArray(argv: string[]): [string[], Record<string, string[]>] {
+  const foundIndex = argv.findIndex((x) => x.startsWith('-'));
+  const optionalBegin = foundIndex !== -1 ? foundIndex : argv.length;
+
+  const positional: string[] = [...argv.slice(0, optionalBegin)];
+  const optionalBuffer = [...argv.slice(optionalBegin)].reverse();
+  const optional: Record<string, string[]> = {};
+
+  let argName: string | undefined = undefined;
+  let argValues: string[] = [];
+
+  while (optionalBuffer.length > 0) {
+    const item = optionalBuffer.pop()!;
+
+    if (item.match(/^-[a-zA-Z0-9]{2,}$/)) {
+      const items = item.slice(1).split('').reverse();
+      optionalBuffer.push(...items.map((x) => `-${x}`));
+      continue;
+    }
+
+    if (item.startsWith('-')) {
+      if (argName !== undefined) {
+        optional[argName] = argValues;
+      }
+      argName = item;
+      argValues = [];
+    } else {
+      argValues.push(item);
+    }
+  }
+
+  if (argName !== undefined) {
+    optional[argName] = argValues;
+  }
+
+  return [positional, optional];
+}
+
 /**
  * Casts the given value to the type of the argument configuration.
  *
@@ -15,7 +53,7 @@ import { ArgumentValueError } from "../exceptions";
  * @category Utils
  */
 export function castArgValue(
-  value: string,
+  value: string[],
   argConfig: ArgConfig,
   nargsConfig: NArgsConfig,
   isset: boolean = true,
@@ -31,14 +69,21 @@ export function castArgValue(
   }
 
   if (multiple) {
-    const result = value.split(' ')
+    const result = value
       .filter((x) => x !== '')
-      .map((v) => castArgValue(v, argConfig, nargsConfig, isset, true));
+      .map((v) => castArgValue([v], argConfig, nargsConfig, isset, true));
 
     return result.length > 0 ? result : (argConfig.const ?? []);
   }
 
-  const _value = value !== '' ? value : (argConfig.const ?? value);
+  let _value: unknown;
+  if (value.length === 1) {
+    _value = value[0];
+  } else if (value.length === 0) {
+    _value = argConfig.const;
+  } else {
+    throw new ArgumentValueError(`Too many values for single argument: ${formatArgNameWithAlias(argConfig)}`);
+  }
 
   if (_value === undefined) {
     return _value;

@@ -1,8 +1,7 @@
 import type { ArgConfig, ArgsParserInterface, NArgsConfig, ParsedArgumentsCollectionInterface } from "./types";
 import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
-import { buildNArgsConfig, castArgValue, validateCastedArgValue } from "./utils/utils";
+import { buildNArgsConfig, castArgValue, parseArgsArray, validateCastedArgValue } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
-import { parseArgsString } from "./utils/parse";
 
 /**
  * A collection of parsed arguments.
@@ -208,15 +207,14 @@ export class ArgsParser implements ArgsParserInterface {
 
   /**
    * Parses the given argument string and returns a collection of parsed arguments.
-   * @param argsString - The argument string.
+   * @param argv - The argument string.
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
-   * @throws ArgumentValueError if a required argument is missing or an argument value is invalid.
    */
-  public parse(argsString: string) {
+  public parse(argv: string[]) {
     const positionalArgs = this.getPositionalArguments();
     const optionalArgs = new Set(this.getOptionalArguments());
 
-    const [parsedPositional, parsedOptional] = parseArgsString(argsString);
+    const [parsedPositional, parsedOptional] = parseArgsArray(argv);
     parsedPositional.reverse();
 
     const result = new ParsedArgumentsCollection();
@@ -226,8 +224,8 @@ export class ArgsParser implements ArgsParserInterface {
       this.checkEnoughPositionalValues(parsedPositional, argConfig.name, nargsConfig);
 
       const value = nargsConfig.multiple
-        ? parsedPositional.join(' ')
-        : parsedPositional.pop() ?? '';
+        ? parsedPositional
+        : (parsedPositional.length ? [parsedPositional.pop()!] : []);
 
       const castedValue = castArgValue(value, argConfig, nargsConfig, value.length > 0);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
@@ -249,7 +247,7 @@ export class ArgsParser implements ArgsParserInterface {
 
     for (const argConfig of optionalArgs) {
       const nargsConfig = buildNArgsConfig(argConfig);
-      const castedValue = castArgValue('', argConfig, nargsConfig, false);
+      const castedValue = castArgValue([], argConfig, nargsConfig, false);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
     }
 

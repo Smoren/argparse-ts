@@ -28,7 +28,7 @@ it('First Test', async () => {
       alias: '-2',
       description: "My second optional argument",
       type: 'boolean',
-      default: false,
+      const: false,
     },
     {
       name: '--optional-third',
@@ -50,8 +50,8 @@ it('First Test', async () => {
 
   console.log(parser.help);
 
-  const argsString = 'dev 123 --optional-first test -2 --optional-third 1 2 3 --optional-const';
-  const parsedArgs = parser.parse(argsString);
+  const argv = ['dev', '123', '--optional-first', 'test', '-2', '--optional-third', '1', '2', '3', '--optional-const'];
+  const parsedArgs = parser.parse(argv);
 
   expect(parsedArgs.positional).toEqual({
     'positional-first': 'dev',
@@ -60,7 +60,7 @@ it('First Test', async () => {
 
   expect(parsedArgs.optional).toEqual({
     'optional-first': 'test',
-    'optional-second': true,
+    'optional-second': false,
     'optional-third': [1, 2, 3],
     'optional-const': true,
   });
@@ -79,7 +79,7 @@ it('First Test', async () => {
   }
   {
     const value = parsedArgs.get<boolean>('--optional-second');
-    expect(value).toEqual(true);
+    expect(value).toEqual(false);
   }
   {
     const value = parsedArgs.get<number[]>('--optional-third');
@@ -108,8 +108,8 @@ it('Second Test', async () => {
     },
   ]);
 
-  const argsString = '-s -f 0';
-  const parsedArgs = parser.parse(argsString);
+  const argv = ['-s', '-f', '0'];
+  const parsedArgs = parser.parse(argv);
 
   console.log(parsedArgs.optional);
 });
@@ -123,8 +123,8 @@ it('Third Test', async () => {
     },
   ]);
 
-  const argsString = "-v ''"; // TODO must be '', not "''"
-  const parsedArgs = parser.parse(argsString);
+  const argv = ['-v', '']; // TODO must be '', not "''"
+  const parsedArgs = parser.parse(argv);
 
   console.log(parsedArgs.optional);
 });
@@ -138,8 +138,8 @@ it('Forth Test', async () => {
     },
   ]);
 
-  const argsString = "-v"; // TODO must throw exception, not 0
-  const parsedArgs = parser.parse(argsString);
+  const argv = ['-v']; // TODO must throw exception, not 0
+  const parsedArgs = parser.parse(argv);
 
   console.log(parsedArgs.optional);
 });
@@ -154,7 +154,7 @@ it('Fifth Test', async () => {
     },
   ]);
 
-  const argsString = `-v "123  'abc'  123" 567 "89"`; // TODO must be parsed
+  const argsString = [`-v`, `"123  'abc'  123"`, `567`, `"89"`]; // TODO must be parsed
   const parsedArgs = parser.parse(argsString);
 
   console.log(parsedArgs.optional);
