@@ -143,3 +143,19 @@ it('Forth Test', async () => {
 
   console.log(parsedArgs.optional);
 });
+
+it('Fifth Test', async () => {
+  const parser = new ArgsParser([
+    {
+      name: '--value',
+      alias: '-v',
+      type: 'string',
+      nargs: '*',
+    },
+  ]);
+
+  const argsString = `-v "123  'abc'  123" 567 "89"`; // TODO must be parsed
+  const parsedArgs = parser.parse(argsString);
+
+  console.log(parsedArgs.optional);
+});

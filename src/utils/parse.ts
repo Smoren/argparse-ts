@@ -85,3 +85,21 @@ function formatArgsString(argsString: string): string {
 function formatGluedArgsString(gluedArgsString: string): string {
   return gluedArgsString.slice(1).split('').map((x) => `-${x}`).join(' ');
 }
+
+// function parseStringNew(argsString: string): [string[], string[]] {
+//   const positional = [];
+//   const optional = [];
+//
+//   let quotedBy: undefined | string = undefined;
+//   //let optionalStarted =
+//
+//   for (const ch of argsString) {
+//     if (quotedBy !== undefined && quotedBy === ch) {
+//       quotedBy = undefined;
+//     }
+//
+//     if (quotedBy === undefined && (ch === "'" || ch === '"')) {
+//       quotedBy = ch;
+//     }
+//   }
+// }
