@@ -2,7 +2,7 @@ import { describe, expect, it } from "@jest/globals";
 import { ArgConfig, ArgsParser } from "../../src";
 
 describe.each([
-  ...dataProviderForEmptyString(),
+  ...dataProviderForEmptyArgv(),
   ...dataProviderForSingleOptional(),
   ...dataProviderForNamedSingleSeveralArguments(),
   // ...dataProviderForAliasedSingleArguments(),
@@ -12,21 +12,21 @@ describe.each([
   // ...dataProviderForValidatedArguments(),
 ])(
   'Success Test',
-  (config, argsString, expectedPositional, expectedOptional) => {
+  (config, argv, expectedPositional, expectedOptional) => {
     it('', () => {
       const parser = new ArgsParser(config);
-      const parsedArgs = parser.parse(argsString);
+      const parsedArgs = parser.parse(argv);
       expect(parsedArgs.positional).toEqual(expectedPositional);
       expect(parsedArgs.optional).toEqual(expectedOptional);
     });
   },
 );
 
-function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [],
-      '',
+      [],
       {},
       {},
     ],
@@ -39,7 +39,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           nargs: '?',
         },
       ],
-      '',
+      [],
       {
         'my-first-argument': 'test',
       },
@@ -54,7 +54,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           nargs: '*',
         },
       ],
-      '',
+      [],
       {
         'my-first-argument': ['test'],
       },
@@ -68,7 +68,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           nargs: '*',
         },
       ],
-      '',
+      [],
       {
         'my-first-argument': [],
       },
@@ -82,7 +82,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           default: 'test',
         },
       ],
-      '',
+      [],
       {},
       {
         'my-first-argument': 'test',
@@ -96,7 +96,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           const: 'test',
         },
       ],
-      '',
+      [],
       {},
       {
         'my-first-argument': undefined,
@@ -116,7 +116,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           const: 'const',
         },
       ],
-      '',
+      [],
       {
         'my-first-positional-argument': 'default',
       },
@@ -137,7 +137,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           default: true,
         },
       ],
-      '',
+      [],
       {},
       {
         'my-test-argument': 123,
@@ -151,7 +151,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           type: 'string',
         },
       ],
-      '',
+      [],
       {},
       {
         'my-first-argument': undefined,
@@ -164,7 +164,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           type: 'number',
         },
       ],
-      '',
+      [],
       {},
       {
         'my-first-argument': undefined,
@@ -177,7 +177,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
           type: 'boolean',
         },
       ],
-      '',
+      [],
       {},
       {
         'my-first-argument': undefined,
@@ -186,7 +186,7 @@ function dataProviderForEmptyString(): [ArgConfig[], string, Record<string, unkn
   ];
 }
 
-function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForSingleOptional(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -196,10 +196,10 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'string',
         },
       ],
-      '--my-first-argument',
+      ['--my-first-argument'],
       {},
       {
-        'my-first-argument': '',
+        'my-first-argument': undefined,
       },
     ],
     [
@@ -211,7 +211,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           const: 'value',
         },
       ],
-      '--my-first-argument',
+      ['--my-first-argument'],
       {},
       {
         'my-first-argument': 'value',
@@ -224,7 +224,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'string',
         },
       ],
-      '--my-first-argument value',
+      ['--my-first-argument', 'value'],
       {},
       {
         'my-first-argument': 'value',
@@ -238,7 +238,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           default: 'test',
         },
       ],
-      '--my-first-argument value',
+      ['--my-first-argument', 'value'],
       {},
       {
         'my-first-argument': 'value',
@@ -251,37 +251,10 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'boolean',
         },
       ],
-      '--my-first-argument',
+      ['--my-first-argument'],
       {},
       {
-        'my-first-argument': true,
-      },
-    ],
-    [
-      [
-        {
-          name: '--my-first-argument',
-          type: 'boolean',
-          default: true,
-        },
-      ],
-      '--my-first-argument',
-      {},
-      {
-        'my-first-argument': true,
-      },
-    ],
-    [
-      [
-        {
-          name: '--my-first-argument',
-          type: 'boolean',
-        },
-      ],
-      '--my-first-argument',
-      {},
-      {
-        'my-first-argument': true,
+        'my-first-argument': undefined,
       },
     ],
     [
@@ -292,7 +265,34 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           const: true,
         },
       ],
-      '--my-first-argument',
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': undefined,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'boolean',
+          const: true,
+        },
+      ],
+      ['--my-first-argument'],
       {},
       {
         'my-first-argument': true,
@@ -306,7 +306,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           const: false,
         },
       ],
-      '--my-first-argument',
+      ['--my-first-argument'],
       {},
       {
         'my-first-argument': false,
@@ -319,7 +319,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'boolean',
         },
       ],
-      '--my-first-argument 0',
+      ['--my-first-argument', '0'],
       {},
       {
         'my-first-argument': false,
@@ -332,7 +332,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'boolean',
         },
       ],
-      '--my-first-argument false',
+      ['--my-first-argument', 'false'],
       {},
       {
         'my-first-argument': false,
@@ -345,7 +345,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'boolean',
         },
       ],
-      '--my-first-argument 1',
+      ['--my-first-argument', '1'],
       {},
       {
         'my-first-argument': true,
@@ -358,7 +358,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'boolean',
         },
       ],
-      '--my-first-argument asd',
+      ['--my-first-argument', 'asd'],
       {},
       {
         'my-first-argument': true,
@@ -371,7 +371,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'number',
         },
       ],
-      '--my-first-argument 0',
+      ['--my-first-argument', '0'],
       {},
       {
         'my-first-argument': 0,
@@ -385,7 +385,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           default: 1,
         },
       ],
-      '--my-first-argument 0',
+      ['--my-first-argument', '0'],
       {},
       {
         'my-first-argument': 0,
@@ -398,7 +398,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
           type: 'number',
         },
       ],
-      '--my-first-argument asd',
+      ['--my-first-argument', 'asd'],
       {},
       {
         'my-first-argument': NaN,
@@ -407,7 +407,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string, Record<string, u
   ];
 }
 
-function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -420,7 +420,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           type: 'number',
         },
       ],
-      '--my-first-argument first --my-second-argument 2',
+      ['--my-first-argument', 'first', '--my-second-argument', '2'],
       {},
       {
         'my-first-argument': 'first',
@@ -439,7 +439,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           type: 'number',
         },
       ],
-      '--my-first-argument first --my-second-argument 2',
+      ['--my-first-argument', 'first', '--my-second-argument', '2'],
       {},
       {
         'my-first-argument': 'first',
@@ -458,7 +458,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           type: 'number',
         },
       ],
-      '--my-second-argument 2',
+      ['--my-second-argument', '2'],
       {},
       {
         'my-first-argument': 'test',
@@ -478,7 +478,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           default: 123,
         },
       ],
-      '--my-second-argument 2',
+      ['--my-second-argument', '2'],
       {},
       {
         'my-first-argument': 'test',
@@ -498,7 +498,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           default: 123,
         },
       ],
-      '--my-first-argument nya',
+      ['--my-first-argument', 'nya'],
       {},
       {
         'my-first-argument': 'nya',
@@ -518,7 +518,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           default: 123,
         },
       ],
-      '',
+      [],
       {},
       {
         'my-first-argument': 'test',
@@ -540,7 +540,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           default: -1,
         },
       ],
-      '--my-first-argument --my-second-argument',
+      ['--my-first-argument', '--my-second-argument'],
       {},
       {
         'my-first-argument': 'test',
@@ -558,11 +558,11 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           type: 'number',
         },
       ],
-      '--my-first-argument --my-second-argument',
+      ['--my-first-argument', '--my-second-argument'],
       {},
       {
-        'my-first-argument': '',
-        'my-second-argument': 0,
+        'my-first-argument': undefined,
+        'my-second-argument': undefined,
       },
     ],
     [
@@ -578,9 +578,10 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
         {
           name: '--my-boolean-argument',
           type: 'boolean',
+          const: true,
         },
       ],
-      '--my-string-argument str --my-number-argument 22 --my-boolean-argument',
+      ['--my-string-argument', 'str', '--my-number-argument', '22', '--my-boolean-argument'],
       {},
       {
         'my-string-argument': 'str',
@@ -603,7 +604,7 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string, Rec
           type: 'boolean',
         },
       ],
-      '--my-string-argument str --my-number-argument 22 --my-boolean-argument false',
+      ['--my-string-argument', 'str', '--my-number-argument', '22', '--my-boolean-argument', 'false'],
       {},
       {
         'my-string-argument': 'str',

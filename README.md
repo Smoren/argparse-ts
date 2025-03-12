@@ -51,7 +51,7 @@ const parser = new ArgsParser([
     alias: '-2',
     description: "My second optional argument",
     type: 'boolean',
-    default: false,
+    const: false,
   },
   {
     name: '--optional-third',
@@ -72,39 +72,39 @@ const parser = new ArgsParser([
 ]);
 
 console.log(parser.help);
+
 /*
 Positional arguments:
 
-    positional-first <string>   My first positional argument
-                                Type: string (not empty)
-                                Allowed values: test, dev, prod
+	positional-first <string>   My first positional argument
+	                            Type: string (not empty)
+	                            Allowed values: test, dev, prod
 
-    positional-second <number>  My first positional argument
-                                Type: number (not empty)
+	positional-second <number>  My first positional argument
+	                            Type: number (not empty)
 
 Optional arguments:
 
-    -1 <string>, --optional-first <string>
-                                My first optional argument
-                                Type: string
-                                Allowed values: test, dev, prod
+	-1 <string>, --optional-first <string>
+	                            My first optional argument
+	                            Type: string
+	                            Allowed values: test, dev, prod
 
-    -2, --optional-second       My second optional argument
-                                Type: boolean
-                                Default value: false
+	-2, --optional-second       My second optional argument
+	                            Type: boolean
 
-    -3 <number> <number> ..., --optional-third <number> <number> ...
-                                My third optional argument
-                                Type: Array<number>
-                                Default value: [0,1]
+	-3 <number> <number> ..., --optional-third <number> <number> ...
+	                            My third optional argument
+	                            Type: Array<number>
+	                            Default value: [0,1]
 
-    -c, --optional-const        My const optional argument
-                                Type: boolean
-                                Default value: false
+	-c, --optional-const        My const optional argument
+	                            Type: boolean
+	                            Default value: false
 */
 
-const argsString = 'dev 123 --optional-first test -2 --optional-third 1 2 3 --optional-const';
-const parsedArgs = parser.parse(argsString);
+const argv = ['dev', '123', '--optional-first', 'test', '-2', '--optional-third', '1', '2', '3', '--optional-const'];
+const parsedArgs = parser.parse(argv);
 
 console.log(parsedArgs.positional);
 /*
@@ -118,7 +118,7 @@ console.log(parsedArgs.optional);
 /*
 {
   'optional-first': 'test',
-  'optional-second': true,
+  'optional-second': false,
   'optional-third': [1, 2, 3],
   'optional-const': true,
 }
@@ -138,7 +138,7 @@ console.log(parsedArgs.optional);
 }
 {
   const value = parsedArgs.get<boolean>('--optional-second');
-  console.log(value); // true
+  console.log(value); // false
 }
 {
   const value = parsedArgs.get<number[]>('--optional-third');
