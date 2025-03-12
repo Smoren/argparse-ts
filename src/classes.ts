@@ -104,6 +104,40 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
  * Parser for command-line arguments.
  *
  * @category Classes
+ *
+ * @example
+ * ```
+ * const parser = new ArgsParser([
+ *    {
+ *        name: 'action',
+ *        description: 'Action to perform',
+ *        type: 'string',
+ *    },
+ *    {
+ *        name: '--flag',
+ *        description: 'Flag',
+ *        alias: '-f',
+ *        type: 'boolean',
+ *        const: true,
+ *        default: false,
+ *    },
+ *    {
+ *        name: '--values',
+ *        description: 'Values',
+ *        alias: '-v',
+ *        type: 'string',
+ *        nargs: '*',
+ *        default: [],
+ *    }
+ * ]);
+ *
+ * const argv = ['make', '--flag', '-v', 'a', 'b', 'c'];
+ * const parsedArgs = parser.parse(argv);
+ *
+ * console.log(parsedArgs.positional); // { action: 'make' }
+ * console.log(parsedArgs.optional); // { flag: true, values: ['a', 'b', 'c'] }
+ * console.log(parsedArgs.get('--values')); // ['a', 'b', 'c']
+ * ```
  */
 export class ArgsParser implements ArgsParserInterface {
   /**
@@ -190,6 +224,18 @@ export class ArgsParser implements ArgsParserInterface {
    * Adds a new argument configuration to the parser.
    * @param config - The argument configuration.
    * @returns The instance of ArgsParser for chaining.
+   *
+   * @example
+   * ```
+   * const parser = new ArgsParser();
+   * parser.addArgument({
+   *   name: '--flag',
+   *   alias: '-f',
+   *   type: 'boolean',
+   *   const: true,
+   *   default: false,
+   * });
+   * ```
    */
   public addArgument(config: ArgConfig): ArgsParser {
     this.checkArgumentConfig(config);
@@ -209,6 +255,40 @@ export class ArgsParser implements ArgsParserInterface {
    * Parses the given argument string and returns a collection of parsed arguments.
    * @param argv - The argument string.
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
+   *
+   * @example
+   * ```
+   * const parser = new ArgsParser([
+   *    {
+   *        name: 'action',
+   *        description: 'Action to perform',
+   *        type: 'string',
+   *    },
+   *    {
+   *        name: '--flag',
+   *        description: 'Flag',
+   *        alias: '-f',
+   *        type: 'boolean',
+   *        const: true,
+   *        default: false,
+   *    },
+   *    {
+   *        name: '--values',
+   *        description: 'Values',
+   *        alias: '-v',
+   *        type: 'string',
+   *        nargs: '*',
+   *        default: [],
+   *    }
+   * ]);
+   *
+   * const argv = ['make', '--flag', '-v', 'a', 'b', 'c'];
+   * const parsedArgs = parser.parse(argv);
+   *
+   * console.log(parsedArgs.positional); // { action: 'make' }
+   * console.log(parsedArgs.optional); // { flag: true, values: ['a', 'b', 'c'] }
+   * console.log(parsedArgs.get('--values')); // ['a', 'b', 'c']
+   * ```
    */
   public parse(argv: string[]) {
     const positionalArgs = this.getPositionalArguments();
