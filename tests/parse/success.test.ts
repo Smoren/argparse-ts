@@ -7,7 +7,7 @@ describe.each([
   ...dataProviderForSingleSeveralOptionals(),
   ...dataProviderForAliasedSingleOptionals(),
   ...dataProviderForAliasedSingleSeveralOptionals(),
-  // ...dataProviderForNamedMultipleArguments(),
+  ...dataProviderForMultipleOptionals(),
   // ...dataProviderForAliasedMultipleArguments(),
   // ...dataProviderForValidatedArguments(),
 ])(
@@ -1117,255 +1117,273 @@ function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[],
   ];
 }
 
-// function dataProviderForNamedMultipleArguments(): [ArgConfig[], string, Record<string, unknown>][] {
-//   return [
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//           default: [],
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           multiple: true,
-//           default: [],
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           multiple: true,
-//           default: [],
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//           default: ['a', 'b', 'c'],
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': ['a', 'b', 'c'],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           multiple: true,
-//           default: [1, 2, 3],
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [1, 2, 3],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           multiple: true,
-//           default: [true, false],
-//         },
-//       ],
-//       '--my-first-argument',
-//       {
-//         'my-first-argument': [true, false],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument a',
-//       {
-//         'my-first-argument': ['a'],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument asd',
-//       {
-//         'my-first-argument': ['asd'],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument 1 2 3',
-//       {
-//         'my-first-argument': ['1', '2', '3'],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument 11 22 33',
-//       {
-//         'my-first-argument': ['11', '22', '33'],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument 1 2 3',
-//       {
-//         'my-first-argument': [1, 2, 3],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument 11 22 33',
-//       {
-//         'my-first-argument': [11, 22, 33],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument 0 1 0',
-//       {
-//         'my-first-argument': [false, true, false],
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           multiple: true,
-//         },
-//       ],
-//       '--my-first-argument true 0 false 1 a',
-//       {
-//         'my-first-argument': [true, false, false, true, true],
-//       },
-//     ],
-//   ];
-// }
-//
+function dataProviderForMultipleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: '*',
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          nargs: '*',
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          nargs: '*',
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: '*',
+          default: [],
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          nargs: '*',
+          default: [],
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          nargs: '*',
+          const: [],
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: '*',
+          const: ['a', 'b', 'c'],
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': ['a', 'b', 'c'],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          nargs: '+',
+          const: [1, 2, 3],
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [1, 2, 3],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          nargs: '*',
+          const: [true, false],
+          default: [],
+        },
+      ],
+      ['--my-first-argument'],
+      {},
+      {
+        'my-first-argument': [true, false],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: 1,
+        },
+      ],
+      ['--my-first-argument', 'a'],
+      {},
+      {
+        'my-first-argument': ['a'],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: 1,
+        },
+      ],
+      ['--my-first-argument', 'asd'],
+      {},
+      {
+        'my-first-argument': ['asd'],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: 3,
+        },
+      ],
+      ['--my-first-argument', '1', '2', '3'],
+      {},
+      {
+        'my-first-argument': ['1', '2', '3'],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          nargs: '+',
+        },
+      ],
+      ['--my-first-argument', '11', '22', '33'],
+      {},
+      {
+        'my-first-argument': ['11', '22', '33'],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          nargs: 3,
+        },
+      ],
+      ['--my-first-argument', '1', '2', '3'],
+      {},
+      {
+        'my-first-argument': [1, 2, 3],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          nargs: '*',
+        },
+      ],
+      ['--my-first-argument', '11', '22', '33'],
+      {},
+      {
+        'my-first-argument': [11, 22, 33],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          nargs: '*',
+        },
+      ],
+      ['--my-first-argument', '0', '1', '0'],
+      {},
+      {
+        'my-first-argument': [false, true, false],
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          nargs: 5,
+        },
+      ],
+      ['--my-first-argument', 'true', '0', 'false', '1', 'a'],
+      {},
+      {
+        'my-first-argument': [true, false, false, true, true],
+      },
+    ],
+  ];
+}
+
 // function dataProviderForAliasedMultipleArguments(): [ArgConfig[], string, Record<string, unknown>][] {
 //   return [
 //     [
