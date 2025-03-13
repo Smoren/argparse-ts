@@ -1,4 +1,4 @@
-import type { ArgConfig, NArgs, NArgsConfig } from "../types";
+import type { ArgConfig, ArgConfigExtended, NArgs, NArgsConfig } from "../types";
 import { ArgumentValueError } from "../exceptions";
 
 export function parseArgsArray(argv: string[]): [string[], Record<string, string[]>] {
@@ -44,7 +44,6 @@ export function parseArgsArray(argv: string[]): [string[], Record<string, string
  *
  * @param value - The value to cast.
  * @param argConfig - The argument configuration.
- * @param nargsConfig - The nargs configuration.
  * @param isset - Whether the argument is set. Defaults to true.
  * @param recursive - Whether this is a recursive call. Defaults to false.
  *
@@ -54,12 +53,11 @@ export function parseArgsArray(argv: string[]): [string[], Record<string, string
  */
 export function castArgValue(
   value: string[],
-  argConfig: ArgConfig,
-  nargsConfig: NArgsConfig,
+  argConfig: ArgConfigExtended,
   isset: boolean = true,
   recursive: boolean = false,
 ): unknown {
-  const multiple = recursive ? false : nargsConfig.multiple;
+  const multiple = recursive ? false : argConfig.multiple;
 
   if (!isset) {
     return argConfig.default;
@@ -68,7 +66,7 @@ export function castArgValue(
   if (multiple) {
     const result = value
       .filter((x) => x !== '')
-      .map((v) => castArgValue([v], argConfig, nargsConfig, isset, true));
+      .map((v) => castArgValue([v], argConfig, isset, true));
 
     return result.length > 0 ? result : (argConfig.const ?? []);
   }
@@ -98,7 +96,6 @@ export function castArgValue(
  *
  * @param value - The casted argument value.
  * @param argConfig - The argument configuration.
- * @param nargsConfig - The nargs configuration.
  *
  * @returns The validated value.
  *
@@ -106,13 +103,13 @@ export function castArgValue(
  *
  * @category Utils
  */
-export function validateCastedArgValue<T>(value: T, argConfig: ArgConfig, nargsConfig: NArgsConfig): T {
+export function validateCastedArgValue<T>(value: T, argConfig: ArgConfigExtended): T {
   if (argConfig.choices !== undefined) {
-    if (!nargsConfig.multiple && !argConfig.choices.includes(value)) {
+    if (!argConfig.multiple && !argConfig.choices.includes(value)) {
       throw new ArgumentValueError(
         `Argument ${formatArgNameWithAlias(argConfig)} value must be one of ${argConfig.choices.join(', ')}.`
       );
-    } else if (nargsConfig.multiple && !(value as unknown[]).every((x) => argConfig.choices!.includes(x))) {
+    } else if (argConfig.multiple && !(value as unknown[]).every((x) => argConfig.choices!.includes(x))) {
       throw new ArgumentValueError(
         `Argument ${formatArgNameWithAlias(argConfig)} values must be some of ${argConfig.choices.join(', ')}.`
       );

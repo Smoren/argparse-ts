@@ -80,6 +80,8 @@ export type ArgConfig = {
   validator?: (value: unknown) => boolean;
 }
 
+export type ArgConfigExtended = ArgConfig & NArgsConfig;
+
 /**
  * Interface for a collection of parsed arguments.
  *

@@ -1,4 +1,10 @@
-import type { ArgConfig, ArgsParserInterface, NArgsConfig, ParsedArgumentsCollectionInterface } from "./types";
+import type {
+  ArgConfig,
+  ArgConfigExtended,
+  ArgsParserInterface,
+  NArgsConfig,
+  ParsedArgumentsCollectionInterface
+} from "./types";
 import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
 import { buildNArgsConfig, castArgValue, parseArgsArray, validateCastedArgValue } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
@@ -143,7 +149,7 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Maps argument names to their configuration.
    */
-  private readonly argsMap: Map<string, ArgConfig> = new Map();
+  private readonly argsMap: Map<string, ArgConfigExtended> = new Map();
 
   /**
    * Maps argument aliases to their corresponding names.
@@ -174,14 +180,12 @@ export class ArgsParser implements ArgsParserInterface {
 
     const positionalArgsRows = [];
     for (const arg of positionalArgs) {
-      const nargsConfig = buildNArgsConfig(arg);
-      positionalArgsRows.push(...formatArgHelp(arg, nargsConfig));
+      positionalArgsRows.push(...formatArgHelp(arg));
     }
 
     const optionalArgsRows = [];
     for (const arg of optionalArgs) {
-      const nargsConfig = buildNArgsConfig(arg);
-      optionalArgsRows.push(...formatArgHelp(arg, nargsConfig));
+      optionalArgsRows.push(...formatArgHelp(arg));
     }
 
     const result = [];
@@ -240,7 +244,7 @@ export class ArgsParser implements ArgsParserInterface {
   public addArgument(config: ArgConfig): ArgsParser {
     this.checkArgumentConfig(config);
 
-    this.argsMap.set(config.name, config);
+    this.argsMap.set(config.name, { ...config, ...buildNArgsConfig(config) });
     this.usedArgs.add(config.name);
 
     if (config.alias !== undefined) {
@@ -300,10 +304,9 @@ export class ArgsParser implements ArgsParserInterface {
     const result = new ParsedArgumentsCollection();
 
     for (const argConfig of positionalArgs) {
-      const nargsConfig = buildNArgsConfig(argConfig);
-      this.checkEnoughPositionalValues(parsedPositional, argConfig.name, nargsConfig);
+      this.checkEnoughPositionalValues(parsedPositional, argConfig);
 
-      const toReadCount = this.getArgsCountToRead(nargsConfig, parsedPositional.length);
+      const toReadCount = this.getArgsCountToRead(argConfig, parsedPositional.length);
       const value: string[] = [];
       for (let i=0; i<toReadCount; ++i) {
         if (parsedPositional.length === 0) {
@@ -312,8 +315,8 @@ export class ArgsParser implements ArgsParserInterface {
         value.push(parsedPositional.pop()!);
       }
 
-      const castedValue = castArgValue(value, argConfig, nargsConfig, value.length > 0);
-      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
+      const castedValue = castArgValue(value, argConfig, value.length > 0);
+      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig));
     }
 
     if (parsedPositional.length > 0) {
@@ -322,22 +325,20 @@ export class ArgsParser implements ArgsParserInterface {
 
     for (const [key, value] of Object.entries(parsedOptional)) {
       const argConfig = this.getArgConfig(key);
-      const nargsConfig = buildNArgsConfig(argConfig);
 
-      if (!nargsConfig.allowEmpty && value.length === 0) {
+      if (!argConfig.allowEmpty && value.length === 0) {
         throw new ArgumentValueError(`Argument ${argConfig.name} cannot be empty.`);
       }
 
-      const castedValue = castArgValue(value, argConfig, nargsConfig);
-      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
+      const castedValue = castArgValue(value, argConfig);
+      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig));
 
       optionalArgs.delete(argConfig);
     }
 
     for (const argConfig of optionalArgs) {
-      const nargsConfig = buildNArgsConfig(argConfig);
-      const castedValue = castArgValue([], argConfig, nargsConfig, false);
-      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
+      const castedValue = castArgValue([], argConfig, false);
+      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig));
     }
 
     return result;
@@ -369,24 +370,23 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Checks the number of positional arguments.
    * @param values - An array of positional argument values.
-   * @param argName - The name of the argument.
-   * @param nargsConfig - The nargs configuration.
+   * @param argConfig - The argument configuration.
    */
-  private checkEnoughPositionalValues(values: string[], argName: string, nargsConfig: NArgsConfig): void {
-    const errorMessage = `Not enough positional arguments. ${argName} is required.`;
+  private checkEnoughPositionalValues(values: string[], argConfig: ArgConfigExtended): void {
+    const errorMessage = `Not enough positional arguments. ${argConfig.name} is required.`;
 
-    if (!nargsConfig.multiple) {
-      if (!nargsConfig.allowEmpty && values.length === 0) {
+    if (!argConfig.multiple) {
+      if (!argConfig.allowEmpty && values.length === 0) {
         throw new ArgumentValueError(errorMessage);
       }
       return;
     }
 
-    if (!nargsConfig.allowEmpty && values.length === 0) {
+    if (!argConfig.allowEmpty && values.length === 0) {
       throw new ArgumentValueError(errorMessage);
     }
 
-    if (!nargsConfig.allowEmpty && nargsConfig.count !== undefined && nargsConfig.count > values.length) {
+    if (!argConfig.allowEmpty && argConfig.count !== undefined && argConfig.count > values.length) {
       throw new ArgumentValueError(errorMessage);
     }
   }
@@ -406,10 +406,10 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Retrieves the argument configuration for a given key.
    * @param key - The argument key.
-   * @returns The corresponding ArgConfig.
+   * @returns The corresponding ArgConfigExtended.
    * @throws ArgumentNameError if the argument key is unknown.
    */
-  private getArgConfig(key: string): ArgConfig {
+  private getArgConfig(key: string): ArgConfigExtended {
     const config = this.argsMap.get(this.aliasMap.get(key) ?? key);
     if (config === undefined) {
       throw new ArgumentNameError(`Unknown argument ${key}.`);
@@ -421,7 +421,7 @@ export class ArgsParser implements ArgsParserInterface {
    * Retrieves the positional arguments.
    * @returns An array of positional argument configurations.
    */
-  private getPositionalArguments(): ArgConfig[] {
+  private getPositionalArguments(): ArgConfigExtended[] {
     return [...this.argsMap.values()].filter((x) => !this.isOptional(x));
   }
 
@@ -429,7 +429,7 @@ export class ArgsParser implements ArgsParserInterface {
    * Retrieves the optional arguments.
    * @returns An array of optional argument configurations.
    */
-  private getOptionalArguments(): ArgConfig[] {
+  private getOptionalArguments(): ArgConfigExtended[] {
     return [...this.argsMap.values()].filter((x) => this.isOptional(x));
   }
 

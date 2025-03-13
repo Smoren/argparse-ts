@@ -1,18 +1,17 @@
-import { ArgConfig, NArgsConfig } from "../types";
+import { ArgConfig, ArgConfigExtended, NArgsConfig } from "../types";
 
 /**
  * Generates a help message for an argument.
  *
  * @param argConfig - The argument configuration.
- * @param nargsConfig - The nargs configuration.
  *
  * @returns A 2D array of strings representing the help message.
  *
  * @category Utils
  */
-export function formatArgHelp(argConfig: ArgConfig, nargsConfig: NArgsConfig): string[][] {
+export function formatArgHelp(argConfig: ArgConfigExtended): string[][] {
   const result: string[][] = [];
-  const argUsageExample = formatArgUsageExample(argConfig, nargsConfig);
+  const argUsageExample = formatArgUsageExample(argConfig);
 
   if (argUsageExample.length > 30) {
     result.push([argUsageExample]);
@@ -21,7 +20,7 @@ export function formatArgHelp(argConfig: ArgConfig, nargsConfig: NArgsConfig): s
     result.push([argUsageExample, argConfig.description ?? '<no description>']);
   }
 
-  result.push(['', `Type: ${formatArgType(argConfig, nargsConfig)}`]);
+  result.push(['', `Type: ${formatArgType(argConfig)}`]);
 
   if (argConfig.default !== undefined) {
     result.push(['', `Default value: ${JSON.stringify(argConfig.default)}`]);
@@ -75,16 +74,15 @@ export function convertToTable(data: string[][], padding: number = 0): string {
  * Converts an argument type into a string representation.
  *
  * @param argConfig - The argument configuration.
- * @param nargsConfig - The nargs configuration.
  *
  * @returns A string representation of the argument type.
  *
  * @category Utils
  */
-function formatArgType(argConfig: ArgConfig, nargsConfig: NArgsConfig): string {
-  let result = nargsConfig.multiple ? `Array<${argConfig.type}>` : argConfig.type;
+function formatArgType(argConfig: ArgConfigExtended): string {
+  let result = argConfig.multiple ? `Array<${argConfig.type}>` : argConfig.type;
 
-  if (!nargsConfig.allowEmpty && argConfig.type !== 'boolean') {
+  if (!argConfig.allowEmpty && argConfig.type !== 'boolean') {
     result += ' (not empty)';
   }
 
@@ -95,15 +93,14 @@ function formatArgType(argConfig: ArgConfig, nargsConfig: NArgsConfig): string {
  * Generates a usage example string for an argument.
  *
  * @param argConfig - The argument configuration.
- * @param nargsConfig - The nargs configuration.
  *
  * @returns A string representing the usage example for the argument.
  *
  * @category Utils
  */
-function formatArgUsageExample(argConfig: ArgConfig, nargsConfig: NArgsConfig): string {
+function formatArgUsageExample(argConfig: ArgConfigExtended): string {
   let result = '';
-  const argValueExample = formatArgValueExample(argConfig, nargsConfig);
+  const argValueExample = formatArgValueExample(argConfig);
 
   if (argConfig.alias) {
     result += `${argConfig.alias}${argValueExample}, ${argConfig.name}${argValueExample}`;
@@ -132,18 +129,17 @@ export function tabTableRows(rows: string[][], tabber: string = "\t"): string[][
  * Generates a value example string for an argument.
  *
  * @param argConfig - The argument configuration.
- * @param nargsConfig - The nargs configuration.
  *
  * @returns A string representing the value example for the argument.
  *
  * @category Utils
  */
-function formatArgValueExample(argConfig: ArgConfig, nargsConfig: NArgsConfig): string {
-  if (argConfig.type === 'boolean' && !nargsConfig.multiple) {
+function formatArgValueExample(argConfig: ArgConfigExtended): string {
+  if (argConfig.type === 'boolean' && !argConfig.multiple) {
     return '';
   }
 
-  if (nargsConfig.multiple) {
+  if (argConfig.multiple) {
     return ` <${argConfig.type}> <${argConfig.type}> ...`;
   }
 
