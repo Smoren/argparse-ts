@@ -82,7 +82,7 @@ Positional arguments:
                         Type: Array<string> (not empty)
                         Allowed values: build, clear, sync, start, stop
 
-Optional arguments:
+Options:
 
     --mode <string>     Run mode
                         Type: string
@@ -113,7 +113,7 @@ console.log(parsedArgs.positional);
 }
 */
 
-console.log(parsedArgs.optional);
+console.log(parsedArgs.options);
 /*
 {
   'mode': 'dev',
