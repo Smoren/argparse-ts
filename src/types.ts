@@ -16,35 +16,6 @@ export type ArgType = 'string' | 'number' | 'boolean';
 export type NArgs = number | '?' | '*' | '+';
 
 /**
- * The configuration for nargs.
- *
- * @category Types
- */
-export type NArgsConfig = {
-  /**
-   * If the argument is positional.
-   */
-  positional: boolean;
-  /**
-   * If the argument is multiple.
-   */
-  multiple: boolean;
-  /**
-   * If the argument is required.
-   */
-  required: boolean;
-  /**
-   * If the argument is allowed to be empty.
-   */
-  allowEmpty: boolean;
-  /**
-   * The number of times the argument is allowed to appear.
-   * If not defined, it means the argument can appear any number of times.
-   */
-  valuesCount?: number;
-}
-
-/**
  * Configuration for an argument.
  *
  * @category Types
@@ -92,7 +63,36 @@ export type ArgConfig = {
   validator?: (value: unknown) => boolean;
 }
 
-export type ArgConfigExtended = ArgConfig & NArgsConfig;
+/**
+ * ArgConfig extension.
+ *
+ * @category Types
+ */
+export type ArgExtraConfig = {
+  /**
+   * If the argument is positional.
+   */
+  positional: boolean;
+  /**
+   * If the argument is multiple.
+   */
+  multiple: boolean;
+  /**
+   * If the argument is required.
+   */
+  required: boolean;
+  /**
+   * If the argument is allowed to be empty.
+   */
+  allowEmpty: boolean;
+  /**
+   * The number of times the argument is allowed to appear.
+   * If not defined, it means the argument can appear any number of times.
+   */
+  valuesCount?: number;
+}
+
+export type ArgConfigExtended = ArgConfig & ArgExtraConfig;
 
 /**
  * Interface for a collection of parsed arguments.

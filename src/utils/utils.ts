@@ -1,5 +1,19 @@
 import type { ArgConfig } from "../types";
 
+/**
+ * Parses an array of command-line arguments into positional and optional arguments.
+ *
+ * @param argv - The array of command-line arguments.
+ * @returns A tuple containing an array of positional arguments and a record of optional arguments.
+ *
+ * @example
+ * ```
+ * const argv = ['make', '--flag', '-v', 'a', 'b', 'c'];
+ * const [positional, optional] = parseArgsArray(argv);
+ * console.log(positional); // ['make']
+ * console.log(optional); // { '--flag': [], '-v': ['a', 'b', 'c'] }
+ * ```
+ */
 export function parseArgsArray(argv: string[]): [string[], Record<string, string[]>] {
   const foundIndex = argv.findIndex((x) => x.startsWith('-'));
   const optionalBegin = foundIndex !== -1 ? foundIndex : argv.length;

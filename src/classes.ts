@@ -2,7 +2,7 @@ import type {
   ArgConfig,
   ArgConfigExtended,
   ArgsParserInterface,
-  NArgsConfig,
+  ArgExtraConfig,
   ParsedArgumentsCollectionInterface
 } from "./types";
 import { ArgumentNameError } from "./exceptions";
@@ -349,7 +349,7 @@ export class ArgsParser implements ArgsParserInterface {
     return result;
   }
 
-  private getArgsCountToRead(nargsConfig: NArgsConfig, totalCount: number): number {
+  private getArgsCountToRead(nargsConfig: ArgExtraConfig, totalCount: number): number {
     if (!nargsConfig.multiple) {
       return Math.min(1, totalCount);
     }
@@ -392,10 +392,10 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   private extendArgConfig(config: ArgConfig): ArgConfigExtended {
-    return { ...config, ...this.buildNArgsConfig(config) };
+    return { ...config, ...this.buildArgExtraConfig(config) };
   }
 
-  private buildNArgsConfig(config: ArgConfig): NArgsConfig {
+  private buildArgExtraConfig(config: ArgConfig): ArgExtraConfig {
     const positional = !config.name.startsWith('--');
     const multiple = config.nargs === '*' || config.nargs === '+' || typeof config.nargs === 'number';
     const required = config.required ?? (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
