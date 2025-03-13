@@ -1,5 +1,6 @@
 import type {
   ArgType,
+  NArgs,
   ArgConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
@@ -19,6 +20,7 @@ import {
 
 export type {
   ArgType,
+  NArgs,
   ArgConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
