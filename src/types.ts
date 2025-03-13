@@ -26,6 +26,10 @@ export type NArgsConfig = {
    */
   multiple: boolean;
   /**
+   * If the argument is required.
+   */
+  required: boolean;
+  /**
    * If the argument is allowed to be empty.
    */
   allowEmpty: boolean;

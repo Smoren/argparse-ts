@@ -6,7 +6,7 @@ import type {
   ParsedArgumentsCollectionInterface
 } from "./types";
 import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
-import { buildNArgsConfig, castArgValue, parseArgsArray, validateCastedArgValue } from "./utils/utils";
+import { buildNArgsConfig, castArgValue, parseArgsArray, validateArgValueAfterCast } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
 
 /**
@@ -315,8 +315,7 @@ export class ArgsParser implements ArgsParserInterface {
         value.push(parsedPositional.pop()!);
       }
 
-      const castedValue = castArgValue(value, argConfig, value.length > 0);
-      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig));
+      result.add(argConfig.name, castArgValue(value, argConfig, value.length > 0));
     }
 
     if (parsedPositional.length > 0) {
@@ -326,19 +325,12 @@ export class ArgsParser implements ArgsParserInterface {
     for (const [key, value] of Object.entries(parsedOptional)) {
       const argConfig = this.getArgConfig(key);
 
-      if (!argConfig.allowEmpty && value.length === 0) {
-        throw new ArgumentValueError(`Argument ${argConfig.name} cannot be empty.`);
-      }
-
-      const castedValue = castArgValue(value, argConfig);
-      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig));
-
+      result.add(argConfig.name, castArgValue(value, argConfig));
       optionalArgs.delete(argConfig);
     }
 
     for (const argConfig of optionalArgs) {
-      const castedValue = castArgValue([], argConfig, false);
-      result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig));
+      result.add(argConfig.name, castArgValue([], argConfig, false));
     }
 
     return result;

@@ -59,6 +59,10 @@ export function castArgValue(
 ): unknown {
   const multiple = recursive ? false : argConfig.multiple;
 
+  if (!recursive) {
+    validateArgValueBeforeCast(value, argConfig, isset);
+  }
+
   if (!isset) {
     return argConfig.default;
   }
@@ -71,23 +75,45 @@ export function castArgValue(
     return result.length > 0 ? result : (argConfig.const ?? []);
   }
 
-  let _value: unknown;
+  let result: unknown;
   if (value.length === 1) {
-    _value = value[0];
+    result = value[0];
   } else if (value.length === 0) {
-    _value = argConfig.const;
+    result = argConfig.const;
   } else {
     throw new ArgumentValueError(`Too many values for single argument: ${formatArgNameWithAlias(argConfig)}`);
   }
 
-  if (_value === undefined) {
-    return _value;
+  if (result === undefined) {
+    return result;
   }
 
   switch (argConfig.type) {
-    case 'string': return _value;
-    case 'number': return Number(_value);
-    case 'boolean': return typeof _value === 'boolean' ? _value : _value !== 'false' && _value !== '0';
+    case 'string':
+      result = String(result);
+      break;
+    case 'number':
+      result = Number(result);
+      break;
+    case 'boolean':
+      result = typeof result === 'boolean' ? result : result !== 'false' && result !== '0';
+      break;
+  }
+
+  if (!recursive) {
+    validateArgValueAfterCast(result, argConfig);
+  }
+
+  return result;
+}
+
+export function validateArgValueBeforeCast(value: string[], argConfig: ArgConfigExtended, isset: boolean): void {
+  if (!isset && argConfig.required && value.length === 0) {
+    throw new ArgumentValueError(`Argument ${formatArgNameWithAlias(argConfig)} is required.`);
+  }
+
+  if (isset && !argConfig.allowEmpty && value.length === 0) {
+    throw new ArgumentValueError(`Argument ${formatArgNameWithAlias(argConfig)} cannot be empty.`);
   }
 }
 
@@ -103,7 +129,7 @@ export function castArgValue(
  *
  * @category Utils
  */
-export function validateCastedArgValue<T>(value: T, argConfig: ArgConfigExtended): T {
+export function validateArgValueAfterCast(value: unknown, argConfig: ArgConfigExtended): void {
   if (argConfig.choices !== undefined) {
     if (!argConfig.multiple && !argConfig.choices.includes(value)) {
       throw new ArgumentValueError(
@@ -119,8 +145,6 @@ export function validateCastedArgValue<T>(value: T, argConfig: ArgConfigExtended
   if (argConfig.validator !== undefined && !argConfig.validator(value)) {
     throw new ArgumentValueError(`Argument ${formatArgNameWithAlias(argConfig)} value is invalid.`);
   }
-
-  return value;
 }
 
 /**
@@ -146,9 +170,9 @@ export function formatArgNameWithAlias(argConfig: ArgConfig): string {
  * @category Utils
  */
 export function buildNArgsConfig(argConfig: ArgConfig): NArgsConfig {
-  // TODO allowEmpty, allowNotIsset
   const multiple = argConfig.nargs === '*' || argConfig.nargs === '+' || typeof argConfig.nargs === 'number';
-  const allowEmpty = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.default !== undefined || argConfig.const !== undefined;
+  const required = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.default !== undefined;
+  const allowEmpty = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.const !== undefined;
   const count = typeof argConfig.nargs === 'number' ? argConfig.nargs : undefined;
-  return { multiple, allowEmpty, count };
+  return { multiple, required, allowEmpty, count };
 }
