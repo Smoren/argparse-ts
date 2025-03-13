@@ -3,12 +3,12 @@ import { ArgConfig, ArgsParser } from "../../src";
 
 describe.each([
   ...dataProviderForEmptyArgv(),
-  ...dataProviderForSingleOptionals(),
-  ...dataProviderForSingleSeveralOptionals(),
-  ...dataProviderForAliasedSingleOptionals(),
-  ...dataProviderForAliasedSingleSeveralOptionals(),
-  ...dataProviderForMultipleOptionals(),
-  ...dataProviderForAliasedMultipleOptionals(),
+  ...dataProviderForSingleOptions(),
+  ...dataProviderForSingleSeveralOptions(),
+  ...dataProviderForAliasedSingleOptions(),
+  ...dataProviderForAliasedSingleSeveralOptions(),
+  ...dataProviderForMultipleOptions(),
+  ...dataProviderForAliasedMultipleOptions(),
   ...dataProviderForValidatedArguments(),
 ])(
   'Success Test',
@@ -254,7 +254,7 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
   ];
 }
 
-function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForSingleOptions(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -458,7 +458,7 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
   ];
 }
 
-function dataProviderForSingleSeveralOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForSingleSeveralOptions(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -668,7 +668,7 @@ function dataProviderForSingleSeveralOptionals(): [ArgConfig[], string[], Record
   ];
 }
 
-function dataProviderForAliasedSingleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForAliasedSingleOptions(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -833,7 +833,7 @@ function dataProviderForAliasedSingleOptionals(): [ArgConfig[], string[], Record
   ];
 }
 
-function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForAliasedSingleSeveralOptions(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -1145,7 +1145,7 @@ function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[],
   ];
 }
 
-function dataProviderForMultipleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForMultipleOptions(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -1412,7 +1412,7 @@ function dataProviderForMultipleOptionals(): [ArgConfig[], string[], Record<stri
   ];
 }
 
-function dataProviderForAliasedMultipleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForAliasedMultipleOptions(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
