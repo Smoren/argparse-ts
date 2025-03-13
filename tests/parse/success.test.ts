@@ -194,6 +194,7 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
           name: '--my-first-argument',
           alias: '-f',
           type: 'string',
+          nargs: '?',
         },
       ],
       ['--my-first-argument'],
@@ -236,6 +237,7 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
           name: '--my-first-argument',
           type: 'string',
           default: 'test',
+          const: 'test const'
         },
       ],
       ['--my-first-argument', 'value'],
@@ -249,6 +251,7 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
         {
           name: '--my-first-argument',
           type: 'boolean',
+          nargs: '?',
         },
       ],
       ['--my-first-argument'],
@@ -276,6 +279,7 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
         {
           name: '--my-first-argument',
           type: 'boolean',
+          nargs: '?',
         },
       ],
       ['--my-first-argument'],
@@ -290,6 +294,7 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
           name: '--my-first-argument',
           type: 'boolean',
           const: true,
+          default: false,
         },
       ],
       ['--my-first-argument'],
@@ -317,6 +322,8 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
         {
           name: '--my-first-argument',
           type: 'boolean',
+          default: true,
+          const: true,
         },
       ],
       ['--my-first-argument', '0'],
@@ -343,6 +350,8 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
         {
           name: '--my-first-argument',
           type: 'boolean',
+          default: false,
+          const: false,
         },
       ],
       ['--my-first-argument', '1'],
@@ -552,10 +561,12 @@ function dataProviderForSingleSeveralOptionals(): [ArgConfig[], string[], Record
         {
           name: '--my-first-argument',
           type: 'string',
+          nargs: '?',
         },
         {
           name: '--my-second-argument',
           type: 'number',
+          nargs: '?',
         },
       ],
       ['--my-first-argument', '--my-second-argument'],

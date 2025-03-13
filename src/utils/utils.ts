@@ -150,7 +150,7 @@ export function formatArgNameWithAlias(argConfig: ArgConfig): string {
  */
 export function buildNArgsConfig(argConfig: ArgConfig): NArgsConfig {
   const multiple = argConfig.nargs === '*' || argConfig.nargs === '+' || typeof argConfig.nargs === 'number';
-  const allowEmpty = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.default !== undefined;
+  const allowEmpty = argConfig.nargs === '*' || argConfig.nargs === '?' || argConfig.default !== undefined || argConfig.const !== undefined;
   const count = typeof argConfig.nargs === 'number' ? argConfig.nargs : undefined;
   return { multiple, allowEmpty, count };
 }

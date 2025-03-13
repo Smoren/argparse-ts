@@ -324,6 +324,10 @@ export class ArgsParser implements ArgsParserInterface {
       const argConfig = this.getArgConfig(key);
       const nargsConfig = buildNArgsConfig(argConfig);
 
+      if (!nargsConfig.allowEmpty && value.length === 0) {
+        throw new ArgumentValueError(`Argument ${argConfig.name} cannot be empty.`);
+      }
+
       const castedValue = castArgValue(value, argConfig, nargsConfig);
       result.add(argConfig.name, validateCastedArgValue(castedValue, argConfig, nargsConfig));
 

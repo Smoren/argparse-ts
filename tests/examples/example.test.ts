@@ -213,10 +213,11 @@ it('Forth Test', async () => {
       name: '--value',
       alias: '-v',
       type: 'number',
+      nargs: '?',
     },
   ]);
 
-  const argv = ['-v']; // TODO must throw exception, not 0
+  const argv = ['-v'];
   const parsedArgs = parser.parse(argv);
 
   console.log(parsedArgs.optional);
