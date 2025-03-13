@@ -92,6 +92,11 @@ export type ArgExtraConfig = {
   valuesCount?: number;
 }
 
+/**
+ * Extended configuration for an argument, combining both input and extra configurations.
+ *
+ * @category Types
+ */
 export type ArgConfigExtended = ArgConfig & ArgExtraConfig;
 
 /**
@@ -110,20 +115,26 @@ export interface ParsedArgumentsCollectionInterface {
   readonly options: Record<string, unknown>;
   /**
    * Adds an argument to the collection.
+   *
    * @param name - The name of the argument.
    * @param value - The value of the argument.
+   *
    * @returns The updated collection.
    */
   add(name: string, value: unknown): ParsedArgumentsCollectionInterface;
   /**
    * Retrieves an argument value by name.
+   *
    * @param name - The name of the argument.
+   *
    * @returns The value of the argument.
    */
   get<T = unknown>(name: string): T;
   /**
    * Checks if an argument exists in the collection.
+   *
    * @param name - The name of the argument.
+   *
    * @returns True if the argument exists, false otherwise.
    */
   has(name: string): boolean;
@@ -141,28 +152,68 @@ export interface ArgsParserInterface {
   readonly help: string;
   /**
    * Adds an argument configuration to the parser.
+   *
    * @param config - The argument configuration.
+   *
    * @returns The updated parser.
    */
   addArgument(config: ArgConfig): ArgsParserInterface;
   /**
    * Adds the help message for the arguments to the parser.
+   *
    * @returns The updated parser.
    */
   addHelp(): ArgsParserInterface;
   /**
    * Parses the given argument string and returns a collection of parsed arguments.
+   *
    * @param argv - The argument string.
+   *
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    */
   parse(argv: string[]): ParsedArgumentsCollectionInterface;
 }
 
+/**
+ * Interface for a value validator.
+ *
+ * @category Interfaces
+ */
 export interface ValueValidatorInterface {
+  /**
+   * Validates the argument value before casting.
+   *
+   * @param value - The value to validate.
+   * @param isset - Whether the value is set.
+   *
+   * @throws ArgumentValueError if the value is invalid.
+   */
   validateBeforeCast(value: string[], isset: boolean): void;
+  /**
+   * Validates the argument value after casting.
+   *
+   * @param value - The value to validate.
+   *
+   * @throws ArgumentValueError if the value is invalid.
+   */
   validateAfterCast(value: string[]): void;
 }
 
+/**
+ * Interface for a value caster.
+ *
+ * @template T - The expected type of the argument value.
+ *
+ * @category Interfaces
+ */
 export interface ValueCasterInterface<T> {
+  /**
+   * Casts the argument value to the expected type.
+   *
+   * @param value - The value to cast.
+   * @param isset - Whether the value is set.
+   *
+   * @returns The casted value.
+   */
   cast(value: string[], isset: boolean): T | undefined;
 }
