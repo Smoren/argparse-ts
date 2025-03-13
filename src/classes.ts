@@ -351,7 +351,7 @@ export class ArgsParser implements ArgsParserInterface {
 
   private getArgsCountToRead(nargsConfig: NArgsConfig, totalCount: number): number {
     if (!nargsConfig.multiple) {
-      return 1;
+      return Math.min(1, totalCount);
     }
 
     if (nargsConfig.valuesCount !== undefined) {
@@ -398,8 +398,8 @@ export class ArgsParser implements ArgsParserInterface {
   private buildNArgsConfig(config: ArgConfig): NArgsConfig {
     const positional = !config.name.startsWith('--');
     const multiple = config.nargs === '*' || config.nargs === '+' || typeof config.nargs === 'number';
-    const required = config.required || (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
-    const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined;
+    const required = config.required ?? (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
+    const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined || (positional && !required);
     const valuesCount = typeof config.nargs === 'number' ? config.nargs : undefined;
     return { positional, multiple, required, allowEmpty, valuesCount };
   }

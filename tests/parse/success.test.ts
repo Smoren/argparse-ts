@@ -80,6 +80,71 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
           name: '--my-first-argument',
           type: 'string',
           const: 'test',
+          nargs: '?',
+        },
+      ],
+      [],
+      {},
+      {
+        'my-first-argument': undefined,
+      },
+    ], [
+      [],
+      [],
+      {},
+      {},
+    ],
+    [
+      [
+        {
+          name: 'my-first-argument',
+          type: 'string',
+          default: 'test',
+          nargs: '?',
+        },
+      ],
+      [],
+      {
+        'my-first-argument': 'test',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'my-first-argument',
+          type: 'string',
+          default: ['test'],
+          nargs: '*',
+        },
+      ],
+      [],
+      {
+        'my-first-argument': ['test'],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          default: 'test',
+        },
+      ],
+      [],
+      {},
+      {
+        'my-first-argument': 'test',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          const: 'test',
+          required: false,
         },
       ],
       [],
@@ -149,6 +214,7 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
         {
           name: '--my-first-argument',
           type: 'string',
+          required: false,
         },
       ],
       [],
@@ -162,6 +228,7 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
         {
           name: '--my-first-argument',
           type: 'number',
+          nargs: '?',
         },
       ],
       [],
@@ -175,6 +242,7 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
         {
           name: '--my-first-argument',
           type: 'boolean',
+          required: false,
         },
       ],
       [],
@@ -364,19 +432,6 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
       [
         {
           name: '--my-first-argument',
-          type: 'boolean',
-        },
-      ],
-      ['--my-first-argument', 'asd'],
-      {},
-      {
-        'my-first-argument': true,
-      },
-    ],
-    [
-      [
-        {
-          name: '--my-first-argument',
           type: 'number',
         },
       ],
@@ -398,19 +453,6 @@ function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string
       {},
       {
         'my-first-argument': 0,
-      },
-    ],
-    [
-      [
-        {
-          name: '--my-first-argument',
-          type: 'number',
-        },
-      ],
-      ['--my-first-argument', 'asd'],
-      {},
-      {
-        'my-first-argument': NaN,
       },
     ],
   ];
@@ -764,20 +806,6 @@ function dataProviderForAliasedSingleOptionals(): [ArgConfig[], string[], Record
         {
           name: '--my-first-argument',
           alias: '-f',
-          type: 'boolean',
-        },
-      ],
-      ['-f', 'asd'],
-      {},
-      {
-        'my-first-argument': true,
-      },
-    ],
-    [
-      [
-        {
-          name: '--my-first-argument',
-          alias: '-f',
           type: 'number',
         },
       ],
@@ -800,20 +828,6 @@ function dataProviderForAliasedSingleOptionals(): [ArgConfig[], string[], Record
       {},
       {
         'my-first-argument': 0,
-      },
-    ],
-    [
-      [
-        {
-          name: '--my-first-argument',
-          alias: '-f',
-          type: 'number',
-        },
-      ],
-      ['-f', 'asd'],
-      {},
-      {
-        'my-first-argument': NaN,
       },
     ],
   ];
@@ -956,12 +970,14 @@ function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[],
           alias: '-f',
           type: 'string',
           default: 'test',
+          nargs: '?',
         },
         {
           name: '--my-second-argument',
           alias: '-s',
           type: 'number',
           default: 123,
+          nargs: '?',
         },
       ],
       ['-f', '-s'],
@@ -1090,6 +1106,7 @@ function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[],
           name: '--my-boolean-argument',
           alias: '-b',
           type: 'boolean',
+          required: false,
         },
       ],
       ['-s', 'str', '-n', '22'],
@@ -1386,7 +1403,7 @@ function dataProviderForMultipleOptionals(): [ArgConfig[], string[], Record<stri
           nargs: 5,
         },
       ],
-      ['--my-first-argument', 'true', '0', 'false', '1', 'a'],
+      ['--my-first-argument', 'true', '0', 'false', '1', 'TRUE'],
       {},
       {
         'my-first-argument': [true, false, false, true, true],
@@ -1637,7 +1654,7 @@ function dataProviderForAliasedMultipleOptionals(): [ArgConfig[], string[], Reco
           nargs: '*',
         },
       ],
-      ['-f', 'true', '0', 'false', '1', 'a'],
+      ['-f', 'true', '0', 'false', '1', 'TRUE'],
       {},
       {
         'my-first-argument': [true, false, false, true, true],
@@ -1701,7 +1718,7 @@ function dataProviderForValidatedArguments(): [ArgConfig[], string[], Record<str
           validator: (x) => Boolean(x),
         },
       ],
-      ['--my-first-argument', '3'],
+      ['--my-first-argument', '1'],
       {},
       {
         'my-first-argument': true,

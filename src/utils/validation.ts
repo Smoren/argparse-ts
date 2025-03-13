@@ -139,11 +139,11 @@ class ArrayValueValidator extends BaseValueValidator {
 
   public validateBeforeCast(value: string[], isset: boolean) {
     super.validateBeforeCast(value, isset);
-    value.forEach((v) => this.itemValidator.validateBeforeCast([v], isset));
+    (value ?? []).forEach((v) => this.itemValidator.validateBeforeCast([v], isset));
   }
 
   public validateAfterCast(value: string[]) {
     super.validateAfterCast(value);
-    value.forEach((v) => this.itemValidator.validateAfterCast([v]));
+    (value ?? []).forEach((v) => this.itemValidator.validateAfterCast([v]));
   }
 }

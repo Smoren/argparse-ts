@@ -233,7 +233,7 @@ it('Fifth Test', async () => {
     },
   ]);
 
-  const argsString = [`-v`, `"123  'abc'  123"`, `567`, `"89"`]; // TODO must be parsed
+  const argsString = [`-v`, `"123  'abc'  123"`, `567`, `"89"`];
   const parsedArgs = parser.parse(argsString);
 
   console.log(parsedArgs.options);
@@ -254,12 +254,13 @@ it('Sixth Test', async () => {
   console.log(parsedArgs.options);
 });
 
-it('Sixth Test', async () => {
+it('Seventh Test', async () => {
   const parser = new ArgsParser([
     {
       name: '--my-first-argument',
       type: 'string',
       default: 'test',
+      const: 'const test',
     },
   ]);
 

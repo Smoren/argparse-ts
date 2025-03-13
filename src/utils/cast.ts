@@ -27,11 +27,11 @@ abstract class BaseValueCaster<T> implements ValueCasterInterface<T> {
 
   public cast(value: string[], isset: boolean): T | undefined {
     if (!isset) {
-      return this.argConfig.const as T;
+      return this.argConfig.default as T;
     }
 
     if (value.length === 0) {
-      return this.argConfig.default as T;
+      return this.argConfig.const as T;
     }
 
     return undefined;
@@ -56,19 +56,19 @@ abstract class SingleValueCaster<T extends boolean | number | string> extends Ba
 
 class StringValueCaster extends SingleValueCaster<string> {
   protected castInternal(value?: string): string | undefined {
-    return value ? String(value) : undefined;
+    return value !== undefined ? String(value) : undefined;
   }
 }
 
 class NumberValueCaster extends SingleValueCaster<number> {
   protected castInternal(value?: string): number | undefined {
-    return value ? Number(value) : undefined;
+    return value !== undefined ? Number(value) : undefined;
   }
 }
 
 class BooleanValueCaster extends SingleValueCaster<boolean> {
   protected castInternal(value?: string): boolean | undefined {
-    return value ? !['false', '0'].includes(value) : undefined;
+    return value !== undefined ? !['false', '0'].includes(value) : undefined;
   }
 }
 
@@ -81,6 +81,13 @@ class ArrayValueCaster<T> extends BaseValueCaster<T[]> {
   }
 
   public cast(value: string[], isset: boolean): T[] | undefined {
+    const baseCasted = super.cast(value, isset);
+    if (baseCasted !== undefined && baseCasted.length > 0) {
+      return baseCasted;
+    }
+    if (value.length === 0 && !isset) {
+      return undefined;
+    }
     return value.map((v) => this.itemCaster.cast([v], isset)!);
   }
 }
