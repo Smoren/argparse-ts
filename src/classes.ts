@@ -2,7 +2,6 @@ import type {
   ArgConfig,
   ArgConfigExtended,
   ArgsParserInterface,
-  ArgExtraConfig,
   ParsedArgumentsCollectionInterface
 } from "./types";
 import { ArgumentNameError } from "./exceptions";
@@ -314,10 +313,12 @@ export class ArgsParser implements ArgsParserInterface {
 
     const result = new ParsedArgumentsCollection();
 
-    for (const argConfig of positionalArgs) {
+    for (let i=0; i<positionalArgs.length; ++i) {
+      const argConfig = positionalArgs[i];
+
       checkEnoughPositionalValues(parsedPositional, argConfig);
 
-      const toReadCount = this.getArgsCountToRead(argConfig, parsedPositional.length);
+      const toReadCount = this.getArgsCountToRead(argConfig, positionalArgs.slice(i+1), parsedPositional);
       const value: string[] = [];
       for (let i=0; i<toReadCount; ++i) {
         value.push(parsedPositional.pop()!);
@@ -411,22 +412,24 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Determines the number of arguments to read based on the nargs configuration.
    *
-   * @param nargsConfig - The configuration specifying how many arguments can be read.
+   * @param argConfig - The configuration specifying how many arguments can be read.
+   * @param remainingArgConfigs - The remaining arguments to read.
    * @param totalCount - The total number of available arguments.
    *
    * @returns The number of arguments to read.
    */
-  private getArgsCountToRead(nargsConfig: ArgExtraConfig, totalCount: number): number {
-    // TODO add support for nargs='*',  nargs='+'
+  private getArgsCountToRead(argConfig: ArgConfigExtended, remainingArgConfigs: ArgConfigExtended[], totalCount: string[]): number {
+    const minRemainingValuesCount = remainingArgConfigs.reduce((acc, x) => acc + x.minValuesCount, 0);
+    const maxCurrentValuesCount = totalCount.length - minRemainingValuesCount;
 
-    if (!nargsConfig.multiple) {
-      return Math.min(1, totalCount);
+    if (!argConfig.multiple) {
+      return Math.min(1, maxCurrentValuesCount);
     }
 
-    if (nargsConfig.valuesCount !== undefined) {
-      return Math.min(nargsConfig.valuesCount, totalCount);
+    if (argConfig.valuesCount !== undefined) {
+      return Math.min(argConfig.valuesCount, maxCurrentValuesCount);
     }
 
-    return totalCount;
+    return totalCount.length;
   }
 }

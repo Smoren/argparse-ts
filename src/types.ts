@@ -86,6 +86,10 @@ export type ArgExtraConfig = {
    */
   allowEmpty: boolean;
   /**
+   * The minimum number of times the argument is allowed to appear.
+   */
+  minValuesCount: number;
+  /**
    * The number of times the argument is allowed to appear.
    * If not defined, it means the argument can appear any number of times.
    */

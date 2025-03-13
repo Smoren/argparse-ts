@@ -82,5 +82,6 @@ export function buildArgExtraConfig(config: ArgConfig): ArgExtraConfig {
   const required = config.required ?? (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
   const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined || (positional && !required);
   const valuesCount = typeof config.nargs === 'number' ? config.nargs : undefined;
-  return { positional, multiple, required, allowEmpty, valuesCount };
+  const minValuesCount = Math.min(valuesCount ?? Infinity, allowEmpty ? 0 : 1);
+  return { positional, multiple, required, allowEmpty, valuesCount, minValuesCount };
 }
