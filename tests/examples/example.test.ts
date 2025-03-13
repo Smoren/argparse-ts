@@ -237,3 +237,18 @@ it('Fifth Test', async () => {
 
   console.log(parsedArgs.optional);
 });
+
+it('Sixth Test', async () => {
+  const parser = new ArgsParser([
+    {
+      name: '--my-first-argument',
+      type: 'string',
+      nargs: '*',
+    },
+  ]);
+
+  const argsString: string[] = [];
+  const parsedArgs = parser.parse(argsString);
+
+  console.log(parsedArgs.optional);
+});

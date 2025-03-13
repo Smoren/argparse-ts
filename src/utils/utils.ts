@@ -62,9 +62,6 @@ export function castArgValue(
   const multiple = recursive ? false : nargsConfig.multiple;
 
   if (!isset) {
-    if (multiple) {
-      return argConfig.default ?? [];
-    }
     return argConfig.default;
   }
 

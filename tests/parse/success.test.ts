@@ -63,20 +63,6 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
     [
       [
         {
-          name: 'my-first-argument',
-          type: 'string',
-          nargs: '*',
-        },
-      ],
-      [],
-      {
-        'my-first-argument': [],
-      },
-      {},
-    ],
-    [
-      [
-        {
           name: '--my-first-argument',
           type: 'string',
           default: 'test',
@@ -94,6 +80,20 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
           name: '--my-first-argument',
           type: 'string',
           const: 'test',
+        },
+      ],
+      [],
+      {},
+      {
+        'my-first-argument': undefined,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          nargs: '*',
         },
       ],
       [],
