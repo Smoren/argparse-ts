@@ -4,8 +4,8 @@ import { ArgConfig, ArgsParser } from "../../src";
 describe.each([
   ...dataProviderForEmptyArgv(),
   ...dataProviderForSingleOptional(),
-  ...dataProviderForNamedSingleSeveralArguments(),
-  // ...dataProviderForAliasedSingleArguments(),
+  ...dataProviderForSingleSeveralOptionals(),
+  ...dataProviderForAliasedSingleSeveralOptionals(),
   // ...dataProviderForAliasedSingleSeveralArguments(),
   // ...dataProviderForNamedMultipleArguments(),
   // ...dataProviderForAliasedMultipleArguments(),
@@ -407,7 +407,7 @@ function dataProviderForSingleOptional(): [ArgConfig[], string[], Record<string,
   ];
 }
 
-function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForSingleSeveralOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -615,185 +615,199 @@ function dataProviderForNamedSingleSeveralArguments(): [ArgConfig[], string[], R
   ];
 }
 
-// function dataProviderForAliasedSingleArguments(): [ArgConfig[], string, Record<string, unknown>][] {
-//   return [
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//         },
-//       ],
-//       '-f',
-//       {
-//         'my-first-argument': '',
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//         },
-//       ],
-//       '-f value',
-//       {
-//         'my-first-argument': 'value',
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//       ],
-//       '-f value',
-//       {
-//         'my-first-argument': 'value',
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-f',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           default: true,
-//         },
-//       ],
-//       '-f',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//           default: false,
-//         },
-//       ],
-//       '-f',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-f 0',
-//       {
-//         'my-first-argument': false,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-f false',
-//       {
-//         'my-first-argument': false,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-f 1',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-f asd',
-//       {
-//         'my-first-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           required: true,
-//         },
-//       ],
-//       '-f 0',
-//       {
-//         'my-first-argument': 0,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//           default: 1,
-//         },
-//       ],
-//       '-f 0',
-//       {
-//         'my-first-argument': 0,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'number',
-//         },
-//       ],
-//       '-f asd',
-//       {
-//         'my-first-argument': NaN,
-//       },
-//     ],
-//   ];
-// }
-//
+function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+        },
+      ],
+      ['-f', ''],
+      {},
+      {
+        'my-first-argument': '',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+        },
+      ],
+      ['-f', 'value'],
+      {},
+      {
+        'my-first-argument': 'value',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+      ],
+      ['-f', 'value'],
+      {},
+      {
+        'my-first-argument': 'value',
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          const: true,
+        },
+      ],
+      ['-f'],
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          const: true,
+        },
+      ],
+      ['-f'],
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+          const: true,
+          default: false,
+        },
+      ],
+      ['-f'],
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+        },
+      ],
+      ['-f', '0'],
+      {},
+      {
+        'my-first-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+        },
+      ],
+      ['-f', 'false'],
+      {},
+      {
+        'my-first-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+        },
+      ],
+      ['-f', '1'],
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'boolean',
+        },
+      ],
+      ['-f', 'asd'],
+      {},
+      {
+        'my-first-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+        },
+      ],
+      ['-f', '0'],
+      {},
+      {
+        'my-first-argument': 0,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+          default: 1,
+        },
+      ],
+      ['-f', '0'],
+      {},
+      {
+        'my-first-argument': 0,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'number',
+        },
+      ],
+      ['-f', 'asd'],
+      {},
+      {
+        'my-first-argument': NaN,
+      },
+    ],
+  ];
+}
+
 // function dataProviderForAliasedSingleSeveralArguments(): [ArgConfig[], string, Record<string, unknown>][] {
 //   return [
 //     [
