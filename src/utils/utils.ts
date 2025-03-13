@@ -1,10 +1,12 @@
-import type { ArgConfig } from "../types";
+import type { ArgConfig, ArgExtraConfig } from "../types";
 
 /**
  * Parses an array of command-line arguments into positional and optional arguments.
  *
  * @param argv - The array of command-line arguments.
  * @returns A tuple containing an array of positional arguments and a record of optional arguments.
+ *
+ * @category Utils
  *
  * @example
  * ```
@@ -63,4 +65,22 @@ export function parseArgsArray(argv: string[]): [string[], Record<string, string
  */
 export function formatArgNameWithAlias(argConfig: ArgConfig): string {
   return `${argConfig.name}${argConfig.alias ? ` (${argConfig.alias})` : ''}`;
+}
+
+/**
+ * Builds the extra configuration for an argument.
+ *
+ * @param config - The argument configuration.
+ *
+ * @returns The extra configuration.
+ *
+ * @category Utils
+ */
+export function buildArgExtraConfig(config: ArgConfig): ArgExtraConfig {
+  const positional = !config.name.startsWith('--');
+  const multiple = config.nargs === '*' || config.nargs === '+' || typeof config.nargs === 'number';
+  const required = config.required ?? (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
+  const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined || (positional && !required);
+  const valuesCount = typeof config.nargs === 'number' ? config.nargs : undefined;
+  return { positional, multiple, required, allowEmpty, valuesCount };
 }

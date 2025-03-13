@@ -6,7 +6,7 @@ import type {
   ParsedArgumentsCollectionInterface
 } from "./types";
 import { ArgumentNameError } from "./exceptions";
-import { parseArgsArray } from "./utils/utils";
+import { buildArgExtraConfig, parseArgsArray } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
 import {
   checkAllPositionalValuesUsed,
@@ -170,6 +170,7 @@ export class ArgsParser implements ArgsParserInterface {
 
   /**
    * Constructs an instance of ArgsParser with the provided argument configurations.
+   *
    * @param args - An array of argument configurations.
    */
   constructor(args: ArgConfig[] = []) {
@@ -218,6 +219,7 @@ export class ArgsParser implements ArgsParserInterface {
 
   /**
    * Adds the help message for the arguments to the parser.
+   *
    * @returns The updated parser.
    */
   public addHelp(): ArgsParser {
@@ -233,6 +235,7 @@ export class ArgsParser implements ArgsParserInterface {
 
   /**
    * Adds a new argument configuration to the parser.
+   *
    * @param config - The argument configuration.
    * @returns The instance of ArgsParser for chaining.
    *
@@ -264,6 +267,7 @@ export class ArgsParser implements ArgsParserInterface {
 
   /**
    * Parses the given argument string and returns a collection of parsed arguments.
+   *
    * @param argv - The argument string.
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    *
@@ -338,6 +342,15 @@ export class ArgsParser implements ArgsParserInterface {
     return result;
   }
 
+  /**
+   * Processes a single argument value.
+   *
+   * @param value - The value(s) being processed.
+   * @param argConfig - The configuration of the argument.
+   * @param isset - Whether the argument is set.
+   *
+   * @returns The processed value, or undefined if the argument is not set.
+   */
   private processArgValue(value: string[], argConfig: ArgConfigExtended, isset: boolean): unknown {
     const validator = createValueValidator(argConfig);
     const caster = createValueCaster(argConfig);
@@ -349,22 +362,31 @@ export class ArgsParser implements ArgsParserInterface {
     return result;
   }
 
-  private getArgsCountToRead(nargsConfig: ArgExtraConfig, totalCount: number): number {
-    if (!nargsConfig.multiple) {
-      return Math.min(1, totalCount);
-    }
+  /**
+   * Retrieves the positional arguments.
+   *
+   * @returns An array of positional argument configurations.
+   */
+  private getPositionalArguments(): ArgConfigExtended[] {
+    return [...this.argsMap.values()].filter((x) => x.positional);
+  }
 
-    if (nargsConfig.valuesCount !== undefined) {
-      return Math.min(nargsConfig.valuesCount, totalCount);
-    }
-
-    return totalCount;
+  /**
+   * Retrieves the optional arguments.
+   *
+   * @returns An array of optional argument configurations.
+   */
+  private getOptionArguments(): ArgConfigExtended[] {
+    return [...this.argsMap.values()].filter((x) => !x.positional);
   }
 
   /**
    * Retrieves the argument configuration for a given key.
+   *
    * @param key - The argument key.
+   *
    * @returns The corresponding ArgConfigExtended.
+   *
    * @throws ArgumentNameError if the argument key is unknown.
    */
   private getArgConfig(key: string): ArgConfigExtended {
@@ -376,31 +398,33 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
-   * Retrieves the positional arguments.
-   * @returns An array of positional argument configurations.
+   * Extends an argument configuration with extra information.
+   *
+   * @param config - The argument configuration.
+   *
+   * @returns The argument configuration extended with extra information.
    */
-  private getPositionalArguments(): ArgConfigExtended[] {
-    return [...this.argsMap.values()].filter((x) => x.positional);
+  private extendArgConfig(config: ArgConfig): ArgConfigExtended {
+    return { ...config, ...buildArgExtraConfig(config) };
   }
 
   /**
-   * Retrieves the optional arguments.
-   * @returns An array of optional argument configurations.
+   * Determines the number of arguments to read based on the nargs configuration.
+   *
+   * @param nargsConfig - The configuration specifying how many arguments can be read.
+   * @param totalCount - The total number of available arguments.
+   *
+   * @returns The number of arguments to read.
    */
-  private getOptionArguments(): ArgConfigExtended[] {
-    return [...this.argsMap.values()].filter((x) => !x.positional);
-  }
+  private getArgsCountToRead(nargsConfig: ArgExtraConfig, totalCount: number): number {
+    if (!nargsConfig.multiple) {
+      return Math.min(1, totalCount);
+    }
 
-  private extendArgConfig(config: ArgConfig): ArgConfigExtended {
-    return { ...config, ...this.buildArgExtraConfig(config) };
-  }
+    if (nargsConfig.valuesCount !== undefined) {
+      return Math.min(nargsConfig.valuesCount, totalCount);
+    }
 
-  private buildArgExtraConfig(config: ArgConfig): ArgExtraConfig {
-    const positional = !config.name.startsWith('--');
-    const multiple = config.nargs === '*' || config.nargs === '+' || typeof config.nargs === 'number';
-    const required = config.required ?? (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
-    const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined || (positional && !required);
-    const valuesCount = typeof config.nargs === 'number' ? config.nargs : undefined;
-    return { positional, multiple, required, allowEmpty, valuesCount };
+    return totalCount;
   }
 }
