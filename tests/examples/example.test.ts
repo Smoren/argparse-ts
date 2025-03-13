@@ -56,7 +56,7 @@ it('Example Test', async () => {
     'operations': ['clear', 'build', 'start', 'sync'],
   });
 
-  expect(parsedArgs.optional).toEqual({
+  expect(parsedArgs.options).toEqual({
     'mode': 'dev',
     'cpu': 1,
     'use-gpu': true,
@@ -136,7 +136,7 @@ it('First Test', async () => {
     'positional-second': 123,
   });
 
-  expect(parsedArgs.optional).toEqual({
+  expect(parsedArgs.options).toEqual({
     'optional-first': 'test',
     'optional-second': false,
     'optional-third': [1, 2, 3],
@@ -189,7 +189,7 @@ it('Second Test', async () => {
   const argv = ['-s', '-f', '0'];
   const parsedArgs = parser.parse(argv);
 
-  console.log(parsedArgs.optional);
+  console.log(parsedArgs.options);
 });
 
 it('Third Test', async () => {
@@ -204,7 +204,7 @@ it('Third Test', async () => {
   const argv = ['-v', ''];
   const parsedArgs = parser.parse(argv);
 
-  console.log(parsedArgs.optional);
+  console.log(parsedArgs.options);
 });
 
 it('Forth Test', async () => {
@@ -220,7 +220,7 @@ it('Forth Test', async () => {
   const argv = ['-v'];
   const parsedArgs = parser.parse(argv);
 
-  console.log(parsedArgs.optional);
+  console.log(parsedArgs.options);
 });
 
 it('Fifth Test', async () => {
@@ -236,7 +236,7 @@ it('Fifth Test', async () => {
   const argsString = [`-v`, `"123  'abc'  123"`, `567`, `"89"`]; // TODO must be parsed
   const parsedArgs = parser.parse(argsString);
 
-  console.log(parsedArgs.optional);
+  console.log(parsedArgs.options);
 });
 
 it('Sixth Test', async () => {
@@ -251,7 +251,7 @@ it('Sixth Test', async () => {
   const argsString: string[] = [];
   const parsedArgs = parser.parse(argsString);
 
-  console.log(parsedArgs.optional);
+  console.log(parsedArgs.options);
 });
 
 it('Sixth Test', async () => {
@@ -266,5 +266,5 @@ it('Sixth Test', async () => {
   const argsString: string[] = ['--my-first-argument']; // must throw exception
   const parsedArgs = parser.parse(argsString);
 
-  console.log(parsedArgs.optional);
+  console.log(parsedArgs.options);
 });

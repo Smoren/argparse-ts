@@ -10,7 +10,7 @@ export class ArgsParserError extends Error {}
  *
  * @category Exceptions
  */
-export class AddArgumentError extends ArgsParserError {}
+export class ArgumentConfigError extends ArgsParserError {}
 
 /**
  * Thrown when the argument name is invalid.

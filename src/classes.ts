@@ -5,9 +5,16 @@ import type {
   NArgsConfig,
   ParsedArgumentsCollectionInterface
 } from "./types";
-import { AddArgumentError, ArgumentNameError, ArgumentValueError } from "./exceptions";
-import { buildNArgsConfig, castArgValue, parseArgsArray, validateArgValueAfterCast } from "./utils/utils";
+import { ArgumentNameError } from "./exceptions";
+import { parseArgsArray } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
+import {
+  checkAllPositionalValuesUsed,
+  checkEnoughPositionalValues,
+  createValueValidator,
+  validateArgConfig
+} from "./utils/validation";
+import { createValueCaster } from "./utils/cast";
 
 /**
  * A collection of parsed arguments.
@@ -23,7 +30,7 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
   /**
    * A collection of parsed optional arguments.
    */
-  private readonly optionalArgs: Record<string, unknown> = {};
+  private readonly optionArgs: Record<string, unknown> = {};
 
   /**
    * Returns all arguments as a record.
@@ -35,8 +42,8 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
   /**
    * Returns all arguments as a record.
    */
-  public get optional(): Record<string, unknown> {
-    return { ...this.optionalArgs };
+  public get options(): Record<string, unknown> {
+    return { ...this.optionArgs };
   }
 
   /**
@@ -51,7 +58,7 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
     if (this.isPositional(name)) {
       this.positionalArgs[formattedName] = value;
     } else {
-      this.optionalArgs[formattedName] = value;
+      this.optionArgs[formattedName] = value;
     }
 
     return this;
@@ -69,7 +76,7 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
       return (this.positional[formattedName] ?? undefined) as T;
     }
 
-    return (this.optionalArgs[formattedName] ?? undefined) as T;
+    return (this.optionArgs[formattedName] ?? undefined) as T;
   }
 
   /**
@@ -84,7 +91,7 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
       return (this.positional[formattedName] ?? undefined) !== undefined;
     }
 
-    return (this.optionalArgs[formattedName] ?? undefined) !== undefined;
+    return (this.optionArgs[formattedName] ?? undefined) !== undefined;
   }
 
   /**
@@ -176,7 +183,7 @@ export class ArgsParser implements ArgsParserInterface {
    */
   public get help(): string {
     const positionalArgs = this.getPositionalArguments();
-    const optionalArgs = this.getOptionalArguments();
+    const optionArgs = this.getOptionArguments();
 
     const positionalArgsRows = [];
     for (const arg of positionalArgs) {
@@ -184,7 +191,7 @@ export class ArgsParser implements ArgsParserInterface {
     }
 
     const optionalArgsRows = [];
-    for (const arg of optionalArgs) {
+    for (const arg of optionArgs) {
       optionalArgsRows.push(...formatArgHelp(arg));
     }
 
@@ -200,7 +207,7 @@ export class ArgsParser implements ArgsParserInterface {
 
     if (optionalArgsRows.length > 0) {
       result.push(
-        ['Optional arguments:'],
+        ['Options:'],
         [''],
         ...tabTableRows(optionalArgsRows),
       )
@@ -242,9 +249,9 @@ export class ArgsParser implements ArgsParserInterface {
    * ```
    */
   public addArgument(config: ArgConfig): ArgsParser {
-    this.checkArgumentConfig(config);
+    validateArgConfig(config, this.usedArgs);
 
-    this.argsMap.set(config.name, { ...config, ...buildNArgsConfig(config) });
+    this.argsMap.set(config.name, this.extendArgConfig(config));
     this.usedArgs.add(config.name);
 
     if (config.alias !== undefined) {
@@ -296,91 +303,50 @@ export class ArgsParser implements ArgsParserInterface {
    */
   public parse(argv: string[]) {
     const positionalArgs = this.getPositionalArguments();
-    const optionalArgs = new Set(this.getOptionalArguments());
+    const optionalArgs = new Set(this.getOptionArguments());
 
-    let [parsedPositional, parsedOptional] = parseArgsArray(argv);
+    let [parsedPositional, parsedOptions] = parseArgsArray(argv);
     parsedPositional.reverse();
 
     const result = new ParsedArgumentsCollection();
 
     for (const argConfig of positionalArgs) {
-      this.checkEnoughPositionalValues(parsedPositional, argConfig);
+      checkEnoughPositionalValues(parsedPositional, argConfig);
 
       const toReadCount = this.getArgsCountToRead(argConfig, parsedPositional.length);
       const value: string[] = [];
       for (let i=0; i<toReadCount; ++i) {
-        if (parsedPositional.length === 0) {
-          break;
-        }
         value.push(parsedPositional.pop()!);
       }
 
-      result.add(argConfig.name, castArgValue(value, argConfig, value.length > 0));
+      result.add(argConfig.name, this.processArgValue(value, argConfig, value.length > 0));
     }
 
-    if (parsedPositional.length > 0) {
-      throw new ArgumentValueError('Too many positional arguments.');
-    }
+    checkAllPositionalValuesUsed(parsedPositional);
 
-    for (const [key, value] of Object.entries(parsedOptional)) {
+    for (const [key, value] of Object.entries(parsedOptions)) {
       const argConfig = this.getArgConfig(key);
 
-      result.add(argConfig.name, castArgValue(value, argConfig));
+      result.add(argConfig.name, this.processArgValue(value, argConfig, true));
       optionalArgs.delete(argConfig);
     }
 
     for (const argConfig of optionalArgs) {
-      result.add(argConfig.name, castArgValue([], argConfig, false));
+      result.add(argConfig.name, this.processArgValue([], argConfig, false));
     }
 
     return result;
   }
 
-  /**
-   * Checks the validity of an argument configuration.
-   * @param config - The argument configuration.
-   * @throws AddArgumentError if the configuration is invalid.
-   */
-  private checkArgumentConfig(config: ArgConfig) {
-    if (config.name.startsWith('-') && !config.name.startsWith('--')) {
-      throw new AddArgumentError(`Argument name ${config.name} is invalid.`);
-    }
+  private processArgValue(value: string[], argConfig: ArgConfigExtended, isset: boolean): unknown {
+    const validator = createValueValidator(argConfig);
+    const caster = createValueCaster(argConfig);
 
-    if (config.alias !== undefined && (!config.alias.startsWith('-') || config.alias.startsWith('--'))) {
-      throw new AddArgumentError(`Argument name ${config.name} is invalid.`);
-    }
+    validator.validateBeforeCast(value, isset);
+    const result = caster.cast(value, isset);
+    validator.validateAfterCast(result);
 
-    if (this.usedArgs.has(config.name)) {
-      throw new AddArgumentError(`Argument ${config.name} already exists.`);
-    }
-
-    if (config.alias !== undefined && this.usedArgs.has(config.alias)) {
-      throw new AddArgumentError(`Argument ${config.alias} already exists.`);
-    }
-  }
-
-  /**
-   * Checks the number of positional arguments.
-   * @param values - An array of positional argument values.
-   * @param argConfig - The argument configuration.
-   */
-  private checkEnoughPositionalValues(values: string[], argConfig: ArgConfigExtended): void {
-    const errorMessage = `Not enough positional arguments. ${argConfig.name} is required.`;
-
-    if (!argConfig.multiple) {
-      if (!argConfig.allowEmpty && values.length === 0) {
-        throw new ArgumentValueError(errorMessage);
-      }
-      return;
-    }
-
-    if (!argConfig.allowEmpty && values.length === 0) {
-      throw new ArgumentValueError(errorMessage);
-    }
-
-    if (!argConfig.allowEmpty && argConfig.count !== undefined && argConfig.count > values.length) {
-      throw new ArgumentValueError(errorMessage);
-    }
+    return result;
   }
 
   private getArgsCountToRead(nargsConfig: NArgsConfig, totalCount: number): number {
@@ -388,8 +354,8 @@ export class ArgsParser implements ArgsParserInterface {
       return 1;
     }
 
-    if (nargsConfig.count !== undefined) {
-      return nargsConfig.count;
+    if (nargsConfig.valuesCount !== undefined) {
+      return Math.min(nargsConfig.valuesCount, totalCount);
     }
 
     return totalCount;
@@ -414,23 +380,27 @@ export class ArgsParser implements ArgsParserInterface {
    * @returns An array of positional argument configurations.
    */
   private getPositionalArguments(): ArgConfigExtended[] {
-    return [...this.argsMap.values()].filter((x) => !this.isOptional(x));
+    return [...this.argsMap.values()].filter((x) => x.positional);
   }
 
   /**
    * Retrieves the optional arguments.
    * @returns An array of optional argument configurations.
    */
-  private getOptionalArguments(): ArgConfigExtended[] {
-    return [...this.argsMap.values()].filter((x) => this.isOptional(x));
+  private getOptionArguments(): ArgConfigExtended[] {
+    return [...this.argsMap.values()].filter((x) => !x.positional);
   }
 
-  /**
-   * Checks if an argument is optional.
-   * @param config - The argument configuration.
-   * @returns True if the argument is optional, otherwise false.
-   */
-  private isOptional(config: ArgConfig): boolean {
-    return config.name.startsWith('--');
+  private extendArgConfig(config: ArgConfig): ArgConfigExtended {
+    return { ...config, ...this.buildNArgsConfig(config) };
+  }
+
+  private buildNArgsConfig(config: ArgConfig): NArgsConfig {
+    const positional = !config.name.startsWith('--');
+    const multiple = config.nargs === '*' || config.nargs === '+' || typeof config.nargs === 'number';
+    const required = config.required || (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
+    const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined;
+    const valuesCount = typeof config.nargs === 'number' ? config.nargs : undefined;
+    return { positional, multiple, required, allowEmpty, valuesCount };
   }
 }

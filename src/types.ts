@@ -22,6 +22,10 @@ export type NArgs = number | '?' | '*' | '+';
  */
 export type NArgsConfig = {
   /**
+   * If the argument is positional.
+   */
+  positional: boolean;
+  /**
    * If the argument is multiple.
    */
   multiple: boolean;
@@ -37,7 +41,7 @@ export type NArgsConfig = {
    * The number of times the argument is allowed to appear.
    * If not defined, it means the argument can appear any number of times.
    */
-  count?: number;
+  valuesCount?: number;
 }
 
 /**
@@ -66,6 +70,10 @@ export type ArgConfig = {
    * Whether the argument is required.
    */
   nargs?: NArgs;
+  /**
+   * Whether the argument is required.
+   */
+  required?: boolean;
   /**
    * The default value of the argument.
    */
@@ -99,7 +107,7 @@ export interface ParsedArgumentsCollectionInterface {
   /**
    * All optional arguments as a record.
    */
-  readonly optional: Record<string, unknown>;
+  readonly options: Record<string, unknown>;
   /**
    * Adds an argument to the collection.
    * @param name - The name of the argument.
@@ -148,4 +156,13 @@ export interface ArgsParserInterface {
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    */
   parse(argv: string[]): ParsedArgumentsCollectionInterface;
+}
+
+export interface ValueValidatorInterface {
+  validateBeforeCast(value: string[], isset: boolean): void;
+  validateAfterCast(value: string[]): void;
+}
+
+export interface ValueCasterInterface<T> {
+  cast(value: string[], isset: boolean): T | undefined;
 }

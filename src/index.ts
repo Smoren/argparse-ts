@@ -12,7 +12,7 @@ import {
 
 import {
   ArgsParserError,
-  AddArgumentError,
+  ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,
 } from "./exceptions";
@@ -28,7 +28,7 @@ export {
   ArgsParser,
   ParsedArgumentsCollection,
   ArgsParserError,
-  AddArgumentError,
+  ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,
 }

@@ -17,7 +17,7 @@ describe.each([
       const parser = new ArgsParser(config);
       const parsedArgs = parser.parse(argv);
       expect(parsedArgs.positional).toEqual(expectedPositional);
-      expect(parsedArgs.optional).toEqual(expectedOptional);
+      expect(parsedArgs.options).toEqual(expectedOptional);
     });
   },
 );
