@@ -417,6 +417,8 @@ export class ArgsParser implements ArgsParserInterface {
    * @returns The number of arguments to read.
    */
   private getArgsCountToRead(nargsConfig: ArgExtraConfig, totalCount: number): number {
+    // TODO add support for nargs='*',  nargs='+'
+
     if (!nargsConfig.multiple) {
       return Math.min(1, totalCount);
     }

@@ -85,7 +85,7 @@ class ArrayValueCaster<T> extends BaseValueCaster<T[]> {
     if (baseCasted !== undefined && baseCasted.length > 0) {
       return baseCasted;
     }
-    if (value.length === 0 && !isset) {
+    if (value.length === 0 && !isset && !this.argConfig.positional) {
       return undefined;
     }
     return value.map((v) => this.itemCaster.cast([v], isset)!);

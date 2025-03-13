@@ -3,6 +3,7 @@ import { ArgConfig, ArgsParser } from "../../src";
 
 describe.each([
   ...dataProviderForEmptyArgv(),
+  ...dataProviderForPositional(),
   ...dataProviderForSingleOptions(),
   ...dataProviderForSingleSeveralOptions(),
   ...dataProviderForAliasedSingleOptions(),
@@ -250,6 +251,264 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
       {
         'my-first-argument': undefined,
       },
+    ],
+  ];
+}
+
+function dataProviderForPositional(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: 'first',
+          type: 'string',
+          nargs: '?',
+        },
+      ],
+      [],
+      {},
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'string',
+        },
+      ],
+      [''],
+      {
+        first: '',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'string',
+        },
+      ],
+      ['test'],
+      {
+        first: 'test',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'string',
+          default: 1,
+        },
+      ],
+      [],
+      {
+        first: 1,
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+          default: [1],
+        },
+      ],
+      [],
+      {
+        first: [1],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+          default: [1],
+        },
+      ],
+      ['3'],
+      {
+        first: [3],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+          default: [1],
+        },
+      ],
+      ['3', '4', '5'],
+      {
+        first: [3, 4, 5],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: '*',
+        },
+      ],
+      [],
+      {
+        first: undefined,
+        second: [],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: '*',
+        },
+      ],
+      ['1'],
+      {
+        first: 1,
+        second: [],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: '*',
+        },
+      ],
+      ['1', 's1', 's2'],
+      {
+        first: 1,
+        second: ['s1', 's2'],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: '*',
+        },
+      ],
+      ['1', '2', '3'],
+      {
+        first: [1, 2, 3],
+        second: [],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'string',
+          nargs: '?',
+        },
+      ],
+      ['1', '2', '3'],
+      {
+        first: 1,
+        second: ['2', '3'],
+        third: undefined,
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'string',
+          nargs: '?',
+        },
+      ],
+      ['1', '2', '3', '4'],
+      {
+        first: 1,
+        second: ['2', '3'],
+        third: '4',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: 1,
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'string',
+          nargs: '?',
+        },
+      ],
+      ['1', '2', '3', '4'],
+      {
+        first: [1],
+        second: ['2', '3'],
+        third: '4',
+      },
+      {},
     ],
   ];
 }
