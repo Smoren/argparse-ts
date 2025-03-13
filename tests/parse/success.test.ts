@@ -510,6 +510,369 @@ function dataProviderForPositional(): [ArgConfig[], string[], Record<string, unk
       },
       {},
     ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: '?',
+        },
+      ],
+      ['1', '2'],
+      {
+        first: [1, 2],
+        second: undefined,
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+        },
+      ],
+      ['1', '2', '3'],
+      {
+        first: [1, 2],
+        second: '3',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '+',
+        },
+        {
+          name: 'second',
+          type: 'string',
+        },
+      ],
+      ['1', '2', '3'],
+      {
+        first: [1, 2],
+        second: '3',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+      ],
+      ['1', '2'],
+      {
+        first: [],
+        second: ['1', '2'],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+      ],
+      ['1', '2', '3'],
+      {
+        first: [1],
+        second: ['2', '3'],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+      ],
+      ['1', '2', '3', '4'],
+      {
+        first: [1, 2],
+        second: ['3', '4'],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'forth',
+          type: 'string',
+          nargs: 1,
+        },
+        {
+          name: 'fifth',
+          type: 'number',
+          nargs: '+',
+        },
+        {
+          name: 'sixth',
+          type: 'string',
+        },
+        {
+          name: 'seventh',
+          type: 'number',
+          nargs: '+',
+        },
+      ],
+      ['1', '2', '3', '4', '5', '6'],
+      {
+        first: undefined,
+        second: ['1', '2'],
+        third: undefined,
+        forth: ['3'],
+        fifth: [4],
+        sixth: '5',
+        seventh: [6],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'forth',
+          type: 'string',
+          nargs: 1,
+        },
+        {
+          name: 'fifth',
+          type: 'number',
+          nargs: '+',
+        },
+        {
+          name: 'sixth',
+          type: 'string',
+        },
+        {
+          name: 'seventh',
+          type: 'number',
+          nargs: '+',
+        },
+      ],
+      ['1', '2', '3', '4', '5', '6', '7'],
+      {
+        first: 1,
+        second: ['2', '3'],
+        third: undefined,
+        forth: ['4'],
+        fifth: [5],
+        sixth: '6',
+        seventh: [7],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'forth',
+          type: 'string',
+          nargs: 1,
+        },
+        {
+          name: 'fifth',
+          type: 'number',
+          nargs: '+',
+        },
+        {
+          name: 'sixth',
+          type: 'string',
+        },
+        {
+          name: 'seventh',
+          type: 'number',
+          nargs: '+',
+        },
+      ],
+      ['1', '2', '3', '4', '5', '6', '7', '8'],
+      {
+        first: 1,
+        second: ['2', '3'],
+        third: 4,
+        forth: ['5'],
+        fifth: [6],
+        sixth: '7',
+        seventh: [8],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'forth',
+          type: 'string',
+          nargs: 1,
+        },
+        {
+          name: 'fifth',
+          type: 'number',
+          nargs: '+',
+        },
+        {
+          name: 'sixth',
+          type: 'string',
+        },
+        {
+          name: 'seventh',
+          type: 'number',
+          nargs: '+',
+        },
+      ],
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
+      {
+        first: 1,
+        second: ['2', '3'],
+        third: 4,
+        forth: ['5'],
+        fifth: [6, 7],
+        sixth: '8',
+        seventh: [9],
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: 'third',
+          type: 'number',
+          nargs: '?',
+        },
+        {
+          name: 'forth',
+          type: 'string',
+          nargs: 1,
+        },
+        {
+          name: 'fifth',
+          type: 'number',
+          nargs: '+',
+        },
+        {
+          name: 'sixth',
+          type: 'string',
+        },
+        {
+          name: 'seventh',
+          type: 'number',
+          nargs: '+',
+        },
+      ],
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+      {
+        first: 1,
+        second: ['2', '3'],
+        third: 4,
+        forth: ['5'],
+        fifth: [6, 7, 8],
+        sixth: '9',
+        seventh: [10],
+      },
+      {},
+    ],
   ];
 }
 

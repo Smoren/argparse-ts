@@ -414,13 +414,16 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @param argConfig - The configuration specifying how many arguments can be read.
    * @param remainingArgConfigs - The remaining arguments to read.
-   * @param totalCount - The total number of available arguments.
+   * @param values - The total number of available arguments.
    *
    * @returns The number of arguments to read.
    */
-  private getArgsCountToRead(argConfig: ArgConfigExtended, remainingArgConfigs: ArgConfigExtended[], totalCount: string[]): number {
+  private getArgsCountToRead(argConfig: ArgConfigExtended, remainingArgConfigs: ArgConfigExtended[], values: string[]): number {
     const minRemainingValuesCount = remainingArgConfigs.reduce((acc, x) => acc + x.minValuesCount, 0);
-    const maxCurrentValuesCount = totalCount.length - minRemainingValuesCount;
+    let maxCurrentValuesCount = values.length - minRemainingValuesCount;
+    if (maxCurrentValuesCount < 0) {
+      maxCurrentValuesCount = values.length;
+    }
 
     if (!argConfig.multiple) {
       return Math.min(1, maxCurrentValuesCount);
@@ -430,6 +433,6 @@ export class ArgsParser implements ArgsParserInterface {
       return Math.min(argConfig.valuesCount, maxCurrentValuesCount);
     }
 
-    return totalCount.length;
+    return maxCurrentValuesCount;
   }
 }
