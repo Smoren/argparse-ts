@@ -3,10 +3,10 @@ import { ArgConfig, ArgsParser } from "../../src";
 
 describe.each([
   ...dataProviderForEmptyArgv(),
-  ...dataProviderForSingleOptional(),
+  ...dataProviderForSingleOptionals(),
   ...dataProviderForSingleSeveralOptionals(),
+  ...dataProviderForAliasedSingleOptionals(),
   ...dataProviderForAliasedSingleSeveralOptionals(),
-  // ...dataProviderForAliasedSingleSeveralArguments(),
   // ...dataProviderForNamedMultipleArguments(),
   // ...dataProviderForAliasedMultipleArguments(),
   // ...dataProviderForValidatedArguments(),
@@ -186,7 +186,7 @@ function dataProviderForEmptyArgv(): [ArgConfig[], string[], Record<string, unkn
   ];
 }
 
-function dataProviderForSingleOptional(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForSingleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -615,7 +615,7 @@ function dataProviderForSingleSeveralOptionals(): [ArgConfig[], string[], Record
   ];
 }
 
-function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+function dataProviderForAliasedSingleOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
   return [
     [
       [
@@ -808,300 +808,315 @@ function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[],
   ];
 }
 
-// function dataProviderForAliasedSingleSeveralArguments(): [ArgConfig[], string, Record<string, unknown>][] {
-//   return [
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           type: 'number',
-//         },
-//       ],
-//       '-f first -s 2',
-//       {
-//         'my-first-argument': 'first',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           required: true,
-//           type: 'number',
-//         },
-//       ],
-//       '-s 2 -f first',
-//       {
-//         'my-first-argument': 'first',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           required: true,
-//           type: 'number',
-//         },
-//       ],
-//       '-s 2',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '-s 2',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 2,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '-f nya',
-//       {
-//         'my-first-argument': 'nya',
-//         'my-second-argument': 123,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 123,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//           default: 'test',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           type: 'number',
-//           default: 123,
-//         },
-//       ],
-//       '-f -s',
-//       {
-//         'my-first-argument': 'test',
-//         'my-second-argument': 123,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-first-argument',
-//           alias: '-f',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-second-argument',
-//           alias: '-s',
-//           type: 'number',
-//         },
-//       ],
-//       '-fs',
-//       {
-//         'my-first-argument': '',
-//         'my-second-argument': 0,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           alias: '-s',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           alias: '-n',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           alias: '-b',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-s str -n 22 -b',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//         'my-boolean-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           alias: '-s',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           alias: '-n',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           alias: '-b',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-s str -b -n 22',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//         'my-boolean-argument': true,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           alias: '-s',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           alias: '-n',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           alias: '-b',
-//           type: 'boolean',
-//           default: false,
-//         },
-//       ],
-//       '-s str -n 22',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//         'my-boolean-argument': false,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           alias: '-s',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           alias: '-n',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           alias: '-b',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-s str -n 22',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//       },
-//     ],
-//     [
-//       [
-//         {
-//           name: '--my-string-argument',
-//           alias: '-s',
-//           type: 'string',
-//         },
-//         {
-//           name: '--my-number-argument',
-//           alias: '-n',
-//           type: 'number',
-//         },
-//         {
-//           name: '--my-boolean-argument',
-//           alias: '-b',
-//           type: 'boolean',
-//         },
-//       ],
-//       '-s str -n 22 -b false',
-//       {
-//         'my-string-argument': 'str',
-//         'my-number-argument': 22,
-//         'my-boolean-argument': false,
-//       },
-//     ],
-//   ];
-// }
-//
+function dataProviderForAliasedSingleSeveralOptionals(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+        },
+      ],
+      ['-f', 'first', '-s', '2'],
+      {},
+      {
+        'my-first-argument': 'first',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+        },
+      ],
+      ['-s', '2', '-f', 'first'],
+      {},
+      {
+        'my-first-argument': 'first',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+        },
+      ],
+      ['-s', '2'],
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      ['-s', '2'],
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 2,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      ['-f', 'nya'],
+      {},
+      {
+        'my-first-argument': 'nya',
+        'my-second-argument': 123,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      [],
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 123,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          default: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+          default: 123,
+        },
+      ],
+      ['-f', '-s'],
+      {},
+      {
+        'my-first-argument': undefined,
+        'my-second-argument': undefined,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          alias: '-f',
+          type: 'string',
+          const: 'test',
+        },
+        {
+          name: '--my-second-argument',
+          alias: '-s',
+          type: 'number',
+          const: 22,
+        },
+      ],
+      ['-fs'],
+      {},
+      {
+        'my-first-argument': 'test',
+        'my-second-argument': 22,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          alias: '-s',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          alias: '-n',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          alias: '-b',
+          type: 'boolean',
+          const: true,
+        },
+      ],
+      ['-s', 'str', '-n', '22', '-b'],
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+        'my-boolean-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          alias: '-s',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          alias: '-n',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          alias: '-b',
+          type: 'boolean',
+          const: true,
+        },
+      ],
+      ['-s', 'str', '-b', '-n', '22'],
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+        'my-boolean-argument': true,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          alias: '-s',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          alias: '-n',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          alias: '-b',
+          type: 'boolean',
+          default: false,
+        },
+      ],
+      ['-s', 'str', '-n', '22'],
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+        'my-boolean-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          alias: '-s',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          alias: '-n',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          alias: '-b',
+          type: 'boolean',
+        },
+      ],
+      ['-s', 'str', '-n', '22'],
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          alias: '-s',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          alias: '-n',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          alias: '-b',
+          type: 'boolean',
+        },
+      ],
+      ['-s', 'str', '-n', '22', '-b', 'false'],
+      {},
+      {
+        'my-string-argument': 'str',
+        'my-number-argument': 22,
+        'my-boolean-argument': false,
+      },
+    ],
+  ];
+}
+
 // function dataProviderForNamedMultipleArguments(): [ArgConfig[], string, Record<string, unknown>][] {
 //   return [
 //     [
