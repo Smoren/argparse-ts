@@ -2,7 +2,7 @@ import type {
   ArgConfig,
   ArgConfigExtended,
   ArgsParserInterface,
-  ParsedArgumentsCollectionInterface
+  ParsedArgumentsCollectionInterface,
 } from "./types";
 import { ArgumentNameError } from "./exceptions";
 import { buildArgExtraConfig, parseArgsArray } from "./utils/utils";
@@ -11,7 +11,7 @@ import {
   checkAllPositionalValuesUsed,
   checkEnoughPositionalValues,
   createValueValidator,
-  validateArgConfig
+  validateArgConfig,
 } from "./utils/validation";
 import { createValueCaster } from "./utils/cast";
 

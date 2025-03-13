@@ -1,4 +1,4 @@
-import { ArgConfig, ArgConfigExtended, ArgExtraConfig } from "../types";
+import type { ArgConfigExtended } from "../types";
 
 /**
  * Generates a help message for an argument.
