@@ -8,6 +8,7 @@ import { ArgumentNameError } from "./exceptions";
 import { buildArgExtraConfig, parseArgsArray } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
 import {
+  checkAllOptionsRecognized,
   checkAllPositionalValuesUsed,
   checkEnoughPositionalValues,
   createValueValidator,
@@ -305,38 +306,55 @@ export class ArgsParser implements ArgsParserInterface {
    * ```
    */
   public parse(argv: string[]) {
+    // Retrieve the positional argument configurations
     const positionalArgs = this.getPositionalArguments();
+
+    // Retrieve the optional argument configurations and store them in a Set
     const optionalArgs = new Set(this.getOptionArguments());
 
+    // Parse the input arguments array into positional and optional parts
     let [parsedPositional, parsedOptions] = parseArgsArray(argv);
+
+    // Retrieve the optional argument configurations map
+    const optionsConfigMap = this.getArgConfigMap(Object.keys(parsedOptions));
+
+    // Reverse the parsed positional arguments for easier processing
     parsedPositional.reverse();
 
+    // Initialize a new collection to store the parsed arguments with their values
     const result = new ParsedArgumentsCollection();
 
+    // Process positional arguments
     for (let i=0; i<positionalArgs.length; ++i) {
       const argConfig = positionalArgs[i];
+
+      // Get the remaining positional arguments configurations
       const remainingArgConfigs = positionalArgs.slice(i+1);
 
+      // Check if there are enough positional arguments left
       checkEnoughPositionalValues(parsedPositional, argConfig, remainingArgConfigs);
 
-      const toReadCount = this.getArgsCountToRead(argConfig, remainingArgConfigs, parsedPositional);
-      const value: string[] = [];
-      for (let i=0; i<toReadCount; ++i) {
-        value.push(parsedPositional.pop()!);
-      }
+      // Read the correct number of positional arguments
+      const value = this.readPositionalArgValues(parsedPositional, argConfig, remainingArgConfigs);
 
+      // Add the parsed argument to the result
       result.add(argConfig.name, this.processArgValue(value, argConfig, value.length > 0));
     }
 
+    // Check if all positional arguments were used
     checkAllPositionalValuesUsed(parsedPositional);
 
-    for (const [key, value] of Object.entries(parsedOptions)) {
-      const argConfig = this.getArgConfig(key);
+    // Check if all options were recognized
+    checkAllOptionsRecognized(parsedOptions, optionsConfigMap);
 
+    // Process options
+    for (const [key, value] of Object.entries(parsedOptions)) {
+      const argConfig = optionsConfigMap[key]!;
       result.add(argConfig.name, this.processArgValue(value, argConfig, true));
       optionalArgs.delete(argConfig);
     }
 
+    // Add default values for optional arguments that were not set
     for (const argConfig of optionalArgs) {
       result.add(argConfig.name, this.processArgValue([], argConfig, false));
     }
@@ -383,20 +401,30 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
+   * Retrieves a map of argument configurations for the given keys.
+   *
+   * @param keys - The keys to retrieve.
+   *
+   * @returns A map of argument configurations, where each key is one of the given keys and the value
+   * is the corresponding ArgConfigExtended.
+   */
+  private getArgConfigMap(keys: string[]): Record<string, ArgConfigExtended | undefined> {
+    const result: Record<string, ArgConfigExtended | undefined> = {};
+    for (const key of keys) {
+      result[key] = this.getArgConfig(key);
+    }
+    return result;
+  }
+
+  /**
    * Retrieves the argument configuration for a given key.
    *
    * @param key - The argument key.
    *
    * @returns The corresponding ArgConfigExtended.
-   *
-   * @throws ArgumentNameError if the argument key is unknown.
    */
-  private getArgConfig(key: string): ArgConfigExtended {
-    const config = this.argsMap.get(this.aliasMap.get(key) ?? key);
-    if (config === undefined) {
-      throw new ArgumentNameError(`Unknown argument ${key}.`);
-    }
-    return config;
+  private getArgConfig(key: string): ArgConfigExtended | undefined {
+    return this.argsMap.get(this.aliasMap.get(key) ?? key);
   }
 
   /**
@@ -408,6 +436,28 @@ export class ArgsParser implements ArgsParserInterface {
    */
   private extendArgConfig(config: ArgConfig): ArgConfigExtended {
     return { ...config, ...buildArgExtraConfig(config) };
+  }
+
+  /**
+   * Reads the value of the positional argument based on the nargs configuration.
+   *
+   * @param parsedValues - The parsed positional arguments.
+   * @param argConfig - The argument configuration.
+   * @param remainingArgConfigs - The remaining argument configurations.
+   *
+   * @returns The value of the positional argument.
+   */
+  private readPositionalArgValues(
+    parsedValues: string[],
+    argConfig: ArgConfigExtended,
+    remainingArgConfigs: ArgConfigExtended[],
+  ): string[] {
+    const toReadCount = this.getArgsCountToRead(argConfig, remainingArgConfigs, parsedValues);
+    const value: string[] = [];
+    for (let i=0; i<toReadCount; ++i) {
+      value.push(parsedValues.pop()!);
+    }
+    return value;
   }
 
   /**

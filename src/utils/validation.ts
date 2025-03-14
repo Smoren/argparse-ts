@@ -54,6 +54,16 @@ export function checkAllPositionalValuesUsed(values: string[]): void {
   }
 }
 
+export function checkAllOptionsRecognized(
+  parsedOptions: Record<string, unknown>,
+  argConfigs: Record<string, ArgConfigExtended | undefined>,
+): void {
+  const unrecognizedOptions = Object.keys(parsedOptions).filter((key) => argConfigs[key] === undefined);
+  if (unrecognizedOptions.length > 0) {
+    throw new ArgumentValueError(`Unrecognized options: ${unrecognizedOptions.join(', ')}.`);
+  }
+}
+
 export function createValueValidator(argConfig: ArgConfigExtended): BaseValueValidator {
   if (argConfig.multiple) {
     return new ArrayValueValidator(argConfig);
