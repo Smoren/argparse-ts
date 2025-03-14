@@ -20,6 +20,24 @@ describe.each([
       const parsedArgs = parser.parse(argv);
       expect(parsedArgs.positional).toEqual(expectedPositional);
       expect(parsedArgs.options).toEqual(expectedOptional);
+
+      for (const name of Object.keys(expectedPositional)) {
+        if (expectedPositional[name] === undefined) {
+          expect(parsedArgs.has(name)).toBe(false);
+        } else {
+          expect(parsedArgs.has(name)).toBe(true);
+        }
+        expect(parsedArgs.get<string>(name)).toEqual(expectedPositional[name]);
+      }
+
+      for (const name of Object.keys(expectedOptional)) {
+        if (expectedOptional[name] === undefined) {
+          expect(parsedArgs.has(`--${name}`)).toBe(false);
+        } else {
+          expect(parsedArgs.has(`--${name}`)).toBe(true);
+        }
+        expect(parsedArgs.get<string>(`--${name}`)).toEqual(expectedOptional[name]);
+      }
     });
   },
 );

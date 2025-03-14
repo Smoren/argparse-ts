@@ -32,14 +32,14 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
   private readonly optionArgs: Record<string, unknown> = {};
 
   /**
-   * Returns all arguments as a record.
+   * Returns positional arguments as a record.
    */
   public get positional(): Record<string, unknown> {
     return { ...this.positionalArgs };
   }
 
   /**
-   * Returns all arguments as a record.
+   * Returns options as a record.
    */
   public get options(): Record<string, unknown> {
     return { ...this.optionArgs };
