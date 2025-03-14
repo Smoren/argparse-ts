@@ -17,36 +17,53 @@ import type { ArgConfig, ArgExtraConfig } from "../types";
  * ```
  */
 export function parseArgsArray(argv: string[]): [string[], Record<string, string[]>] {
+  // Find the index of the first argument that starts with a dash.
   const foundIndex = argv.findIndex((x) => x.startsWith('-'));
+  // If no such argument is found, set the index to the length of the array.
   const optionalBegin = foundIndex !== -1 ? foundIndex : argv.length;
 
+  // The positional arguments are the arguments that come before the first option.
   const positional: string[] = [...argv.slice(0, optionalBegin)];
+
+  // Build the buffer of optional arguments.
   const optionalBuffer = [...argv.slice(optionalBegin)].reverse();
+  // Store the parsed optional arguments in this record.
   const optional: Record<string, string[]> = {};
 
+  // The current argument name and values.
   let argName: string | undefined = undefined;
   let argValues: string[] = [];
 
+  // Iterate over the buffer of optional arguments.
   while (optionalBuffer.length > 0) {
     const item = optionalBuffer.pop()!;
 
+    // If the item includes glued together aliases, expand it.
     if (item.match(/^-[a-zA-Z0-9]{2,}$/)) {
+      // Split the alias into individual characters and reverse the order.
       const items = item.slice(1).split('').reverse();
+      // Add the expanded alias arguments to the buffer.
       optionalBuffer.push(...items.map((x) => `-${x}`));
       continue;
     }
 
+    // If the item is a new argument, store the previous argument if it exists.
     if (item.startsWith('-')) {
       if (argName !== undefined) {
+        // Store the previous argument.
         optional[argName] = argValues;
       }
+      // The current argument name is the item.
       argName = item;
+      // Reset the current argument values.
       argValues = [];
     } else {
+      // If the item is a value of the current argument, add it to the values.
       argValues.push(item);
     }
   }
 
+  // Store the last argument.
   if (argName !== undefined) {
     optional[argName] = argValues;
   }
