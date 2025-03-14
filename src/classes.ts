@@ -315,10 +315,11 @@ export class ArgsParser implements ArgsParserInterface {
 
     for (let i=0; i<positionalArgs.length; ++i) {
       const argConfig = positionalArgs[i];
+      const remainingArgConfigs = positionalArgs.slice(i+1);
 
-      checkEnoughPositionalValues(parsedPositional, argConfig);
+      checkEnoughPositionalValues(parsedPositional, argConfig, remainingArgConfigs);
 
-      const toReadCount = this.getArgsCountToRead(argConfig, positionalArgs.slice(i+1), parsedPositional);
+      const toReadCount = this.getArgsCountToRead(argConfig, remainingArgConfigs, parsedPositional);
       const value: string[] = [];
       for (let i=0; i<toReadCount; ++i) {
         value.push(parsedPositional.pop()!);

@@ -4,28 +4,33 @@ import { formatArgNameWithAlias } from "./utils";
 
 export function validateArgConfig(config: ArgConfig, usedArgs: Set<string>): void {
   if (!config.name.startsWith('-') && config.required !== undefined) {
-    throw new ArgumentConfigError(`Positional argument ${config.name} cannot be required.`);
+    throw new ArgumentConfigError(`Positional argument cannot be required: ${config.name}.`);
   }
 
   if (config.name.startsWith('-') && !config.name.startsWith('--')) {
-    throw new ArgumentConfigError(`Argument name ${config.name} is invalid.`);
+    throw new ArgumentConfigError(`Argument name is invalid: ${config.name}.`);
   }
 
   if (config.alias !== undefined && (!config.alias.startsWith('-') || config.alias.startsWith('--'))) {
-    throw new ArgumentConfigError(`Argument name ${config.name} is invalid.`);
+    throw new ArgumentConfigError(`Argument alias is invalid: ${config.alias}.`);
   }
 
   if (usedArgs.has(config.name)) {
-    throw new ArgumentConfigError(`Argument ${config.name} already exists.`);
+    throw new ArgumentConfigError(`Argument with such name already exists: ${config.name}.`);
   }
 
   if (config.alias !== undefined && usedArgs.has(config.alias)) {
-    throw new ArgumentConfigError(`Argument ${config.alias} already exists.`);
+    throw new ArgumentConfigError(`Argument with such alias already exists: ${config.alias}.`);
   }
 }
 
-export function checkEnoughPositionalValues(values: string[], argConfig: ArgConfigExtended): void {
-  const errorMessage = `Not enough positional arguments. ${argConfig.name} is required.`;
+export function checkEnoughPositionalValues(
+  values: string[],
+  argConfig: ArgConfigExtended,
+  remainingArgConfigs: ArgConfigExtended[],
+): void {
+  const allArgNames = [argConfig, ...remainingArgConfigs].map((x) => x.name);
+  const errorMessage = `The following arguments are required: ${allArgNames.join(', ')}`;
 
   if (!argConfig.multiple) {
     if (!argConfig.allowEmpty && values.length === 0) {
@@ -45,7 +50,7 @@ export function checkEnoughPositionalValues(values: string[], argConfig: ArgConf
 
 export function checkAllPositionalValuesUsed(values: string[]): void {
   if (values.length > 0) {
-    throw new ArgumentValueError('Too many positional arguments.');
+    throw new ArgumentValueError(`Unrecognized positional arguments: ${values.join(' ')}.`);
   }
 }
 
