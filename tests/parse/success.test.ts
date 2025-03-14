@@ -2378,5 +2378,31 @@ function dataProviderForAll(): [ArgConfig[], string[], Record<string, unknown>, 
       },
       {},
     ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: '--third',
+          type: 'number',
+        },
+      ],
+      ['1', '2', '--third', '3'],
+      {
+        first: [],
+        second: ['1', '2'],
+      },
+      {
+        third: 3,
+      },
+    ],
   ];
 }
