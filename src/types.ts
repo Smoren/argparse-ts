@@ -118,15 +118,6 @@ export interface ParsedArgumentsCollectionInterface {
    */
   readonly options: Record<string, unknown>;
   /**
-   * Adds an argument to the collection.
-   *
-   * @param name - The name of the argument.
-   * @param value - The value of the argument.
-   *
-   * @returns The updated collection.
-   */
-  add(name: string, value: unknown): ParsedArgumentsCollectionInterface;
-  /**
    * Retrieves an argument value by name.
    *
    * @param name - The name of the argument.

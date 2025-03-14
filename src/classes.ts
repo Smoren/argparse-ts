@@ -46,24 +46,6 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
   }
 
   /**
-   * Adds a new argument to the collection.
-   * @param name - The name of the argument.
-   * @param value - The value of the argument.
-   * @returns The instance of ParsedArgumentsCollection for chaining.
-   */
-  public add(name: string, value: unknown) {
-    const formattedName = this.formatName(name);
-
-    if (this.isPositional(name)) {
-      this.positionalArgs[formattedName] = value;
-    } else {
-      this.optionArgs[formattedName] = value;
-    }
-
-    return this;
-  }
-
-  /**
    * Retrieves an argument value.
    * @param name - The name of the argument.
    * @returns The value of the argument, or undefined if not found.
@@ -91,6 +73,24 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
     }
 
     return (this.optionArgs[formattedName] ?? undefined) !== undefined;
+  }
+
+  /**
+   * Adds a new argument to the collection.
+   * @param name - The name of the argument.
+   * @param value - The value of the argument.
+   * @returns The instance of ParsedArgumentsCollection for chaining.
+   */
+  public add(name: string, value: unknown) {
+    const formattedName = this.formatName(name);
+
+    if (this.isPositional(name)) {
+      this.positionalArgs[formattedName] = value;
+    } else {
+      this.optionArgs[formattedName] = value;
+    }
+
+    return this;
   }
 
   /**
