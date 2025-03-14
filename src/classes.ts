@@ -4,7 +4,6 @@ import type {
   ArgsParserInterface,
   ParsedArgumentsCollectionInterface,
 } from "./types";
-import { ArgumentNameError } from "./exceptions";
 import { buildArgExtraConfig, parseArgsArray } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
 import {
@@ -470,21 +469,27 @@ export class ArgsParser implements ArgsParserInterface {
    * @returns The number of arguments to read.
    */
   private getArgsCountToRead(argConfig: ArgConfigExtended, remainingArgConfigs: ArgConfigExtended[], values: string[]): number {
+    // The total number of arguments that must be read by the remaining arguments.
     const minRemainingValuesCount = remainingArgConfigs.reduce((acc, x) => acc + x.minValuesCount, 0);
 
+    // The maximum number of arguments that can be read for the current argument.
     let maxCurrentValuesCount = values.length - minRemainingValuesCount;
     if (maxCurrentValuesCount < 0) {
+      // If there are not enough values to read, read as many as are available.
       maxCurrentValuesCount = Math.min(argConfig.minValuesCount, values.length);
     }
 
+    // If the argument is not multiple, read only one value.
     if (!argConfig.multiple) {
       return Math.min(1, maxCurrentValuesCount);
     }
 
+    // If the argument has a fixed number of values, read that many.
     if (argConfig.valuesCount !== undefined) {
       return Math.min(argConfig.valuesCount, maxCurrentValuesCount);
     }
 
+    // Otherwise, read as many values as are available.
     return maxCurrentValuesCount;
   }
 }
