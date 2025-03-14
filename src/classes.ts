@@ -228,7 +228,6 @@ export class ArgsParser implements ArgsParserInterface {
       description: 'Show help',
       type: 'boolean',
       const: true,
-      default: false,
     });
   }
 

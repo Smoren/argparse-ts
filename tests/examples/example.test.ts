@@ -63,7 +63,6 @@ it('Example Test', async () => {
     'cpu': 1,
     'use-gpu': true,
     'extra-services': ['logger', 'profiler', 'tester'],
-    'help': false, // TODO maybe store in actions record
   });
 
   const containerName = parsedArgs.get<string>('container');
