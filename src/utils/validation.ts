@@ -3,24 +3,44 @@ import { ArgumentConfigError, ArgumentValueError } from "../exceptions";
 import { formatArgNameWithAlias } from "./utils";
 
 export function validateArgConfig(config: ArgConfig, usedArgs: Set<string>): void {
-  if (!config.name.startsWith('-') && config.required !== undefined) {
-    throw new ArgumentConfigError(`Positional argument cannot be required: ${config.name}.`);
+  if (!config.name.startsWith('-')) {
+    validatePositionalArgConfig(config);
+  } else {
+    validateOptionalArgConfig(config);
   }
 
-  if (config.name.startsWith('-') && !config.name.startsWith('--')) {
-    throw new ArgumentConfigError(`Argument name is invalid: ${config.name}.`);
-  }
-
-  if (config.alias !== undefined && (!config.alias.startsWith('-') || config.alias.startsWith('--'))) {
-    throw new ArgumentConfigError(`Argument alias is invalid: ${config.alias}.`);
-  }
-
+  // Check if the argument name is already used
   if (usedArgs.has(config.name)) {
     throw new ArgumentConfigError(`Argument with such name already exists: ${config.name}.`);
   }
 
+  // Check if the argument alias is defined and already used
   if (config.alias !== undefined && usedArgs.has(config.alias)) {
     throw new ArgumentConfigError(`Argument with such alias already exists: ${config.alias}.`);
+  }
+}
+
+export function validatePositionalArgConfig(config: ArgConfig): void {
+  // Positional argument cannot be required
+  if (config.required !== undefined) {
+    throw new ArgumentConfigError(`Positional argument cannot be required: ${config.name}.`);
+  }
+
+  // Positional argument cannot have alias
+  if (config.alias !== undefined) {
+    throw new ArgumentConfigError(`Positional argument cannot have alias: ${config.name}.`);
+  }
+}
+
+export function validateOptionalArgConfig(config: ArgConfig): void {
+  // Optional argument must start with '--'
+  if (!config.name.startsWith('--')) {
+    throw new ArgumentConfigError(`Argument name is invalid: ${config.name}.`);
+  }
+
+  // Optional argument alias must start with '-' and not with '--'
+  if (config.alias !== undefined && (!config.alias.startsWith('-') || config.alias.startsWith('--'))) {
+    throw new ArgumentConfigError(`Argument alias is invalid: ${config.alias}.`);
   }
 }
 
@@ -29,27 +49,36 @@ export function checkEnoughPositionalValues(
   argConfig: ArgConfigExtended,
   remainingArgConfigs: ArgConfigExtended[],
 ): void {
+  // Collect all argument names from the current and remaining configurations
   const allArgNames = [argConfig, ...remainingArgConfigs].map((x) => x.name);
   const errorMessage = `The following arguments are required: ${allArgNames.join(', ')}`;
 
+  // If the argument is not multiple
   if (!argConfig.multiple) {
+    // Throw an error if the argument does not allow empty values and no values are provided
     if (!argConfig.allowEmpty && values.length === 0) {
       throw new ArgumentValueError(errorMessage);
     }
     return;
   }
 
+  // For multiple arguments, check if they do not allow empty values
   if (!argConfig.allowEmpty && values.length === 0) {
+    // Throw an error if no values are provided
     throw new ArgumentValueError(errorMessage);
   }
 
+  // If a specific number of values is required, check if enough values are provided
   if (!argConfig.allowEmpty && argConfig.valuesCount !== undefined && argConfig.valuesCount > values.length) {
+    // Throw an error if not enough values are provided
     throw new ArgumentValueError(errorMessage);
   }
 }
 
 export function checkAllPositionalValuesUsed(values: string[]): void {
+  // Check if there are any remaining positional values
   if (values.length > 0) {
+    // Throw an error for unrecognized positional arguments
     throw new ArgumentValueError(`Unrecognized positional arguments: ${values.join(' ')}.`);
   }
 }
@@ -58,8 +87,10 @@ export function checkAllOptionsRecognized(
   parsedOptions: Record<string, unknown>,
   argConfigs: Record<string, ArgConfigExtended | undefined>,
 ): void {
+  // Check if there are any unrecognized options
   const unrecognizedOptions = Object.keys(parsedOptions).filter((key) => argConfigs[key] === undefined);
   if (unrecognizedOptions.length > 0) {
+    // Throw an error for unrecognized options
     throw new ArgumentValueError(`Unrecognized options: ${unrecognizedOptions.join(', ')}.`);
   }
 }

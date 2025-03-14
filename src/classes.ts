@@ -304,7 +304,7 @@ export class ArgsParser implements ArgsParserInterface {
    * console.log(parsedArgs.get('--values')); // ['a', 'b', 'c']
    * ```
    */
-  public parse(argv: string[]) {
+  public parse(argv: string[]): ParsedArgumentsCollection {
     // Retrieve the positional argument configurations
     const positionalArgs = this.getPositionalArguments();
 
@@ -313,6 +313,8 @@ export class ArgsParser implements ArgsParserInterface {
 
     // Parse the input arguments array into positional and optional parts
     let [parsedPositional, parsedOptions] = parseArgsArray(argv);
+
+    // TODO if help is provided, all args should be optional, maybe use actions.
 
     // Retrieve the optional argument configurations map
     const optionsConfigMap = this.getArgConfigMap(Object.keys(parsedOptions));
