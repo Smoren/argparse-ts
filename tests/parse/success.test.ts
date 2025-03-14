@@ -11,6 +11,7 @@ describe.each([
   ...dataProviderForMultipleOptions(),
   ...dataProviderForAliasedMultipleOptions(),
   ...dataProviderForValidatedArguments(),
+  ...dataProviderForAll(),
 ])(
   'Success Test',
   (config, argv, expectedPositional, expectedOptional) => {
@@ -1055,6 +1056,7 @@ function dataProviderForSingleOptions(): [ArgConfig[], string[], Record<string, 
         {
           name: '--my-first-argument',
           type: 'number',
+          required: true,
         },
       ],
       ['--my-first-argument', '0'],
@@ -1087,6 +1089,7 @@ function dataProviderForSingleSeveralOptions(): [ArgConfig[], string[], Record<s
         {
           name: '--my-first-argument',
           type: 'string',
+          required: true,
         },
         {
           name: '--my-second-argument',
@@ -2345,6 +2348,35 @@ function dataProviderForValidatedArguments(): [ArgConfig[], string[], Record<str
       {
         'my-first-argument': true,
       },
+    ],
+  ];
+}
+
+function dataProviderForAll(): [ArgConfig[], string[], Record<string, unknown>, Record<string, unknown>][] {
+  return [
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: '--third',
+          type: 'number',
+        },
+      ],
+      ['1', '2'],
+      {
+        first: [],
+        second: ['1', '2'],
+      },
+      {},
     ],
   ];
 }

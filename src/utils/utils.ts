@@ -77,11 +77,78 @@ export function formatArgNameWithAlias(argConfig: ArgConfig): string {
  * @category Utils
  */
 export function buildArgExtraConfig(config: ArgConfig): ArgExtraConfig {
-  const positional = !config.name.startsWith('--');
-  const multiple = config.nargs === '*' || config.nargs === '+' || typeof config.nargs === 'number';
-  const required = config.required ?? (config.nargs !== '*' && config.nargs !== '?' && config.default === undefined);
-  const allowEmpty = config.nargs === '*' || config.nargs === '?' || config.const !== undefined || (positional && !required);
+  const positional = isArgPositional(config);
+  const multiple = isArgMultiple(config);
+  const required = isArgRequired(config);
+  const allowEmpty = isArgAllowEmpty(config)
   const valuesCount = typeof config.nargs === 'number' ? config.nargs : undefined;
   const minValuesCount = valuesCount ?? (allowEmpty ? 0 : 1);
   return { positional, multiple, required, allowEmpty, valuesCount, minValuesCount };
+}
+
+/**
+ * Determines if the argument is positional.
+ *
+ * @param config - The argument configuration.
+ *
+ * @returns True if the argument is positional, otherwise false.
+ *
+ * @category Utils
+ */
+function isArgPositional(config: ArgConfig): boolean {
+  return !config.name.startsWith('--');
+}
+
+/**
+ * Determines if the argument can accept multiple values.
+ *
+ * @param config - The argument configuration.
+ *
+ * @returns True if the argument can accept multiple values, otherwise false.
+ *
+ * @category Utils
+ */
+function isArgMultiple(config: ArgConfig): boolean {
+  return config.nargs === '*'
+    || config.nargs === '+'
+    || typeof config.nargs === 'number';
+}
+
+/**
+ * Determines if the argument is required.
+ *
+ * @param config - The argument configuration.
+ *
+ * @returns True if the argument is required, otherwise false.
+ *
+ * @category Utils
+ */
+function isArgRequired(config: ArgConfig): boolean {
+  if (config.required) {
+    return true;
+  }
+
+  if (!isArgPositional(config) && config.nargs === undefined) {
+    return false;
+  }
+
+  return config.nargs !== '*'
+    && config.nargs !== '?'
+    && config.default === undefined;
+}
+
+/**
+ * Determines if the argument allows an empty value.
+ *
+ * @param config - The argument configuration.
+ *
+ * @returns True if the argument allows an empty value, otherwise false.
+ *
+ * @category Utils
+ */
+function isArgAllowEmpty(config: ArgConfig): boolean {
+  return config.nargs === '*'
+    || config.nargs === '?'
+    || config.const !== undefined
+    || (isArgPositional(config) && !isArgRequired(config));
 }
