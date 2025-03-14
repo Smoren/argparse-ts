@@ -420,9 +420,10 @@ export class ArgsParser implements ArgsParserInterface {
    */
   private getArgsCountToRead(argConfig: ArgConfigExtended, remainingArgConfigs: ArgConfigExtended[], values: string[]): number {
     const minRemainingValuesCount = remainingArgConfigs.reduce((acc, x) => acc + x.minValuesCount, 0);
+
     let maxCurrentValuesCount = values.length - minRemainingValuesCount;
     if (maxCurrentValuesCount < 0) {
-      maxCurrentValuesCount = values.length;
+      maxCurrentValuesCount = Math.min(argConfig.minValuesCount, values.length);
     }
 
     if (!argConfig.multiple) {
