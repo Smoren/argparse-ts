@@ -13,10 +13,11 @@ import {
 } from "./classes";
 
 import {
-  ArgsParserError,
+  ArgsParserException,
   ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,
+  StopException,
 } from "./exceptions";
 
 export type {
@@ -31,8 +32,9 @@ export type {
 export {
   ArgsParser,
   ParsedArgumentsCollection,
-  ArgsParserError,
+  ArgsParserException,
   ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,
+  StopException,
 }
