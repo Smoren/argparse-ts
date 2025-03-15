@@ -140,7 +140,7 @@ export function checkAllPositionalValuesUsed(values: string[]): void {
   // Check if there are any remaining positional values
   if (values.length > 0) {
     // Throw an error for unrecognized positional arguments
-    throw new ArgumentValueError(`Unrecognized positional arguments: ${values.join(' ')}.`);
+    throw new ArgumentValueError(`Unrecognized positional arguments: ${[...values].reverse().join(' ')}.`);
   }
 }
 
