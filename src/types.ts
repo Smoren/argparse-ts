@@ -16,6 +16,22 @@ export type ArgType = 'string' | 'number' | 'boolean';
 export type NArgs = number | '?' | '*' | '+';
 
 /**
+ * Configuration for the argument parser.
+ *
+ * @category Types
+ */
+export type ArgParserConfig = {
+  /**
+   * The name of the program.
+   */
+  name?: string;
+  /**
+   * The version of the program.
+   */
+  version?: string;
+}
+
+/**
  * Configuration for an argument.
  *
  * @category Types
