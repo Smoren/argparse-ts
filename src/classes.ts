@@ -304,6 +304,9 @@ export class ArgsParser implements ArgsParserInterface {
    * ```
    */
   public parse(argv: string[]): ParsedArgumentsCollection {
+    // Initialize a new collection to store the parsed arguments with their values
+    const result = new ParsedArgumentsCollection();
+
     // Retrieve the positional argument configurations
     const positionalArgs = this.getPositionalArguments();
 
@@ -320,9 +323,6 @@ export class ArgsParser implements ArgsParserInterface {
 
     // Reverse the parsed positional arguments for easier processing
     parsedPositional.reverse();
-
-    // Initialize a new collection to store the parsed arguments with their values
-    const result = new ParsedArgumentsCollection();
 
     // Process positional arguments
     for (let i=0; i<positionalArgs.length; ++i) {
