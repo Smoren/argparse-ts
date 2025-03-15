@@ -319,6 +319,32 @@ function dataProviderForPositional(): [ArgConfig[], string[], Record<string, unk
         {
           name: 'first',
           type: 'string',
+        },
+      ],
+      ['-1'],
+      {
+        first: '-1',
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+        },
+      ],
+      ['-1'],
+      {
+        first: -1,
+      },
+      {},
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'string',
           default: 1,
         },
       ],
@@ -1097,6 +1123,34 @@ function dataProviderForSingleOptions(): [ArgConfig[], string[], Record<string, 
         'my-first-argument': 0,
       },
     ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'number',
+          required: true,
+        },
+      ],
+      ['--my-first-argument', '-1'],
+      {},
+      {
+        'my-first-argument': -1,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-first-argument',
+          type: 'string',
+          required: true,
+        },
+      ],
+      ['--my-first-argument', '-1'],
+      {},
+      {
+        'my-first-argument': '-1',
+      },
+    ],
   ];
 }
 
@@ -1305,6 +1359,29 @@ function dataProviderForSingleSeveralOptions(): [ArgConfig[], string[], Record<s
       {
         'my-string-argument': 'str',
         'my-number-argument': 22,
+        'my-boolean-argument': false,
+      },
+    ],
+    [
+      [
+        {
+          name: '--my-string-argument',
+          type: 'string',
+        },
+        {
+          name: '--my-number-argument',
+          type: 'number',
+        },
+        {
+          name: '--my-boolean-argument',
+          type: 'boolean',
+        },
+      ],
+      ['--my-string-argument', '-1', '--my-number-argument', '-1', '--my-boolean-argument', 'false'],
+      {},
+      {
+        'my-string-argument': '-1',
+        'my-number-argument': -1,
         'my-boolean-argument': false,
       },
     ],
@@ -2420,6 +2497,32 @@ function dataProviderForAll(): [ArgConfig[], string[], Record<string, unknown>, 
       },
       {
         third: 3,
+      },
+    ],
+    [
+      [
+        {
+          name: 'first',
+          type: 'number',
+          nargs: '*',
+        },
+        {
+          name: 'second',
+          type: 'string',
+          nargs: 2,
+        },
+        {
+          name: '--third',
+          type: 'number',
+        },
+      ],
+      ['-1', '-2', '--third', '-3'],
+      {
+        first: [],
+        second: ['-1', '-2'],
+      },
+      {
+        third: -3,
       },
     ],
   ];
