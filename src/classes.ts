@@ -307,59 +307,86 @@ export class ArgsParser implements ArgsParserInterface {
     // Initialize a new collection to store the parsed arguments with their values
     const result = new ParsedArgumentsCollection();
 
-    // Retrieve the positional argument configurations
-    const positionalArgs = this.getPositionalArguments();
-
-    // Retrieve the optional argument configurations and store them in a Set
-    const optionalArgs = new Set(this.getOptionArguments());
-
     // Parse the input arguments array into positional and optional parts
     let [parsedPositional, parsedOptions] = parseArgsArray(argv);
 
     // TODO if help is provided, all args should be optional, maybe use actions.
 
-    // Retrieve the optional argument configurations map
-    const optionsConfigMap = this.getArgConfigMap(Object.keys(parsedOptions));
+    this.processPositionalArgs(parsedPositional, this.getPositionalArguments(), result);
+    this.processOptionalArgs(parsedOptions, this.getOptionArguments(), result);
 
+    return result;
+  }
+
+  /**
+   * Processes positional arguments.
+   *
+   * @param parsedValues - A parsed array of positional argument values.
+   * @param argConfigs - An array of extended argument configurations.
+   *
+   * @param result - The collection where parsed arguments will be added.
+   */
+  private processPositionalArgs(
+    parsedValues: string[],
+    argConfigs: ArgConfigExtended[],
+    result: ParsedArgumentsCollection,
+  ): void {
     // Reverse the parsed positional arguments for easier processing
-    parsedPositional.reverse();
+    parsedValues = [...parsedValues].reverse();
 
     // Process positional arguments
-    for (let i=0; i<positionalArgs.length; ++i) {
-      const argConfig = positionalArgs[i];
+    for (let i=0; i<argConfigs.length; ++i) {
+      const argConfig = argConfigs[i];
 
       // Get the remaining positional arguments configurations
-      const remainingArgConfigs = positionalArgs.slice(i+1);
+      const remainingArgConfigs = argConfigs.slice(i+1);
 
       // Check if there are enough positional arguments left
-      checkEnoughPositionalValues(parsedPositional, argConfig, remainingArgConfigs);
+      checkEnoughPositionalValues(parsedValues, argConfig, remainingArgConfigs);
 
       // Read the correct number of positional arguments
-      const value = this.readPositionalArgValues(parsedPositional, argConfig, remainingArgConfigs);
+      const value = this.readPositionalArgValues(parsedValues, argConfig, remainingArgConfigs);
 
       // Add the parsed argument to the result
       result.add(argConfig.name, this.processArgValue(value, argConfig, value.length > 0));
     }
 
     // Check if all positional arguments were used
-    checkAllPositionalValuesUsed(parsedPositional);
+    checkAllPositionalValuesUsed(parsedValues);
+  }
+
+  /**
+   * Processes optional arguments.
+   *
+   * @param parsedValuesMap - A map of parsed optional argument keys to their string values.
+   * @param argConfigs - An array of extended argument configurations.
+   *
+   * @param result - The collection where parsed arguments will be added.
+   */
+  private processOptionalArgs(
+    parsedValuesMap: Record<string, string[]>,
+    argConfigs: ArgConfigExtended[],
+    result: ParsedArgumentsCollection,
+  ): void {
+    const argConfigsSet = new Set(argConfigs);
+
+    // Retrieve the optional argument configurations map
+    const argConfigsMap = this.getArgConfigMap(Object.keys(parsedValuesMap));
 
     // Check if all options were recognized
-    checkAllOptionsRecognized(parsedOptions, optionsConfigMap);
+    checkAllOptionsRecognized(parsedValuesMap, argConfigsMap);
 
     // Process options
-    for (const [key, value] of Object.entries(parsedOptions)) {
-      const argConfig = optionsConfigMap[key]!;
+    for (const [key, value] of Object.entries(parsedValuesMap)) {
+      const argConfig = argConfigsMap[key]!;
       result.add(argConfig.name, this.processArgValue(value, argConfig, true));
-      optionalArgs.delete(argConfig);
+      argConfigsSet.delete(argConfig);
     }
 
     // Add default values for optional arguments that were not set
-    for (const argConfig of optionalArgs) {
+    for (const argConfig of argConfigsSet) {
       result.add(argConfig.name, this.processArgValue([], argConfig, false));
     }
-
-    return result;
   }
 
   /**
