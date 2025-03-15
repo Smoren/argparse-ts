@@ -2,6 +2,7 @@ import type {
   ArgType,
   NArgs,
   ArgConfig,
+  ArgParserConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
 } from "./types";
@@ -22,6 +23,7 @@ export type {
   ArgType,
   NArgs,
   ArgConfig,
+  ArgParserConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
 };
