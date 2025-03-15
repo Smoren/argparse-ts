@@ -86,7 +86,7 @@ export function validateOptionalArgConfig(config: ArgConfig): void {
  * Checks if there are enough positional values to satisfy the given argument
  * configuration and the remaining argument configurations.
  *
- * @param values - The remaining positional values.
+ * @param valuesStack - The remaining positional values.
  * @param argConfig - The current argument configuration.
  * @param remainingArgConfigs - The remaining argument configurations.
  *
@@ -96,31 +96,31 @@ export function validateOptionalArgConfig(config: ArgConfig): void {
  * @category Validation
  */
 export function checkEnoughPositionalValues(
-  values: string[],
+  valuesStack: string[],
   argConfig: ArgConfigExtended,
   remainingArgConfigs: ArgConfigExtended[],
 ): void {
   // Collect all argument names from the current and remaining configurations
   const allArgNames = [argConfig, ...remainingArgConfigs].map((x) => x.name);
-  const errorMessage = `The following arguments are required: ${allArgNames.join(', ')}`;
+  const errorMessage = `The following arguments are required: ${[...allArgNames].reverse().join(', ')}`;
 
   // If the argument is not multiple
   if (!argConfig.multiple) {
     // Throw an error if the argument does not allow empty values and no values are provided
-    if (!argConfig.allowEmpty && values.length === 0) {
+    if (!argConfig.allowEmpty && valuesStack.length === 0) {
       throw new ArgumentValueError(errorMessage);
     }
     return;
   }
 
   // For multiple arguments, check if they do not allow empty values
-  if (!argConfig.allowEmpty && values.length === 0) {
+  if (!argConfig.allowEmpty && valuesStack.length === 0) {
     // Throw an error if no values are provided
     throw new ArgumentValueError(errorMessage);
   }
 
   // If a specific number of values is required, check if enough values are provided
-  if (!argConfig.allowEmpty && argConfig.valuesCount !== undefined && argConfig.valuesCount > values.length) {
+  if (!argConfig.allowEmpty && argConfig.valuesCount !== undefined && argConfig.valuesCount > valuesStack.length) {
     // Throw an error if not enough values are provided
     throw new ArgumentValueError(errorMessage);
   }
