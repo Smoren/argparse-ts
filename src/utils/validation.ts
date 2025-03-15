@@ -129,18 +129,18 @@ export function checkEnoughPositionalValues(
 /**
  * Checks if all positional values are used.
  *
- * @param values - The remaining positional values.
+ * @param valuesStack - The remaining positional values.
  *
  * @throws {ArgumentValueError} - If there are any remaining positional values.
  *
  * @category Utils
  * @category Validation
  */
-export function checkAllPositionalValuesUsed(values: string[]): void {
+export function checkAllPositionalValuesUsed(valuesStack: string[]): void {
   // Check if there are any remaining positional values
-  if (values.length > 0) {
+  if (valuesStack.length > 0) {
     // Throw an error for unrecognized positional arguments
-    throw new ArgumentValueError(`Unrecognized positional arguments: ${[...values].reverse().join(' ')}.`);
+    throw new ArgumentValueError(`Unrecognized positional arguments: ${[...valuesStack].reverse().join(' ')}.`);
   }
 }
 
