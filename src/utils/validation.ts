@@ -167,6 +167,16 @@ export function checkAllOptionsRecognized(
   }
 }
 
+/**
+ * Creates a value validator based on the provided argument configuration.
+ *
+ * @param argConfig - The argument configuration to generate a value validator for.
+ *
+ * @returns A value validator that can be used to validate the argument value.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function createValueValidator(argConfig: ArgConfigExtended): BaseValueValidator {
   if (argConfig.multiple) {
     return new ArrayValueValidator(argConfig);
@@ -174,6 +184,16 @@ export function createValueValidator(argConfig: ArgConfigExtended): BaseValueVal
   return createSingleValueValidator(argConfig);
 }
 
+/**
+ * Creates a value validator for a single value argument based on the provided argument configuration.
+ *
+ * @param argConfig - The argument configuration to generate a value validator for.
+ *
+ * @returns A value validator that can be used to validate the argument value.
+ *
+ * @category Utils
+ * @category Validation
+ */
 function createSingleValueValidator(argConfig: ArgConfigExtended): BaseValueValidator {
   switch (argConfig.type) {
     case 'string':
@@ -185,13 +205,35 @@ function createSingleValueValidator(argConfig: ArgConfigExtended): BaseValueVali
   }
 }
 
+/**
+ * BaseValueValidator is an abstract class that implements the ValueValidatorInterface.
+ * It provides basic validation functionalities for argument values.
+ *
+ * @category Validation
+ */
 abstract class BaseValueValidator implements ValueValidatorInterface {
+  /**
+   * The extended argument configuration used for validation.
+   */
   protected argConfig: ArgConfigExtended;
 
+  /**
+   * Constructs a BaseValueValidator with the provided argument configuration.
+   *
+   * @param argConfig - The extended configuration for the argument to validate.
+   */
   constructor(argConfig: ArgConfigExtended) {
     this.argConfig = argConfig;
   }
 
+  /**
+   * Validates the argument value before it is cast.
+   *
+   * @param value - The array of string values to validate.
+   * @param isset - Whether the value is set.
+   *
+   * @throws ArgumentValueError - If the value is required but not set, or if empty values are not allowed.
+   */
   public validateBeforeCast(value: string[], isset: boolean): void {
     if (!isset && this.argConfig.required && value.length === 0) {
       throw new ArgumentValueError(`Argument ${formatArgNameWithAlias(this.argConfig)} is required.`);
@@ -200,8 +242,15 @@ abstract class BaseValueValidator implements ValueValidatorInterface {
     if (isset && !this.argConfig.allowEmpty && value.length === 0) {
       throw new ArgumentValueError(`Argument ${formatArgNameWithAlias(this.argConfig)} cannot be empty.`);
     }
-  };
+  }
 
+  /**
+   * Validates the argument value after it has been cast.
+   *
+   * @param value - The casted value to validate.
+   *
+   * @throws ArgumentValueError - If the value is invalid according to the custom validator.
+   */
   public validateAfterCast(value: unknown): void {
     if (this.argConfig.validator !== undefined && !this.argConfig.validator(value)) {
       throw new ArgumentValueError(`Argument ${formatArgNameWithAlias(this.argConfig)} value is invalid.`);
@@ -209,7 +258,22 @@ abstract class BaseValueValidator implements ValueValidatorInterface {
   }
 }
 
+/**
+ * A value validator for a single argument value.
+ *
+ * @category Validation
+ */
 abstract class SingleValueValidator extends BaseValueValidator {
+  /**
+   * Validates the argument value before it is cast.
+   *
+   * @param value - The array of string values to validate.
+   * @param isset - Whether the value is set.
+   *
+   * @throws ArgumentValueError - If the value is required but not set, or if empty values are not allowed.
+   * @throws ArgumentValueError - If the value is not a single value.
+   * @throws ArgumentValueError - If the value is not one of the allowed choices.
+   */
   public validateBeforeCast(value: string[], isset: boolean): void {
     super.validateBeforeCast(value, isset);
 
@@ -225,9 +289,28 @@ abstract class SingleValueValidator extends BaseValueValidator {
   }
 }
 
+/**
+ * A value validator for a single string argument value.
+ *
+ * @category Validation
+ */
 class StringValueValidator extends SingleValueValidator {}
 
+/**
+ * A value validator for a single number argument value.
+ *
+ * @category Validation
+ */
 class NumberValueValidator extends SingleValueValidator {
+  /**
+   * Validates the argument value before it is cast.
+   *
+   * @param value - The array of string values to validate.
+   * @param isset - Whether the value is set.
+   *
+   * @throws ArgumentValueError - If the value is required but not set, or if empty values are not allowed.
+   * @throws ArgumentValueError - If the value is not a single numeric value.
+   */
   public validateBeforeCast(value: string[], isset: boolean) {
     super.validateBeforeCast(value, isset);
 
@@ -237,7 +320,21 @@ class NumberValueValidator extends SingleValueValidator {
   }
 }
 
+/**
+ * A value validator for a single boolean argument value.
+ *
+ * @category Validation
+ */
 class BooleanValueValidator extends SingleValueValidator {
+  /**
+   * Validates the argument value before it is cast.
+   *
+   * @param value - The array of string values to validate.
+   * @param isset - Whether the value is set.
+   *
+   * @throws ArgumentValueError - If the value is required but not set, if empty values are not allowed.
+   * @throws ArgumentValueError - if the value is not a boolean representation.
+   */
   public validateBeforeCast(value: string[], isset: boolean) {
     super.validateBeforeCast(value, isset);
 
@@ -247,20 +344,49 @@ class BooleanValueValidator extends SingleValueValidator {
   }
 }
 
+/**
+ * A value validator for an array of argument values.
+ *
+ * @category Validation
+ */
 class ArrayValueValidator extends BaseValueValidator {
+  /**
+   * The value validator for single items in the array.
+   */
   protected itemValidator: SingleValueValidator;
 
+  /**
+   * Constructs an ArrayValueValidator with the provided argument configuration.
+   *
+   * @param argConfig - The extended configuration for the argument to validate.
+   */
   constructor(argConfig: ArgConfigExtended) {
     super(argConfig);
     this.itemValidator = createSingleValueValidator(this.argConfig);
   }
 
-  public validateBeforeCast(value: string[], isset: boolean) {
+  /**
+   * Validates the argument value before it is cast.
+   *
+   * @param value - The array of string values to validate.
+   * @param isset - Whether the value is set.
+   *
+   * @throws ArgumentValueError - If the value is required but not set, or if empty values are not allowed.
+   * @throws ArgumentValueError - If any of the item values are invalid.
+   */
+  public validateBeforeCast(value: string[], isset: boolean): void {
     super.validateBeforeCast(value, isset);
     (value ?? []).forEach((v) => this.itemValidator.validateBeforeCast([v], isset));
   }
 
-  public validateAfterCast(value: string[]) {
+  /**
+   * Validates the argument value after it has been cast.
+   *
+   * @param value - The casted value to validate.
+   *
+   * @throws ArgumentValueError - If any of the item values are invalid according to the custom validator.
+   */
+  public validateAfterCast(value: string[]): void {
     super.validateAfterCast(value);
     (value ?? []).forEach((v) => this.itemValidator.validateAfterCast([v]));
   }
