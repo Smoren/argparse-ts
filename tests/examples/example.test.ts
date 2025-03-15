@@ -96,7 +96,7 @@ it('First Test', async () => {
     },
     {
       name: '--optional-first',
-      alias: '-1',
+      alias: '-f',
       description: "My first optional argument",
       type: 'string',
       nargs: '?',
@@ -105,14 +105,14 @@ it('First Test', async () => {
     },
     {
       name: '--optional-second',
-      alias: '-2',
+      alias: '-s',
       description: "My second optional argument",
       type: 'boolean',
       const: false,
     },
     {
       name: '--optional-third',
-      alias: '-3',
+      alias: '-t',
       description: "My third optional argument",
       type: 'number',
       nargs: '*',
@@ -130,7 +130,7 @@ it('First Test', async () => {
 
   console.log(parser.help);
 
-  const argv = ['dev', '123', '--optional-first', 'test', '-2', '--optional-third', '1', '2', '3', '--optional-const'];
+  const argv = ['dev', '123', '--optional-first', 'test', '-s', '--optional-third', '1', '2', '3', '--optional-const'];
   const parsedArgs = parser.parse(argv);
 
   expect(parsedArgs.positional).toEqual({

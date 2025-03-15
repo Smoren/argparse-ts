@@ -38,9 +38,16 @@ export function validateOptionalArgConfig(config: ArgConfig): void {
     throw new ArgumentConfigError(`Argument name is invalid: ${config.name}.`);
   }
 
-  // Optional argument alias must start with '-' and not with '--'
-  if (config.alias !== undefined && (!config.alias.startsWith('-') || config.alias.startsWith('--'))) {
-    throw new ArgumentConfigError(`Argument alias is invalid: ${config.alias}.`);
+  if (config.alias !== undefined) {
+    // Optional argument alias must start with '-' and not with '--'
+    if (!config.alias.startsWith('-') || config.alias.startsWith('--')) {
+      throw new ArgumentConfigError(`Argument alias is invalid: ${config.alias}.`);
+    }
+
+    // Optional argument alias cannot be a number
+    if (!isNaN(Number(config.alias))) {
+      throw new ArgumentConfigError(`Argument alias cannot be a number: ${config.alias}.`);
+    }
   }
 }
 

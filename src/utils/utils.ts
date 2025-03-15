@@ -18,7 +18,7 @@ import type { ArgConfig, ArgExtraConfig } from "../types";
  */
 export function parseArgsArray(argv: string[]): [string[], Record<string, string[]>] {
   // Find the index of the first argument that starts with a dash.
-  const foundIndex = argv.findIndex((x) => x.startsWith('-'));
+  const foundIndex = argv.findIndex((x) => isOptionalArgGiven(x));
   // If no such argument is found, set the index to the length of the array.
   const optionalBegin = foundIndex !== -1 ? foundIndex : argv.length;
 
@@ -39,7 +39,7 @@ export function parseArgsArray(argv: string[]): [string[], Record<string, string
     const item = optionalBuffer.pop()!;
 
     // If the item includes glued together aliases, expand it.
-    if (item.match(/^-[a-zA-Z0-9]{2,}$/)) {
+    if (item.match(/^-[a-zA-Z]{2,}$/)) {
       // Split the alias into individual characters and reverse the order.
       const items = item.slice(1).split('').reverse();
       // Add the expanded alias arguments to the buffer.
@@ -48,7 +48,7 @@ export function parseArgsArray(argv: string[]): [string[], Record<string, string
     }
 
     // If the item is a new argument, store the previous argument if it exists.
-    if (item.startsWith('-')) {
+    if (isOptionalArgGiven(item)) {
       if (argName !== undefined) {
         // Store the previous argument.
         optional[argName] = argValues;
@@ -168,4 +168,17 @@ function isArgAllowEmpty(config: ArgConfig): boolean {
     || config.nargs === '?'
     || config.const !== undefined
     || (isArgPositional(config) && !isArgRequired(config));
+}
+
+/**
+ * Determines if the argument is optional.
+ *
+ * @param argName - The argument name.
+ *
+ * @returns True if the argument is optional, otherwise false.
+ *
+ * @category Utils
+ */
+function isOptionalArgGiven(argName: string): boolean {
+  return argName.startsWith('-') && isNaN(Number(argName))
 }
