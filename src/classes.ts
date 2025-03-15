@@ -323,14 +323,17 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @param parsedValues - A parsed array of positional argument values.
    * @param argConfigs - An array of extended argument configurations.
-   *
    * @param result - The collection where parsed arguments will be added.
+   *
+   * @returns The number of positional arguments processed.
    */
   private processPositionalArgs(
     parsedValues: string[],
     argConfigs: ArgConfigExtended[],
     result: ParsedArgumentsCollection,
-  ): void {
+  ): number {
+    const toAddMap = new Map<string, unknown>();
+
     // Reverse the parsed positional arguments for easier processing
     parsedValues = [...parsedValues].reverse();
 
@@ -347,12 +350,19 @@ export class ArgsParser implements ArgsParserInterface {
       // Read the correct number of positional arguments
       const value = this.readPositionalArgValues(parsedValues, argConfig, remainingArgConfigs);
 
-      // Add the parsed argument to the result
-      result.add(argConfig.name, this.processArgValue(value, argConfig, value.length > 0));
+      // Add the parsed argument to the result buffer
+      toAddMap.set(argConfig.name, this.processArgValue(value, argConfig, value.length > 0));
     }
 
     // Check if all positional arguments were used
     checkAllPositionalValuesUsed(parsedValues);
+
+    // Add the parsed arguments from the buffer to the result
+    for (const [key, value] of toAddMap) {
+      result.add(key, value);
+    }
+
+    return toAddMap.size;
   }
 
   /**
@@ -360,14 +370,17 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @param parsedValuesMap - A map of parsed optional argument keys to their string values.
    * @param argConfigs - An array of extended argument configurations.
-   *
    * @param result - The collection where parsed arguments will be added.
+   *
+   * @returns The number of optional arguments processed.
    */
   private processOptionalArgs(
     parsedValuesMap: Record<string, string[]>,
     argConfigs: ArgConfigExtended[],
     result: ParsedArgumentsCollection,
-  ): void {
+  ): number {
+    const toAddMap = new Map<string, unknown>();
+
     const argConfigsSet = new Set(argConfigs);
 
     // Retrieve the optional argument configurations map
@@ -379,14 +392,21 @@ export class ArgsParser implements ArgsParserInterface {
     // Process options
     for (const [key, value] of Object.entries(parsedValuesMap)) {
       const argConfig = argConfigsMap[key]!;
-      result.add(argConfig.name, this.processArgValue(value, argConfig, true));
+      toAddMap.set(argConfig.name, this.processArgValue(value, argConfig, true));
       argConfigsSet.delete(argConfig);
     }
 
     // Add default values for optional arguments that were not set
     for (const argConfig of argConfigsSet) {
-      result.add(argConfig.name, this.processArgValue([], argConfig, false));
+      toAddMap.set(argConfig.name, this.processArgValue([], argConfig, false));
     }
+
+    // Add the parsed arguments from the buffer to the result
+    for (const [key, value] of toAddMap) {
+      result.add(key, value);
+    }
+
+    return toAddMap.size;
   }
 
   /**
