@@ -2,6 +2,17 @@ import type { ArgConfig, ArgConfigExtended, ValueValidatorInterface } from "../t
 import { ArgumentConfigError, ArgumentValueError } from "../exceptions";
 import { formatArgNameWithAlias } from "./utils";
 
+/**
+ * Validates an argument configuration.
+ *
+ * @param config - The argument configuration.
+ * @param usedArgs - A set of used argument names and aliases.
+ *
+ * @throws {ArgumentConfigError} - If the argument configuration is invalid.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function validateArgConfig(config: ArgConfig, usedArgs: Set<string>): void {
   if (!config.name.startsWith('-')) {
     validatePositionalArgConfig(config);
@@ -20,6 +31,16 @@ export function validateArgConfig(config: ArgConfig, usedArgs: Set<string>): voi
   }
 }
 
+/**
+ * Validates a positional argument configuration.
+ *
+ * @param config - The positional argument configuration.
+ *
+ * @throws {ArgumentConfigError} - If the positional argument configuration is invalid.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function validatePositionalArgConfig(config: ArgConfig): void {
   // Positional argument cannot be required
   if (config.required !== undefined) {
@@ -32,6 +53,16 @@ export function validatePositionalArgConfig(config: ArgConfig): void {
   }
 }
 
+/**
+ * Validates an optional argument configuration.
+ *
+ * @param config - The optional argument configuration.
+ *
+ * @throws {ArgumentConfigError} - If the optional argument configuration is invalid.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function validateOptionalArgConfig(config: ArgConfig): void {
   // Optional argument must start with '--'
   if (!config.name.startsWith('--')) {
@@ -51,6 +82,19 @@ export function validateOptionalArgConfig(config: ArgConfig): void {
   }
 }
 
+/**
+ * Checks if there are enough positional values to satisfy the given argument
+ * configuration and the remaining argument configurations.
+ *
+ * @param values - The remaining positional values.
+ * @param argConfig - The current argument configuration.
+ * @param remainingArgConfigs - The remaining argument configurations.
+ *
+ * @throws {ArgumentValueError} - If there are not enough positional values.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function checkEnoughPositionalValues(
   values: string[],
   argConfig: ArgConfigExtended,
@@ -82,6 +126,16 @@ export function checkEnoughPositionalValues(
   }
 }
 
+/**
+ * Checks if all positional values are used.
+ *
+ * @param values - The remaining positional values.
+ *
+ * @throws {ArgumentValueError} - If there are any remaining positional values.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function checkAllPositionalValuesUsed(values: string[]): void {
   // Check if there are any remaining positional values
   if (values.length > 0) {
@@ -90,6 +144,17 @@ export function checkAllPositionalValuesUsed(values: string[]): void {
   }
 }
 
+/**
+ * Checks if all options in the parsed options are recognized according to the provided argument configurations.
+ *
+ * @param parsedOptions - A record of options that have been parsed.
+ * @param argConfigs - A record of argument configurations against which the options are validated.
+ *
+ * @throws {ArgumentValueError} - If there are any unrecognized options.
+ *
+ * @category Utils
+ * @category Validation
+ */
 export function checkAllOptionsRecognized(
   parsedOptions: Record<string, unknown>,
   argConfigs: Record<string, ArgConfigExtended | undefined>,
