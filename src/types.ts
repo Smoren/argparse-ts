@@ -16,6 +16,29 @@ export type ArgType = 'string' | 'number' | 'boolean';
 export type NArgs = number | '?' | '*' | '+';
 
 /**
+ * Predefined actions for the argument parser.
+ *
+ * @category Types
+ */
+export type PredefinedAction = 'version' | 'help';
+
+/**
+ * A function that takes a value and does something with it.
+ *
+ * @category Types
+ */
+export type ActionFunction = ((value: unknown, parser: ArgsParserInterface) => void);
+
+/**
+ * An action that can be used with the argument parser.
+ * It can be a predefined action or a function that takes a value
+ * and does something with it.
+ *
+ * @category Types
+ */
+export type Action = PredefinedAction | ActionFunction;
+
+/**
  * Configuration for the argument parser.
  *
  * @category Types
@@ -73,6 +96,10 @@ export type ArgConfig = {
    * Allowed values for the argument.
    */
   choices?: unknown[];
+  /**
+   * A custom action for the argument.
+   */
+  action?: Action;
   /**
    * A custom validator function for the argument value.
    */
@@ -157,6 +184,10 @@ export interface ParsedArgumentsCollectionInterface {
  * @category Interfaces
  */
 export interface ArgsParserInterface {
+  /**
+   * The configuration of the argument parser.
+   */
+  readonly config: ArgParserConfig;
   /**
    * The help message for the arguments.
    */

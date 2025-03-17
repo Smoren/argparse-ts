@@ -15,6 +15,7 @@ import {
   validateArgConfig,
 } from "./utils/validation";
 import { createValueCaster } from "./utils/cast";
+import { helpAction, versionAction } from "./utils/actions";
 
 /**
  * A collection of parsed arguments.
@@ -156,7 +157,7 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Configuration options for the parser.
    */
-  private readonly config: ArgParserConfig;
+  public readonly config: ArgParserConfig;
 
   /**
    * Maps argument names to their configuration.
@@ -191,7 +192,7 @@ export class ArgsParser implements ArgsParserInterface {
    */
   public get help(): string {
     const positionalArgs = this.getPositionalArguments();
-    const optionArgs = this.getOptionArguments();
+    const optionArgs = this.getOptionArguments(true);
 
     const positionalArgsRows = [];
     for (const arg of positionalArgs) {
@@ -303,10 +304,9 @@ export class ArgsParser implements ArgsParserInterface {
     // Parse the input arguments array into positional and optional parts
     let [parsedPositional, parsedOptions] = parseArgsArray(argv);
 
-    // TODO if help is provided, all args should be optional, maybe use actions.
-
+    this.processSystemOptions(parsedOptions, result);
     this.processPositionalArgs(parsedPositional, this.getPositionalArguments(), result);
-    this.processOptionalArgs(parsedOptions, this.getOptionArguments(), result);
+    this.processOptions(parsedOptions, this.getOptionArguments(false), result);
 
     return result;
   }
@@ -359,6 +359,37 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
+   * Processes system options.
+   *
+   * @param parsedValuesMap - A map of parsed optional argument keys to their string values.
+   * @param result - The collection where parsed arguments will be added.
+   *
+   * @returns The number of optional arguments processed.
+   */
+  private processSystemOptions(
+    parsedValuesMap: Record<string, string[]>,
+    result: ParsedArgumentsCollection,
+  ): number {
+    const toAddMap = new Map<string, unknown>();
+
+    // Retrieve the optional argument configurations map
+    const argConfigsMap = this.getArgConfigMap(Object.keys(parsedValuesMap));
+
+    // Process options
+    for (const [key, value] of Object.entries(parsedValuesMap)) {
+      const argConfig = argConfigsMap[key]!;
+      toAddMap.set(argConfig.name, this.processArgValue(value, argConfig, true));
+    }
+
+    // Add the parsed arguments from the buffer to the result
+    for (const [key, value] of toAddMap) {
+      result.add(key, value);
+    }
+
+    return toAddMap.size;
+  }
+
+  /**
    * Processes optional arguments.
    *
    * @param parsedValuesMap - A map of parsed optional argument keys to their string values.
@@ -367,7 +398,7 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @returns The number of optional arguments processed.
    */
-  private processOptionalArgs(
+  private processOptions(
     parsedValuesMap: Record<string, string[]>,
     argConfigs: ArgConfigExtended[],
     result: ParsedArgumentsCollection,
@@ -419,7 +450,25 @@ export class ArgsParser implements ArgsParserInterface {
     const result = caster.cast(value, isset);
     validator.validateAfterCast(result);
 
+    if (argConfig.action !== undefined) {
+      this.processAction(argConfig, result);
+    }
+
     return result;
+  }
+
+  private processAction(config: ArgConfigExtended, value: unknown) {
+    switch (true) {
+      case config.action === 'help':
+        helpAction(value, this);
+        break;
+      case config.action === 'version':
+        versionAction(value, this);
+        break;
+      case (typeof config.action === 'function'):
+        config.action(value, this);
+        break;
+    }
   }
 
   /**
@@ -436,8 +485,11 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @returns An array of optional argument configurations.
    */
-  private getOptionArguments(): ArgConfigExtended[] {
-    return [...this.argsMap.values()].filter((x) => !x.positional, ...this.getSystemOptions());
+  private getOptionArguments(withSystemOptions: boolean): ArgConfigExtended[] {
+    return [
+      ...this.argsMap.values(),
+      ...(withSystemOptions ? this.getSystemOptions() : []),
+    ].filter((x) => !x.positional);
   }
 
   /**
@@ -453,6 +505,7 @@ export class ArgsParser implements ArgsParserInterface {
         description: 'Show version',
         type: 'boolean',
         const: true,
+        action: 'version',
       }));
     }
 
@@ -462,6 +515,7 @@ export class ArgsParser implements ArgsParserInterface {
       description: 'Show help',
       type: 'boolean',
       const: true,
+      action: 'help',
     }));
 
     return result;
