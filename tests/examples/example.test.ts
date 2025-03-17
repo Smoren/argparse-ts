@@ -2,7 +2,9 @@ import { it, expect } from "@jest/globals";
 import { ArgsParser } from "../../src";
 
 it('Example Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: 'container',
       description: "Container name",
@@ -46,8 +48,6 @@ it('Example Test', async () => {
     },
   ]);
 
-  parser.addHelp();
-
   console.log(parser.help);
 
   const argv = ['main', 'clear', 'build', 'start', 'sync', '--mode', 'dev', '--use-gpu', '-e', 'logger', 'profiler', 'tester'];
@@ -82,7 +82,9 @@ it('Example Test', async () => {
 });
 
 it('First Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: 'positional-first',
       description: "My first positional argument",
@@ -172,7 +174,9 @@ it('First Test', async () => {
 });
 
 it('Second Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: '--flag',
       alias: '-f',
@@ -195,7 +199,9 @@ it('Second Test', async () => {
 });
 
 it('Third Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: '--value',
       alias: '-v',
@@ -210,7 +216,9 @@ it('Third Test', async () => {
 });
 
 it('Forth Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: '--value',
       alias: '-v',
@@ -226,7 +234,9 @@ it('Forth Test', async () => {
 });
 
 it('Fifth Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: '--value',
       alias: '-v',
@@ -242,7 +252,9 @@ it('Fifth Test', async () => {
 });
 
 it('Sixth Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: '--my-first-argument',
       type: 'string',
@@ -257,7 +269,9 @@ it('Sixth Test', async () => {
 });
 
 it('Seventh Test', async () => {
-  const parser = new ArgsParser([
+  const parser = new ArgsParser({
+    name: 'Test',
+  }, [
     {
       name: '--my-first-argument',
       type: 'string',

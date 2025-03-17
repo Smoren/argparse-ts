@@ -1,6 +1,7 @@
-import type {
+import {
   ArgConfig,
   ArgConfigExtended,
+  ArgParserConfig,
   ArgsParserInterface,
   ParsedArgumentsCollectionInterface,
 } from "./types";
@@ -153,6 +154,11 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
  */
 export class ArgsParser implements ArgsParserInterface {
   /**
+   * Configuration options for the parser.
+   */
+  private readonly config: ArgParserConfig;
+
+  /**
    * Maps argument names to their configuration.
    */
   private readonly argsMap: Map<string, ArgConfigExtended> = new Map();
@@ -170,9 +176,11 @@ export class ArgsParser implements ArgsParserInterface {
   /**
    * Constructs an instance of ArgsParser with the provided argument configurations.
    *
+   * @param config - Configuration options for the parser.
    * @param args - An array of argument configurations.
    */
-  constructor(args: ArgConfig[] = []) {
+  constructor(config: ArgParserConfig,args: ArgConfig[] = []) {
+    this.config = config;
     for (const arg of args) {
       this.addArgument(arg);
     }
@@ -217,21 +225,6 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
-   * Adds the help message for the arguments to the parser.
-   *
-   * @returns The updated parser.
-   */
-  public addHelp(): ArgsParser {
-    return this.addArgument({
-      name: '--help',
-      alias: '-h',
-      description: 'Show help',
-      type: 'boolean',
-      const: true,
-    });
-  }
-
-  /**
    * Adds a new argument configuration to the parser.
    *
    * @param config - The argument configuration.
@@ -250,7 +243,7 @@ export class ArgsParser implements ArgsParserInterface {
    * ```
    */
   public addArgument(config: ArgConfig): ArgsParser {
-    validateArgConfig(config, this.usedArgs);
+    validateArgConfig(config, this.getUsedArgs());
 
     this.argsMap.set(config.name, this.extendArgConfig(config));
     this.usedArgs.add(config.name);
@@ -444,7 +437,48 @@ export class ArgsParser implements ArgsParserInterface {
    * @returns An array of optional argument configurations.
    */
   private getOptionArguments(): ArgConfigExtended[] {
-    return [...this.argsMap.values()].filter((x) => !x.positional);
+    return [...this.argsMap.values()].filter((x) => !x.positional, ...this.getSystemOptions());
+  }
+
+  /**
+   * Retrieves the system options, which are added by the parser.
+   *
+   * @returns An array of system option configurations.
+   */
+  private getSystemOptions(): ArgConfigExtended[] {
+    const result: ArgConfigExtended[] = [];
+    if (this.config.version) {
+      result.push(this.extendArgConfig({
+        name: '--version',
+        description: 'Show version',
+        type: 'boolean',
+        const: true,
+      }));
+    }
+
+    result.push(this.extendArgConfig({
+      name: '--help',
+      alias: '-h',
+      description: 'Show help',
+      type: 'boolean',
+      const: true,
+    }));
+
+    return result;
+  }
+
+  /**
+   * Retrieves a set of used argument names and aliases.
+   *
+   * @returns A set of used argument names and aliases.
+   */
+  private getUsedArgs(): Set<string> {
+    const systemOptions = this.getSystemOptions();
+    return new Set([
+      ...this.usedArgs,
+      ...systemOptions.map((x) => x.name),
+      ...systemOptions.filter((x) => x.alias !== undefined).map((x) => x.alias!),
+    ]);
   }
 
   /**

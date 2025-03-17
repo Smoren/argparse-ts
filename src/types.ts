@@ -170,12 +170,6 @@ export interface ArgsParserInterface {
    */
   addArgument(config: ArgConfig): ArgsParserInterface;
   /**
-   * Adds the help message for the arguments to the parser.
-   *
-   * @returns The updated parser.
-   */
-  addHelp(): ArgsParserInterface;
-  /**
    * Parses the given argument string and returns a collection of parsed arguments.
    *
    * @param argv - The argument string.

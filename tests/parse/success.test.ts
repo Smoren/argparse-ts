@@ -16,7 +16,7 @@ describe.each([
   'Success Test',
   (config, argv, expectedPositional, expectedOptional) => {
     it('', () => {
-      const parser = new ArgsParser(config);
+      const parser = new ArgsParser({ name: 'Test' }, config);
       const parsedArgs = parser.parse(argv);
       expect(parsedArgs.positional).toEqual(expectedPositional);
       expect(parsedArgs.options).toEqual(expectedOptional);
