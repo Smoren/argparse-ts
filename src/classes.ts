@@ -16,6 +16,7 @@ import {
 } from "./utils/validation";
 import { createValueCaster } from "./utils/cast";
 import { helpAction, versionAction } from "./utils/actions";
+import { StopException } from "./exceptions";
 
 /**
  * A collection of parsed arguments.
@@ -261,6 +262,8 @@ export class ArgsParser implements ArgsParserInterface {
    * Parses the given argument string and returns a collection of parsed arguments.
    *
    * @param argv - The argument string.
+   * @param exitOnError - Whether to exit on stop exception.
+   *
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    *
    * @example
@@ -297,16 +300,20 @@ export class ArgsParser implements ArgsParserInterface {
    * console.log(parsedArgs.get('--values')); // ['a', 'b', 'c']
    * ```
    */
-  public parse(argv: string[]): ParsedArgumentsCollection {
+  public parse(argv: string[], exitOnError: boolean = true): ParsedArgumentsCollection {
     // Initialize a new collection to store the parsed arguments with their values
     const result = new ParsedArgumentsCollection();
 
     // Parse the input arguments array into positional and optional parts
     let [parsedPositional, parsedOptions] = parseArgsArray(argv);
 
-    this.processSystemOptions(parsedOptions, result);
-    this.processPositionalArgs(parsedPositional, this.getPositionalArguments(), result);
-    this.processOptions(parsedOptions, this.getOptionArguments(false), result);
+    try {
+      this.processSystemOptions(parsedOptions, result);
+      this.processPositionalArgs(parsedPositional, this.getPositionalArguments(), result);
+      this.processOptions(parsedOptions, this.getOptionArguments(false), result);
+    } catch (e) {
+      this.processError(e, exitOnError);
+    }
 
     return result;
   }
@@ -431,6 +438,24 @@ export class ArgsParser implements ArgsParserInterface {
     }
 
     return toAddMap.size;
+  }
+
+  /**
+   * Processes an error and outputs an error message to the console if the error is an error object.
+   * If `exitOnError` is `true`, the process will exit with a non-zero status code.
+   *
+   * @param e - The error to process.
+   * @param exitOnError - Whether the process should exit if `e` is an error object.
+   */
+  private processError(e: unknown, exitOnError: boolean) {
+    if (exitOnError) {
+      if (!(e instanceof StopException) && (e instanceof Error)) {
+        console.error(`Error: ${e.message}`);
+      }
+      fail();
+    } else {
+      throw e;
+    }
   }
 
   /**

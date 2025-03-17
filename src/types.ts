@@ -204,10 +204,11 @@ export interface ArgsParserInterface {
    * Parses the given argument string and returns a collection of parsed arguments.
    *
    * @param argv - The argument string.
+   * @param exitOnError - Whether to exit on error.
    *
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    */
-  parse(argv: string[]): ParsedArgumentsCollectionInterface;
+  parse(argv: string[], exitOnError?: boolean): ParsedArgumentsCollectionInterface;
 }
 
 /**
