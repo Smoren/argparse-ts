@@ -2,6 +2,7 @@ import type {
   ArgType,
   NArgs,
   ArgConfig,
+  ActionConfig,
   ArgParserConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
@@ -14,6 +15,7 @@ import {
 
 import {
   ArgsParserException,
+  ArgsParserError,
   ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,
@@ -24,6 +26,7 @@ export type {
   ArgType,
   NArgs,
   ArgConfig,
+  ActionConfig,
   ArgParserConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
@@ -33,6 +36,7 @@ export {
   ArgsParser,
   ParsedArgumentsCollection,
   ArgsParserException,
+  ArgsParserError,
   ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,

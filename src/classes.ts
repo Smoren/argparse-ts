@@ -1,4 +1,5 @@
 import {
+  ActionConfig,
   ArgConfig,
   ArgConfigExtended,
   ArgParserConfig,
@@ -16,7 +17,7 @@ import {
 } from "./utils/validation";
 import { createValueCaster } from "./utils/cast";
 import { helpAction, versionAction } from "./utils/actions";
-import { StopException } from "./exceptions";
+import { ArgsParserError, ArgsParserException, StopException } from "./exceptions";
 
 /**
  * A collection of parsed arguments.
@@ -193,7 +194,7 @@ export class ArgsParser implements ArgsParserInterface {
    */
   public get help(): string {
     const positionalArgs = this.getPositionalArguments();
-    const optionArgs = this.getOptionArguments(true);
+    const optionArgs = this.getOptionArguments();
 
     const positionalArgsRows = [];
     for (const arg of positionalArgs) {
@@ -259,10 +260,42 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
+   * Adds an action configuration to the parser.
+   *
+   * @param config - The action configuration.
+   *
+   * @returns The updated parser.
+   */
+  addAction(config: ActionConfig): ArgsParserInterface {
+    return this.addArgument({
+      ...config,
+      type: 'boolean',
+      const: true,
+    });
+  }
+
+  /**
+   * Adds a version argument to the parser.
+   *
+   * @param name - The name of the version argument.
+   * @param alias - The alias of the version argument.
+   *
+   * @returns The updated parser.
+   */
+  addVersion(name: string = '--version', alias: string | undefined = '-v'): ArgsParser {
+    return this.addArgument({
+      name,
+      alias,
+      type: 'boolean',
+      const: true,
+      action: 'version',
+    });
+  }
+
+  /**
    * Parses the given argument string and returns a collection of parsed arguments.
    *
    * @param argv - The argument string.
-   * @param exitOnError - Whether to exit on stop exception.
    *
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    *
@@ -300,19 +333,29 @@ export class ArgsParser implements ArgsParserInterface {
    * console.log(parsedArgs.get('--values')); // ['a', 'b', 'c']
    * ```
    */
-  public parse(argv: string[], exitOnError: boolean = true): ParsedArgumentsCollection {
+  public parse(argv: string[]): ParsedArgumentsCollection {
     // Initialize a new collection to store the parsed arguments with their values
     const result = new ParsedArgumentsCollection();
 
     // Parse the input arguments array into positional and optional parts
     let [parsedPositional, parsedOptions] = parseArgsArray(argv);
 
+    let error: ArgsParserError | undefined = undefined;
+
     try {
-      this.processSystemOptions(parsedOptions, result);
       this.processPositionalArgs(parsedPositional, this.getPositionalArguments(), result);
-      this.processOptions(parsedOptions, this.getOptionArguments(false), result);
     } catch (e) {
-      this.processError(e, exitOnError);
+      error = this.processException(e, error);
+    }
+
+    try {
+      this.processOptions(parsedOptions, this.getOptionArguments(), result);
+    } catch (e) {
+      error = this.processException(e, error);
+    }
+
+    if (error) {
+      this.exit(1, error);
     }
 
     return result;
@@ -366,37 +409,6 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
-   * Processes system options.
-   *
-   * @param parsedValuesMap - A map of parsed optional argument keys to their string values.
-   * @param result - The collection where parsed arguments will be added.
-   *
-   * @returns The number of optional arguments processed.
-   */
-  private processSystemOptions(
-    parsedValuesMap: Record<string, string[]>,
-    result: ParsedArgumentsCollection,
-  ): number {
-    const toAddMap = new Map<string, unknown>();
-
-    // Retrieve the optional argument configurations map
-    const argConfigsMap = this.getArgConfigMap(Object.keys(parsedValuesMap));
-
-    // Process options
-    for (const [key, value] of Object.entries(parsedValuesMap)) {
-      const argConfig = argConfigsMap[key]!;
-      toAddMap.set(argConfig.name, this.processArgValue(value, argConfig, true));
-    }
-
-    // Add the parsed arguments from the buffer to the result
-    for (const [key, value] of toAddMap) {
-      result.add(key, value);
-    }
-
-    return toAddMap.size;
-  }
-
-  /**
    * Processes optional arguments.
    *
    * @param parsedValuesMap - A map of parsed optional argument keys to their string values.
@@ -440,22 +452,30 @@ export class ArgsParser implements ArgsParserInterface {
     return toAddMap.size;
   }
 
-  /**
-   * Processes an error and outputs an error message to the console if the error is an error object.
-   * If `exitOnError` is `true`, the process will exit with a non-zero status code.
-   *
-   * @param e - The error to process.
-   * @param exitOnError - Whether the process should exit if `e` is an error object.
-   */
-  private processError(e: unknown, exitOnError: boolean) {
-    if (exitOnError) {
-      if (!(e instanceof StopException) && (e instanceof Error)) {
+  private processException(e: unknown, previous: ArgsParserError | undefined): ArgsParserError {
+    if (e instanceof StopException) {
+      this.exit(0, e);
+    }
+
+    if (previous) {
+      return previous;
+    }
+
+    if (e instanceof ArgsParserError) {
+      return e;
+    }
+
+    throw e;
+  }
+
+  private exit(exitCode: number, e: ArgsParserException) {
+    if (process !== undefined) {
+      if (exitCode !== 0) {
         console.error(`Error: ${e.message}`);
       }
-      fail();
-    } else {
-      throw e;
+      process.exit(exitCode);
     }
+    throw e;
   }
 
   /**
@@ -475,7 +495,7 @@ export class ArgsParser implements ArgsParserInterface {
     const result = caster.cast(value, isset);
     validator.validateAfterCast(result);
 
-    if (argConfig.action !== undefined) {
+    if (isset && argConfig.action !== undefined) {
       this.processAction(argConfig, result);
     }
 
@@ -510,40 +530,8 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @returns An array of optional argument configurations.
    */
-  private getOptionArguments(withSystemOptions: boolean): ArgConfigExtended[] {
-    return [
-      ...this.argsMap.values(),
-      ...(withSystemOptions ? this.getSystemOptions() : []),
-    ].filter((x) => !x.positional);
-  }
-
-  /**
-   * Retrieves the system options, which are added by the parser.
-   *
-   * @returns An array of system option configurations.
-   */
-  private getSystemOptions(): ArgConfigExtended[] {
-    const result: ArgConfigExtended[] = [];
-    if (this.config.version) {
-      result.push(this.extendArgConfig({
-        name: '--version',
-        description: 'Show version',
-        type: 'boolean',
-        const: true,
-        action: 'version',
-      }));
-    }
-
-    result.push(this.extendArgConfig({
-      name: '--help',
-      alias: '-h',
-      description: 'Show help',
-      type: 'boolean',
-      const: true,
-      action: 'help',
-    }));
-
-    return result;
+  private getOptionArguments(): ArgConfigExtended[] {
+    return [...this.argsMap.values()].filter((x) => !x.positional);
   }
 
   /**
@@ -552,12 +540,7 @@ export class ArgsParser implements ArgsParserInterface {
    * @returns A set of used argument names and aliases.
    */
   private getUsedArgs(): Set<string> {
-    const systemOptions = this.getSystemOptions();
-    return new Set([
-      ...this.usedArgs,
-      ...systemOptions.map((x) => x.name),
-      ...systemOptions.filter((x) => x.alias !== undefined).map((x) => x.alias!),
-    ]);
+    return new Set(this.usedArgs);
   }
 
   /**

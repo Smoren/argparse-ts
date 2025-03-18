@@ -107,6 +107,30 @@ export type ArgConfig = {
 }
 
 /**
+ * Configuration for an action used with the argument parser.
+ *
+ * @category Types
+ */
+export type ActionConfig = {
+  /**
+   * The name of the action.
+   */
+  name: string;
+  /**
+   * An optional alias for the action.
+   */
+  alias?: string;
+  /**
+   * A description of the action.
+   */
+  description?: string;
+  /**
+   * The action to be performed.
+   */
+  action: Action;
+}
+
+/**
  * ArgConfig extension.
  *
  * @category Types
@@ -201,14 +225,21 @@ export interface ArgsParserInterface {
    */
   addArgument(config: ArgConfig): ArgsParserInterface;
   /**
+   * Adds an action configuration to the parser.
+   *
+   * @param config - The action configuration.
+   *
+   * @returns The updated parser.
+   */
+  addAction(config: ActionConfig): ArgsParserInterface;
+  /**
    * Parses the given argument string and returns a collection of parsed arguments.
    *
    * @param argv - The argument string.
-   * @param exitOnError - Whether to exit on error.
    *
    * @returns A ParsedArgumentsCollection containing the parsed arguments.
    */
-  parse(argv: string[], exitOnError?: boolean): ParsedArgumentsCollectionInterface;
+  parse(argv: string[]): ParsedArgumentsCollectionInterface;
 }
 
 /**
