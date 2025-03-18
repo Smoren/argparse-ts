@@ -233,6 +233,24 @@ export interface ArgsParserInterface {
    */
   addAction(config: ActionConfig): ArgsParserInterface;
   /**
+   * Adds a help action to the parser.
+   *
+   * @param name - The name of the help action.
+   * @param alias - The alias of the help action.
+   *
+   * @returns The updated parser.
+   */
+  addHelpAction(name: string, alias: string): ArgsParserInterface;
+  /**
+   * Adds a version action to the parser.
+   *
+   * @param name - The name of the version action.
+   * @param alias - The alias of the version action.
+   *
+   * @returns The updated parser.
+   */
+  addVersionAction(name: string, alias: string): ArgsParserInterface;
+  /**
    * Parses the given argument string and returns a collection of parsed arguments.
    *
    * @param argv - The argument string.

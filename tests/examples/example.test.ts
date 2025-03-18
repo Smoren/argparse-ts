@@ -257,10 +257,10 @@ it('Sixth Test', async () => {
     version: '1.0.0',
   });
   parser.addArgument({ name: 'my-first-argument', type: 'string' });
-  parser.addAction({ name: '--version', alias: '-V', action: 'version', description: 'Show version and exit' });
-  parser.addAction({ name: '--help', alias: '-h', action: 'help', description: 'Show help and exit' });
+  parser.addHelpAction();
+  parser.addVersionAction();
 
-  const argsString: string[] = ['h'];
+  const argsString: string[] = ['test'];
   const parsedArgs = parser.parse(argsString);
 
   console.log(parsedArgs.options);

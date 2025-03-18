@@ -266,7 +266,7 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @returns The updated parser.
    */
-  addAction(config: ActionConfig): ArgsParserInterface {
+  addAction(config: ActionConfig): ArgsParser {
     return this.addArgument({
       ...config,
       type: 'boolean',
@@ -275,20 +275,36 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   /**
-   * Adds a version argument to the parser.
+   * Adds a help action to the parser.
    *
-   * @param name - The name of the version argument.
-   * @param alias - The alias of the version argument.
+   * @param name - The name of the help action.
+   * @param alias - The alias of the help action.
    *
    * @returns The updated parser.
    */
-  addVersion(name: string = '--version', alias: string | undefined = '-v'): ArgsParser {
-    return this.addArgument({
-      name,
-      alias,
-      type: 'boolean',
-      const: true,
+  addHelpAction(name?: string, alias?: string): ArgsParser {
+    return this.addAction({
+      name: name ?? '--help',
+      alias: (name === undefined && alias === undefined) ? '-h' : alias,
+      action: 'help',
+      description: 'Show help and exit',
+    });
+  }
+
+  /**
+   * Adds a version action to the parser.
+   *
+   * @param name - The name of the version action.
+   * @param alias - The alias of the version action.
+   *
+   * @returns The updated parser.
+   */
+  addVersionAction(name?: string, alias?: string): ArgsParser {
+    return this.addAction({
+      name: name ?? '--version',
+      alias: (name === undefined && alias === undefined) ? '-v' : alias,
       action: 'version',
+      description: 'Show version and exit',
     });
   }
 
