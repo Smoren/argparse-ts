@@ -260,10 +260,19 @@ it('Sixth Test', async () => {
   parser.addHelpAction();
   parser.addVersionAction();
 
-  const argsString: string[] = ['test'];
-  const parsedArgs = parser.parse(argsString);
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+  const mockExit = jest.spyOn(process, 'exit')
+    .mockImplementation((number) => { throw new Error('process.exit: ' + number); });
 
-  console.log(parsedArgs.options);
+  expect(() => {
+    const argsString: string[] = ['--help'];
+    parser.parse(argsString);
+  }).toThrow();
+  expect(mockExit).toHaveBeenCalledWith(0);
+  expect(logSpy).toHaveBeenCalledWith(parser.help);
+
+  mockExit.mockRestore();
+  logSpy.mockRestore();
 });
 
 it('Seventh Test', async () => {

@@ -182,8 +182,11 @@ export class ArgsParser implements ArgsParserInterface {
    * @param config - Configuration options for the parser.
    * @param args - An array of argument configurations.
    */
-  constructor(config: ArgParserConfig,args: ArgConfig[] = []) {
-    this.config = config;
+  constructor(config: ArgParserConfig, args: ArgConfig[] = []) {
+    this.config = {
+      ...config,
+      exitOnException: config.exitOnException ?? true,
+    };
     for (const arg of args) {
       this.addArgument(arg);
     }
@@ -371,7 +374,7 @@ export class ArgsParser implements ArgsParserInterface {
     }
 
     if (error) {
-      this.exit(1, error);
+      this.processExit(1, error);
     }
 
     return result;
@@ -470,7 +473,7 @@ export class ArgsParser implements ArgsParserInterface {
 
   private processException(e: unknown, previous: ArgsParserError | undefined): ArgsParserError {
     if (e instanceof StopException) {
-      this.exit(0, e);
+      this.processExit(0, e);
     }
 
     if (previous) {
@@ -484,8 +487,8 @@ export class ArgsParser implements ArgsParserInterface {
     throw e;
   }
 
-  private exit(exitCode: number, e: ArgsParserException) {
-    if (process !== undefined) {
+  private processExit(exitCode: number, e: ArgsParserException) {
+    if (process !== undefined && this.config.exitOnException) {
       if (exitCode !== 0) {
         console.error(`Error: ${e.message}`);
       }
