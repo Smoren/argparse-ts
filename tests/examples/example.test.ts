@@ -1,5 +1,7 @@
 import { it, expect } from "@jest/globals";
 import { ArgsParser } from "../../src";
+// @ts-ignore
+import { createConsoleErrorSpy, createConsoleLogSpy, createExitSpy, usingSpies } from "../utils";
 
 it('Example Test', async () => {
   const parser = new ArgsParser({
@@ -260,19 +262,50 @@ it('Sixth Test', async () => {
   parser.addHelpAction();
   parser.addVersionAction();
 
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-  const mockExit = jest.spyOn(process, 'exit')
-    .mockImplementation((number) => { throw new Error('process.exit: ' + number); });
+  usingSpies([createExitSpy, createConsoleLogSpy], (exitSpy, consoleLogSpy) => {
+    expect(() => {
+      const argsString: string[] = ['--help'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(consoleLogSpy).toHaveBeenCalledWith(parser.help);
+  });
 
-  expect(() => {
-    const argsString: string[] = ['--help'];
-    parser.parse(argsString);
-  }).toThrow();
-  expect(mockExit).toHaveBeenCalledWith(0);
-  expect(logSpy).toHaveBeenCalledWith(parser.help);
+  usingSpies([createExitSpy, createConsoleLogSpy], (exitSpy, consoleLogSpy) => {
+    expect(() => {
+      const argsString: string[] = ['-h'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(consoleLogSpy).toHaveBeenCalledWith(parser.help);
+  });
 
-  mockExit.mockRestore();
-  logSpy.mockRestore();
+  usingSpies([createExitSpy, createConsoleLogSpy], (exitSpy, consoleLogSpy) => {
+    expect(() => {
+      const argsString: string[] = ['--version'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(consoleLogSpy).toHaveBeenCalledWith('1.0.0');
+  });
+
+  usingSpies([createExitSpy, createConsoleLogSpy], (exitSpy, consoleLogSpy) => {
+    expect(() => {
+      const argsString: string[] = ['-v'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(consoleLogSpy).toHaveBeenCalledWith('1.0.0');
+  });
+
+  usingSpies([createExitSpy, createConsoleErrorSpy], (exitSpy, consoleErrorSpy) => {
+    expect(() => {
+      const argsString: string[] = ['-h123'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error: The following arguments are required: my-first-argument');
+  });
 });
 
 it('Seventh Test', async () => {
