@@ -4,8 +4,11 @@ type SpyFactory = () => SpyInstance;
 
 export function usingSpies(factories: SpyFactory[], action: (...spies: SpyInstance[]) => void) {
   const spies = factories.map(context => context());
-  action(...spies);
-  spies.forEach(spy => spy.mockRestore());
+  try {
+    action(...spies);
+  } finally {
+    spies.forEach(spy => spy.mockRestore());
+  }
 }
 
 export function createExitSpy() {

@@ -511,28 +511,26 @@ export class ArgsParser implements ArgsParserInterface {
     const caster = createValueCaster(argConfig);
 
     validator.validateBeforeCast(value, isset);
-    const result = caster.cast(value, isset);
+    let result = caster.cast(value, isset);
     validator.validateAfterCast(result);
 
     if (isset && argConfig.action !== undefined) {
-      this.processAction(argConfig, result);
+      result = this.processAction(argConfig, result);
     }
 
     return result;
   }
 
-  private processAction(config: ArgConfigExtended, value: unknown) {
+  private processAction(config: ArgConfigExtended, value: unknown): unknown {
     switch (true) {
       case config.action === 'help':
-        helpAction(value, this);
-        break;
+        return helpAction(value, this);
       case config.action === 'version':
-        versionAction(value, this);
-        break;
+        return versionAction(value, this);
       case (typeof config.action === 'function'):
-        config.action(value, this);
-        break;
+        return config.action(value, this);
     }
+    return value;
   }
 
   /**
