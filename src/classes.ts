@@ -525,7 +525,7 @@ export class ArgsParser implements ArgsParserInterface {
       case (typeof config.action === 'function'):
         return config.action(value, parsed, this);
     }
-    return value;
+    return value; // TODO maybe throw unknown action
   }
 
   /**
