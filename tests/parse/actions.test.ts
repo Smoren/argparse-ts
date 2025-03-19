@@ -602,5 +602,30 @@ function dataProviderForArgConfigCustomAction(): [ArgConfig[], string[], Record<
         'option-argument': '[value]',
       },
     ],
+    [
+      [{
+        name: 'positional',
+        type: 'number',
+      }, {
+        name: '--option',
+        alias: '-o',
+        type: 'number',
+      }, {
+        name: '--action',
+        type: 'number',
+        default: 1,
+        action: (value, parsed) => {
+          return Number(value) + Number(parsed.get('positional')) + Number(parsed.get('--option'));
+        },
+      }],
+      ['10', '--option', '5', '--action', '3'],
+      {
+        'positional': 10,
+      },
+      {
+        'option': 5,
+        'action': 18,
+      },
+    ],
   ];
 }

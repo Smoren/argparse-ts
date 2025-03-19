@@ -1,3 +1,5 @@
+import { ParsedArgumentsCollection } from "./classes";
+
 /**
  * Represents the type of argument.
  *
@@ -27,7 +29,7 @@ export type PredefinedAction = 'version' | 'help';
  *
  * @category Types
  */
-export type ActionFunction = ((value: unknown, parser: ArgsParserInterface) => void);
+export type ActionFunction = ((value: unknown, parsed: ParsedArgumentsCollection, parser: ArgsParserInterface) => void);
 
 /**
  * An action that can be used with the argument parser.

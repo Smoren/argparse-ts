@@ -394,7 +394,7 @@ export class ArgsParser implements ArgsParserInterface {
     argConfigs: ArgConfigExtended[],
     result: ParsedArgumentsCollection,
   ): number {
-    const toAddMap = new Map<string, unknown>();
+    let count = 0;
 
     // Reverse the parsed positional arguments for easier processing
     parsedValues = [...parsedValues].reverse();
@@ -412,19 +412,16 @@ export class ArgsParser implements ArgsParserInterface {
       // Read the correct number of positional arguments
       const value = this.readPositionalArgValues(parsedValues, argConfig, remainingArgConfigs);
 
-      // Add the parsed argument to the result buffer
-      toAddMap.set(argConfig.name, this.processArgValue(value, argConfig, value.length > 0));
+      // Add the parsed argument to the result
+      result.add(argConfig.name, this.processArgValue(value, argConfig, result, value.length > 0));
+
+      ++count;
     }
 
     // Check if all positional arguments were used
     checkAllPositionalValuesUsed(parsedValues);
 
-    // Add the parsed arguments from the buffer to the result
-    for (const [key, value] of toAddMap) {
-      result.add(key, value);
-    }
-
-    return toAddMap.size;
+    return count;
   }
 
   /**
@@ -441,7 +438,7 @@ export class ArgsParser implements ArgsParserInterface {
     argConfigs: ArgConfigExtended[],
     result: ParsedArgumentsCollection,
   ): number {
-    const toAddMap = new Map<string, unknown>();
+    let count = 0;
 
     const argConfigsSet = new Set(argConfigs);
 
@@ -454,21 +451,18 @@ export class ArgsParser implements ArgsParserInterface {
     // Process options
     for (const [key, value] of Object.entries(parsedValuesMap)) {
       const argConfig = argConfigsMap[key]!;
-      toAddMap.set(argConfig.name, this.processArgValue(value, argConfig, true));
+      result.add(argConfig.name, this.processArgValue(value, argConfig, result, true));
       argConfigsSet.delete(argConfig);
+      ++count;
     }
 
     // Add default values for optional arguments that were not set
     for (const argConfig of argConfigsSet) {
-      toAddMap.set(argConfig.name, this.processArgValue([], argConfig, false));
+      result.add(argConfig.name, this.processArgValue([], argConfig, result, false));
+      ++count;
     }
 
-    // Add the parsed arguments from the buffer to the result
-    for (const [key, value] of toAddMap) {
-      result.add(key, value);
-    }
-
-    return toAddMap.size;
+    return count;
   }
 
   private processException(e: unknown, previous: ArgsParserError | undefined): ArgsParserError {
@@ -502,11 +496,12 @@ export class ArgsParser implements ArgsParserInterface {
    *
    * @param value - The value(s) being processed.
    * @param argConfig - The configuration of the argument.
+   * @param parsed - The parsed result
    * @param isset - Whether the argument is set.
    *
    * @returns The processed value, or undefined if the argument is not set.
    */
-  private processArgValue(value: string[], argConfig: ArgConfigExtended, isset: boolean): unknown {
+  private processArgValue(value: string[], argConfig: ArgConfigExtended, parsed: ParsedArgumentsCollection, isset: boolean): unknown {
     const validator = createValueValidator(argConfig);
     const caster = createValueCaster(argConfig);
 
@@ -515,20 +510,20 @@ export class ArgsParser implements ArgsParserInterface {
     validator.validateAfterCast(result);
 
     if (isset && argConfig.action !== undefined) {
-      result = this.processAction(argConfig, result);
+      result = this.processAction(argConfig, parsed, result);
     }
 
     return result;
   }
 
-  private processAction(config: ArgConfigExtended, value: unknown): unknown {
+  private processAction(config: ArgConfigExtended, parsed: ParsedArgumentsCollection, value: unknown): unknown {
     switch (true) {
       case config.action === 'help':
-        return helpAction(value, this);
+        return helpAction(value, parsed, this);
       case config.action === 'version':
-        return versionAction(value, this);
+        return versionAction(value, parsed, this);
       case (typeof config.action === 'function'):
-        return config.action(value, this);
+        return config.action(value, parsed, this);
     }
     return value;
   }
