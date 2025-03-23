@@ -20,6 +20,7 @@ import {
   ArgumentNameError,
   ArgumentValueError,
   StopException,
+  isExceptionInstanceOf,
 } from "./exceptions";
 
 export type {
@@ -41,4 +42,5 @@ export {
   ArgumentNameError,
   ArgumentValueError,
   StopException,
+  isExceptionInstanceOf,
 }
