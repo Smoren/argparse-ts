@@ -375,6 +375,11 @@ class ArrayValueValidator extends BaseValueValidator {
    * @throws ArgumentValueError - If any of the item values are invalid.
    */
   public validateBeforeCast(value: string[], isset: boolean): void {
+    if (isset && this.argConfig.valuesCount !== undefined && value.length !== this.argConfig.valuesCount) {
+      throw new ArgumentValueError(
+        `Argument ${formatArgNameWithAlias(this.argConfig)} expects ${this.argConfig.valuesCount} values, but ${value.length} given`
+      );
+    }
     super.validateBeforeCast(value, isset);
     (value ?? []).forEach((v) => this.itemValidator.validateBeforeCast([v], isset));
   }

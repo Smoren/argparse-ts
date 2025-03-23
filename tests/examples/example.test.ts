@@ -325,3 +325,55 @@ it('Seventh Test', async () => {
 
   console.log(parsedArgs.options);
 });
+
+it('Eighth Test', async () => {
+  const parser = new ArgsParser({
+    name: 'Test',
+    version: '1.0.0',
+  });
+  parser.addArgument({ name: '--array', type: 'number', nargs: 3 });
+  parser.addHelpAction();
+  parser.addVersionAction();
+
+  usingSpies([createExitSpy, createConsoleErrorSpy], (exitSpy, consoleErrorSpy) => {
+    expect(() => {
+      const argsString: string[] = ['--array'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Error: Argument --array expects 3 values, but 0 given`);
+  });
+
+  usingSpies([createExitSpy, createConsoleErrorSpy], (exitSpy, consoleErrorSpy) => {
+    expect(() => {
+      const argsString: string[] = ['--array', '1'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Error: Argument --array expects 3 values, but 1 given`);
+  });
+
+  usingSpies([createExitSpy, createConsoleErrorSpy], (exitSpy, consoleErrorSpy) => {
+    expect(() => {
+      const argsString: string[] = ['--array', '1', '2'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Error: Argument --array expects 3 values, but 2 given`);
+  });
+
+  usingSpies([createExitSpy, createConsoleErrorSpy], (exitSpy, consoleErrorSpy) => {
+    expect(() => {
+      const argsString: string[] = ['--array', '1', '2', '3', '4'];
+      parser.parse(argsString);
+    }).toThrow();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(`Error: Argument --array expects 3 values, but 4 given`);
+  });
+
+  {
+    const argsString: string[] = ['--array', '1', '2', '3'];
+    const result = parser.parse(argsString);
+    expect(result.get<number[]>('--array')).toEqual([1, 2, 3]);
+  }
+});
