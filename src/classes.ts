@@ -17,7 +17,7 @@ import {
 } from "./utils/validation";
 import { createValueCaster } from "./utils/cast";
 import { helpAction, versionAction } from "./utils/actions";
-import { ArgsParserError, ArgsParserException, StopException } from "./exceptions";
+import { ArgsParserError, ArgsParserException, isExceptionInstanceOf, StopException } from "./exceptions";
 
 /**
  * A collection of parsed arguments.
@@ -466,16 +466,16 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   private processException(e: unknown, previous: ArgsParserError | undefined): ArgsParserError {
-    if (e instanceof StopException) {
-      this.processExit(0, e);
+    if (isExceptionInstanceOf(e, StopException)) {
+      this.processExit(0, e as StopException);
     }
 
     if (previous) {
       return previous;
     }
 
-    if (e instanceof ArgsParserError) {
-      return e;
+    if (isExceptionInstanceOf(e, ArgsParserError)) {
+      return e as ArgsParserError;
     }
 
     throw e;
