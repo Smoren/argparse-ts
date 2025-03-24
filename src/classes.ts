@@ -457,7 +457,7 @@ export class ArgsParser implements ArgsParserInterface {
     }
 
     // Add default values for optional arguments that were not set
-    for (const argConfig of argConfigsSet) {
+    for (const argConfig of [...argConfigsSet].filter((x) => 'default' in x)) {
       result.add(argConfig.name, this.processArgValue([], argConfig, result, false));
       ++count;
     }
