@@ -377,3 +377,14 @@ it('Eighth Test', async () => {
     expect(result.get<number[]>('--array')).toEqual([1, 2, 3]);
   }
 });
+
+it('Tenth Test', async () => {
+  const parser = new ArgsParser({
+    name: 'Test',
+  });
+  parser.addHelpAction();
+
+  const parsedArgs = parser.parse([]);
+
+  console.log(parsedArgs.options);
+});
