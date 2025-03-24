@@ -383,6 +383,7 @@ it('Tenth Test', async () => {
     name: 'Test',
   });
   parser.addHelpAction();
+  parser.addVersionAction();
 
   const parsedArgs = parser.parse([]);
 
