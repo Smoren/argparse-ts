@@ -676,6 +676,7 @@ export class ArgsParser implements ArgsParserInterface {
 export class Router implements RouterInterface {
   private readonly parser: ArgsParserInterface;
   private actionToRun?: () => void;
+  private actionToRunAsync?: () => Promise<void>;
   private passedArgv: string[] = [];
 
   /**
@@ -697,6 +698,7 @@ export class Router implements RouterInterface {
           name: `${config.name} ${key}`,
         });
         this.actionToRun = () => routes[key]?.(actionArgsParser, this.passedArgv.slice(1));
+        this.actionToRunAsync = async () => await routes[key]?.(actionArgsParser, this.passedArgv.slice(1));
         throw new RouterStopException();
       },
     });
@@ -715,6 +717,20 @@ export class Router implements RouterInterface {
       this.parser.parse(this.passedArgv);
     } catch (e) {
       this.actionToRun!();
+    }
+  }
+
+  /**
+   * Runs the router asynchronously.
+   *
+   * @param argv - The argument string.
+   */
+  async runAsync(argv?: string[]): Promise<void> {
+    try {
+      this.passedArgv = argv ?? process.argv.slice(2);
+      this.parser.parse(this.passedArgv);
+    } catch (e) {
+      await this.actionToRunAsync!();
     }
   }
 }

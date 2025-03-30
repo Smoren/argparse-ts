@@ -332,4 +332,10 @@ export interface RouterInterface {
    * @param argv - The argument string.
    */
   run(argv?: string[]): void;
+  /**
+   * Runs the router asynchronously.
+   *
+   * @param argv - The argument string.
+   */
+  runAsync(argv?: string[]): Promise<void>;
 }

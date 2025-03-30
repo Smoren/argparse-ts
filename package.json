@@ -1,6 +1,6 @@
 {
   "name": "argparse-ts",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Modern CLI arguments parser for node.js",
   "license": "MIT",
   "repository": {
