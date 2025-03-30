@@ -6,11 +6,13 @@ import type {
   ArgParserConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
+  RouterInterface,
 } from "./types";
 
 import {
   ArgsParser,
   ParsedArgumentsCollection,
+  Router,
 } from "./classes";
 
 import {
@@ -20,6 +22,7 @@ import {
   ArgumentNameError,
   ArgumentValueError,
   StopException,
+  RouterStopException,
   isExceptionInstanceOf,
 } from "./exceptions";
 
@@ -31,16 +34,19 @@ export type {
   ArgParserConfig,
   ParsedArgumentsCollectionInterface,
   ArgsParserInterface,
+  RouterInterface,
 };
 
 export {
   ArgsParser,
   ParsedArgumentsCollection,
+  Router,
   ArgsParserException,
   ArgsParserError,
   ArgumentConfigError,
   ArgumentNameError,
   ArgumentValueError,
   StopException,
+  RouterStopException,
   isExceptionInstanceOf,
 }

@@ -73,6 +73,32 @@ export class StopException extends ArgsParserException {
 }
 
 /**
+ * Base exception class for all errors thrown by the router.
+ *
+ * @category Exceptions
+ */
+export class RouterException extends Error {
+  public readonly names: string[] = [];
+
+  constructor(message?: string) {
+    super(message);
+    this.names.push('RouterException');
+  }
+}
+
+/**
+ * Thrown when the router should stop processing arguments.
+ *
+ * @category Exceptions
+ */
+export class RouterStopException extends ArgsParserException {
+  constructor(message?: string) {
+    super(message);
+    this.names.push('RouterStopException');
+  }
+}
+
+/**
  * Checks if the given exception is an instance of the specified class.
  *
  * @param e - The exception to check.

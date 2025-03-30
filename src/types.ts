@@ -41,6 +41,11 @@ export type ActionFunction = ((value: unknown, parsed: ParsedArgumentsCollection
 export type Action = PredefinedAction | ActionFunction;
 
 /**
+ * Router action function.
+ */
+export type RouterAction = (parser: ArgsParserInterface, args: string[]) => (void | Promise<void>);
+
+/**
  * Configuration for the argument parser.
  *
  * @category Types
@@ -250,7 +255,7 @@ export interface ArgsParserInterface {
    *
    * @returns The updated parser.
    */
-  addHelpAction(name: string, alias: string): ArgsParserInterface;
+  addHelpAction(name?: string, alias?: string): ArgsParserInterface;
   /**
    * Adds a version action to the parser.
    *
@@ -259,7 +264,7 @@ export interface ArgsParserInterface {
    *
    * @returns The updated parser.
    */
-  addVersionAction(name: string, alias: string): ArgsParserInterface;
+  addVersionAction(name?: string, alias?: string): ArgsParserInterface;
   /**
    * Parses the given argument string and returns a collection of parsed arguments.
    *
@@ -312,4 +317,19 @@ export interface ValueCasterInterface<T> {
    * @returns The casted value.
    */
   cast(value: string[], isset: boolean): T | undefined;
+}
+
+/**
+ * Interface for a router.
+ *
+ * @category Interfaces
+ * @category Router
+ */
+export interface RouterInterface {
+  /**
+   * Runs the router.
+   *
+   * @param argv - The argument string.
+   */
+  run(argv?: string[]): void;
 }

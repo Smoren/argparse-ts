@@ -4,7 +4,7 @@ import {
   ArgConfigExtended,
   ArgParserConfig,
   ArgsParserInterface,
-  ParsedArgumentsCollectionInterface,
+  ParsedArgumentsCollectionInterface, RouterAction, RouterInterface,
 } from "./types";
 import { buildArgExtraConfig, parseArgsArray } from "./utils/utils";
 import { convertToTable, formatArgHelp, tabTableRows } from "./utils/help";
@@ -17,7 +17,13 @@ import {
 } from "./utils/validation";
 import { createValueCaster } from "./utils/cast";
 import { helpAction, versionAction } from "./utils/actions";
-import { ArgsParserError, ArgsParserException, isExceptionInstanceOf, StopException } from "./exceptions";
+import {
+  ArgsParserError,
+  ArgsParserException,
+  isExceptionInstanceOf,
+  RouterStopException,
+  StopException,
+} from "./exceptions";
 
 /**
  * A collection of parsed arguments.
@@ -657,6 +663,58 @@ export class ArgsParser implements ArgsParserInterface {
       ...config,
       exitOnError: config.exitOnError ?? true,
       exitOnStop: config.exitOnStop ?? true,
+    }
+  }
+}
+
+/**
+ * A class representing a router for command-line arguments.
+ *
+ * @category Classes
+ * @category Router
+ */
+export class Router implements RouterInterface {
+  private readonly parser: ArgsParserInterface;
+  private actionToRun?: () => void;
+  private passedArgv: string[] = [];
+
+  /**
+   * Creates a new Router instance.
+   *
+   * @param config - The configuration for the router.
+   * @param routes - The routes for the router.
+   */
+  constructor(config: ArgParserConfig, routes: Record<string, RouterAction>) {
+    this.parser = new ArgsParser(config);
+    this.parser.addArgument({
+      name: 'action',
+      type: 'string',
+      description: 'Action to run',
+      choices: Object.keys(routes),
+      action: (value) => {
+        const key = value as keyof typeof routes;
+        const actionArgsParser = new ArgsParser({
+          name: `${config.name} ${key}`,
+        });
+        this.actionToRun = () => routes[key]?.(actionArgsParser, this.passedArgv.slice(1));
+        throw new RouterStopException();
+      },
+    });
+    this.parser.addHelpAction();
+    this.parser.addVersionAction();
+  }
+
+  /**
+   * Runs the router.
+   *
+   * @param argv - The argument string.
+   */
+  run(argv?: string[]) {
+    try {
+      this.passedArgv = argv ?? process.argv.slice(2);
+      this.parser.parse(this.passedArgv);
+    } catch (e) {
+      this.actionToRun!();
     }
   }
 }
