@@ -55,9 +55,13 @@ export type ArgParserConfig = {
    */
   version?: string;
   /**
-   * Whether to exit the program on exception (true by default).
+   * Whether to exit the program on error (true by default).
    */
-  exitOnException?: boolean;
+  exitOnError?: boolean;
+  /**
+   * Whether to exit the program on StopException (true by default).
+   */
+  exitOnStop?: boolean;
 }
 
 /**

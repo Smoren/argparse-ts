@@ -183,10 +183,7 @@ export class ArgsParser implements ArgsParserInterface {
    * @param args - An array of argument configurations.
    */
   constructor(config: ArgParserConfig, args: ArgConfig[] = []) {
-    this.config = {
-      ...config,
-      exitOnException: config.exitOnException ?? true,
-    };
+    this.config = this.formatConfig(config);
     for (const arg of args) {
       this.addArgument(arg);
     }
@@ -485,11 +482,14 @@ export class ArgsParser implements ArgsParserInterface {
   }
 
   private processExit(exitCode: number, e: ArgsParserException) {
-    if (process !== undefined && this.config.exitOnException) {
-      if (exitCode !== 0) {
-        console.error(`Error: ${e.message}`);
+    if (process !== undefined) {
+      if (exitCode === 0 && this.config.exitOnStop) {
+        process.exit(exitCode);
       }
-      process.exit(exitCode);
+      if (exitCode !== 0 && this.config.exitOnError) {
+        console.error(`Error: ${e.message}`);
+        process.exit(exitCode);
+      }
     }
     throw e;
   }
@@ -650,5 +650,13 @@ export class ArgsParser implements ArgsParserInterface {
 
     // Otherwise, read as many values as are available.
     return maxCurrentValuesCount;
+  }
+
+  private formatConfig(config: ArgParserConfig): ArgParserConfig {
+    return {
+      ...config,
+      exitOnError: config.exitOnError ?? true,
+      exitOnStop: config.exitOnStop ?? true,
+    }
   }
 }
