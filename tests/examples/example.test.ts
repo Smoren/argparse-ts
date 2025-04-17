@@ -389,3 +389,38 @@ it('Tenth Test', async () => {
 
   console.log(parsedArgs.options);
 });
+
+it('Eleventh Test', async () => {
+  const parser = new ArgsParser({
+    name: 'Test',
+    ignoreUnrecognized: true,
+  }, [
+    {
+      name: 'positional-first',
+      description: "My first positional argument",
+      type: 'string',
+      choices: ['test', 'dev', 'prod'],
+    },
+    {
+      name: '--optional-first',
+      alias: '-f',
+      description: "My first optional argument",
+      type: 'string',
+      nargs: '?',
+      choices: ['test', 'dev', 'prod'],
+      validator: (x: unknown) => String(x).length > 2,
+      required: true,
+    }
+  ]);
+
+  const argv = ['dev', 'other', 'another', '--optional-first', 'test', '--optional-other', '123', '--optional-another'];
+  const parsedArgs = parser.parse(argv);
+
+  expect(parsedArgs.positional).toEqual({
+    'positional-first': 'dev',
+  });
+
+  expect(parsedArgs.options).toEqual({
+    'optional-first': 'test',
+  });
+});

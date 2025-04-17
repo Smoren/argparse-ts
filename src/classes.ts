@@ -423,6 +423,10 @@ export class ArgsParser implements ArgsParserInterface {
 
     // Process options
     for (const [key, value] of Object.entries(parsedValuesMap)) {
+      if (argConfigsMap[key] === undefined) {
+        continue;
+      }
+
       const argConfig = argConfigsMap[key]!;
       result.add(argConfig.name, this.processArgValue(value, argConfig, result, true));
       argConfigsSet.delete(argConfig);
@@ -604,6 +608,11 @@ export class ArgsParser implements ArgsParserInterface {
    * @returns The number of arguments to read.
    */
   private getArgsCountToRead(argConfig: ArgConfigExtended, remainingArgConfigs: ArgConfigExtended[], values: string[]): number {
+    // If the argument is required and not multiple, read one value.
+    if (argConfig.required && !argConfig.multiple) {
+      return Math.min(1, values.length);
+    }
+
     // The total number of arguments that must be read by the remaining arguments.
     const minRemainingValuesCount = remainingArgConfigs.reduce((acc, x) => acc + x.minValuesCount, 0);
 
@@ -645,9 +654,8 @@ export class ArgsParser implements ArgsParserInterface {
  * @category Router
  */
 export class Router implements RouterInterface {
-  private readonly parser: ArgsParserInterface;
   private readonly routes: Record<string, RouterAction>;
-  private rawArgs: string[] = [];
+  private readonly parser: ArgsParserInterface;
 
   /**
    * Creates a new Router instance.
@@ -656,23 +664,16 @@ export class Router implements RouterInterface {
    * @param routes - The routes for the router.
    */
   constructor(config: ArgParserConfig, routes: Record<string, RouterAction>) {
-    config.ignoreUnrecognized = true;
     this.routes = routes;
-    this.parser = new ArgsParser(config);
+    this.parser = new ArgsParser({
+      ...config,
+      ignoreUnrecognized: true,
+    });
     this.parser.addArgument({
       name: 'action',
       type: 'string',
       description: 'Action to run',
       choices: Object.keys(routes),
-      action: (value) => {
-        const key = value as keyof typeof routes;
-        const actionArgsParser = new ArgsParser({
-          name: `${config.name} ${key}`,
-        });
-        this.actionToRun = () => routes[key]?.(actionArgsParser, this.passedArgv.slice(1));
-        this.actionToRunAsync = async () => await routes[key]?.(actionArgsParser, this.passedArgv.slice(1));
-        throw new RouterStopException();
-      },
     });
     this.parser.addHelpAction();
     this.parser.addVersionAction();
@@ -689,18 +690,10 @@ export class Router implements RouterInterface {
     const actionName = parsed.get<keyof typeof this.routes>('action');
 
     const actionArgsParser = new ArgsParser({
-      name: `${config.name} ${key}`,
+      name: `${this.parser.config.name} ${actionName}`,
     });
 
     this.routes[actionName](actionArgsParser, passedArgv.slice(1));
-
-
-    try {
-      this.passedArgv = argv ?? process.argv.slice(2);
-      this.parser.parse(this.passedArgv);
-    } catch (e) {
-      this.actionToRun!();
-    }
   }
 
   /**
@@ -709,11 +702,14 @@ export class Router implements RouterInterface {
    * @param argv - The argument string.
    */
   async runAsync(argv?: string[]): Promise<void> {
-    try {
-      this.passedArgv = argv ?? process.argv.slice(2);
-      this.parser.parse(this.passedArgv);
-    } catch (e) {
-      await this.actionToRunAsync!();
-    }
+    const passedArgv = argv ?? process.argv.slice(2);
+    const parsed = this.parser.parse(passedArgv);
+    const actionName = parsed.get<keyof typeof this.routes>('action');
+
+    const actionArgsParser = new ArgsParser({
+      name: `${this.parser.config.name} ${actionName}`,
+    });
+
+    await this.routes[actionName](actionArgsParser, passedArgv.slice(1));
   }
 }
