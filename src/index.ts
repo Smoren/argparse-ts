@@ -22,7 +22,6 @@ import {
   ArgumentNameError,
   ArgumentValueError,
   StopException,
-  RouterStopException,
   isExceptionInstanceOf,
 } from "./exceptions";
 
@@ -47,6 +46,5 @@ export {
   ArgumentNameError,
   ArgumentValueError,
   StopException,
-  RouterStopException,
   isExceptionInstanceOf,
 }

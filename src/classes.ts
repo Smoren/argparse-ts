@@ -20,9 +20,8 @@ import { helpAction, versionAction } from "./utils/actions";
 import {
   ArgsParserError,
   ArgsParserException,
-  isExceptionInstanceOf,
-  RouterStopException,
   StopException,
+  isExceptionInstanceOf,
 } from "./exceptions";
 
 /**
