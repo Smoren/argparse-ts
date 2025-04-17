@@ -67,6 +67,10 @@ export type ArgParserConfig = {
    * Whether to exit the program on StopException (true by default).
    */
   exitOnStop?: boolean;
+  /**
+   * Whether to ignore unrecognized arguments (false by default).
+   */
+  ignoreUnrecognized?: boolean;
 }
 
 /**

@@ -126,40 +126,6 @@ export class ParsedArgumentsCollection implements ParsedArgumentsCollectionInter
  * Parser for command-line arguments.
  *
  * @category Classes
- *
- * @example
- * ```
- * const parser = new ArgsParser([
- *    {
- *        name: 'action',
- *        description: 'Action to perform',
- *        type: 'string',
- *    },
- *    {
- *        name: '--flag',
- *        description: 'Flag',
- *        alias: '-f',
- *        type: 'boolean',
- *        const: true,
- *        default: false,
- *    },
- *    {
- *        name: '--values',
- *        description: 'Values',
- *        alias: '-v',
- *        type: 'string',
- *        nargs: '*',
- *        default: [],
- *    }
- * ]);
- *
- * const argv = ['make', '--flag', '-v', 'a', 'b', 'c'];
- * const parsedArgs = parser.parse(argv);
- *
- * console.log(parsedArgs.positional); // { action: 'make' }
- * console.log(parsedArgs.optional); // { flag: true, values: ['a', 'b', 'c'] }
- * console.log(parsedArgs.get('--values')); // ['a', 'b', 'c']
- * ```
  */
 export class ArgsParser implements ArgsParserInterface {
   /**
@@ -421,8 +387,10 @@ export class ArgsParser implements ArgsParserInterface {
       ++count;
     }
 
-    // Check if all positional arguments were used
-    checkAllPositionalValuesUsed(parsedValues);
+    if (!this.config.ignoreUnrecognized) {
+      // Check if all positional arguments were used
+      checkAllPositionalValuesUsed(parsedValues);
+    }
 
     return count;
   }
@@ -448,8 +416,10 @@ export class ArgsParser implements ArgsParserInterface {
     // Retrieve the optional argument configurations map
     const argConfigsMap = this.getArgConfigMap(Object.keys(parsedValuesMap));
 
-    // Check if all options were recognized
-    checkAllOptionsRecognized(parsedValuesMap, argConfigsMap);
+    if (!this.config.ignoreUnrecognized) {
+      // Check if all options were recognized
+      checkAllOptionsRecognized(parsedValuesMap, argConfigsMap);
+    }
 
     // Process options
     for (const [key, value] of Object.entries(parsedValuesMap)) {
@@ -663,6 +633,7 @@ export class ArgsParser implements ArgsParserInterface {
       ...config,
       exitOnError: config.exitOnError ?? true,
       exitOnStop: config.exitOnStop ?? true,
+      ignoreUnrecognized: config.ignoreUnrecognized ?? false,
     }
   }
 }
@@ -675,9 +646,8 @@ export class ArgsParser implements ArgsParserInterface {
  */
 export class Router implements RouterInterface {
   private readonly parser: ArgsParserInterface;
-  private actionToRun?: () => void;
-  private actionToRunAsync?: () => Promise<void>;
-  private passedArgv: string[] = [];
+  private readonly routes: Record<string, RouterAction>;
+  private rawArgs: string[] = [];
 
   /**
    * Creates a new Router instance.
@@ -686,6 +656,8 @@ export class Router implements RouterInterface {
    * @param routes - The routes for the router.
    */
   constructor(config: ArgParserConfig, routes: Record<string, RouterAction>) {
+    config.ignoreUnrecognized = true;
+    this.routes = routes;
     this.parser = new ArgsParser(config);
     this.parser.addArgument({
       name: 'action',
@@ -712,6 +684,17 @@ export class Router implements RouterInterface {
    * @param argv - The argument string.
    */
   run(argv?: string[]) {
+    const passedArgv = argv ?? process.argv.slice(2);
+    const parsed = this.parser.parse(passedArgv);
+    const actionName = parsed.get<keyof typeof this.routes>('action');
+
+    const actionArgsParser = new ArgsParser({
+      name: `${config.name} ${key}`,
+    });
+
+    this.routes[actionName](actionArgsParser, passedArgv.slice(1));
+
+
     try {
       this.passedArgv = argv ?? process.argv.slice(2);
       this.parser.parse(this.passedArgv);
